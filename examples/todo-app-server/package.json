@@ -1,0 +1,22 @@
+{
+    "name": "todo-app-server",
+    "version": "1.0.0",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "typecheck": "tsc",
+        "dev": "tsx src/index.ts"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "@apollo/server": "^4.12.1",
+        "graphql": "^16.11.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.15.19",
+        "tsx": "^4.19.4",
+        "typescript": "^5.8.3"
+    }
+}
