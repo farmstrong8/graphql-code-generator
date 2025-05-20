@@ -58,7 +58,7 @@ const resolvers = {
 const server = new ApolloServer({ typeDefs, resolvers });
 
 const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
+    listen: { port: 4000, path: "graphql" },
 });
 
-console.log(`🚀 Todo server ready at: ${url}`);
+console.log(`🚀 Todo server ready at: ${url}graphql`);
