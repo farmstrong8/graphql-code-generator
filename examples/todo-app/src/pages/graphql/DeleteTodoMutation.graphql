@@ -1,0 +1,3 @@
+mutation DeleteTodo($deleteTodoId: ID!) {
+    deleteTodo(id: $deleteTodoId)
+}

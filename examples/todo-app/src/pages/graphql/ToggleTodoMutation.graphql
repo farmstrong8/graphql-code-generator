@@ -1,0 +1,7 @@
+mutation ToggleTodo($toggleTodoId: ID!) {
+    toggleTodo(id: $toggleTodoId) {
+        id
+        title
+        completed
+    }
+}

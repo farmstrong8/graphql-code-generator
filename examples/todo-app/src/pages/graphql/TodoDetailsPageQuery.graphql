@@ -1,0 +1,7 @@
+query TodoDetailsPage($todoId: ID!) {
+    todo(id: $todoId) {
+        id
+        title
+        completed
+    }
+}

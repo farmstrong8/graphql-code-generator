@@ -1,4 +1,4 @@
-import { CodegenConfig } from "@graphql-codegen/cli";
+import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
     schema: "http://localhost:4000/graphql",
@@ -22,7 +22,11 @@ const config: CodegenConfig = {
                 useTypeImports: true,
                 addTypename: true,
             },
-            plugins: ["typescript-operations", "typescript-react-apollo"],
+            plugins: [
+                "typescript-operations",
+                "typescript-react-apollo",
+                "named-operations-object",
+            ],
         },
     },
 };
