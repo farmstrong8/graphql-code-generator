@@ -1,4 +1,5 @@
 import { Trash } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Todo } from "@/types.generated";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,16 +12,16 @@ interface TodoItemProps {
 
 export const TodoItem = ({ todo, onToggle, onDelete }: TodoItemProps) => {
     return (
-        <div className="flex items-center justify-between p-3 bg-white border rounded-md shadow-sm">
-            <div className="flex items-center space-x-3">
-                <Checkbox
-                    id={`todo-${todo.id}`}
-                    checked={todo.completed}
-                    onCheckedChange={() => onToggle(todo.id)}
-                />
+        <div className="grid items-center grid-cols-[36px_1fr_36px] gap-2 p-3 bg-white border rounded-md shadow-sm">
+            <Checkbox
+                id={`todo-${todo.id}`}
+                checked={todo.completed}
+                onCheckedChange={() => onToggle(todo.id)}
+            />
+            <Link to={`/todos/${todo.id}`} className="w-full">
                 <label
                     htmlFor={`todo-${todo.id}`}
-                    className={`text-sm font-medium ${
+                    className={`text-sm font-medium block w-full truncate ${
                         todo.completed
                             ? "line-through text-muted-foreground"
                             : ""
@@ -28,7 +29,7 @@ export const TodoItem = ({ todo, onToggle, onDelete }: TodoItemProps) => {
                 >
                     {todo.title}
                 </label>
-            </div>
+            </Link>
             <Button
                 variant="ghost"
                 size="icon"
