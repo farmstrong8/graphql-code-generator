@@ -1,0 +1,19 @@
+{
+    "name": "graphql-code-generator",
+    "version": "1.0.0",
+    "description": "a graphql codegen plugin that is useful for generating mocks of your graphql schema and queries",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/farmstrong8/graphql-code-generator.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/farmstrong8/graphql-code-generator/issues"
+    },
+    "homepage": "https://github.com/farmstrong8/graphql-code-generator#readme"
+}
