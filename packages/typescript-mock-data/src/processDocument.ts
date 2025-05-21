@@ -40,6 +40,7 @@ export function processDocument(
         const code = buildMockCode({
             operationName,
             mockObject,
+            operationType,
         });
 
         artifacts.push({

@@ -3,10 +3,23 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 
 // GraphQL schema definition
 const typeDefs = `#graphql
+    scalar Date
+
+    type Author {
+        id: ID!
+        name: String!
+        email: String!
+    }
+
+
     type Todo {
         id: ID!
         title: String!
         completed: Boolean!
+        createdAt: Date!
+        dueAt: Date
+        author: Author!
+        tags: [String!]!
     }
 
     type Query {

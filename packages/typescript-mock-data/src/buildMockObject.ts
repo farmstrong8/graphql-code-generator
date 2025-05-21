@@ -7,6 +7,7 @@ import {
     isListType,
     getNamedType,
 } from "graphql";
+import casual from "casual";
 
 export function buildMockObject({
     schema,
@@ -55,15 +56,15 @@ export function buildMockObject({
 function getScalarMock(scalarName: string): any {
     switch (scalarName) {
         case "ID":
-            return "id-1";
+            return casual.uuid;
         case "String":
-            return "example";
+            return casual.sentence;
         case "Int":
-            return 1;
+            return casual.integer();
         case "Float":
-            return 3.14;
+            return casual.double();
         case "Boolean":
-            return false;
+            return true;
         default:
             return `${scalarName.toLowerCase()}-mock`;
     }

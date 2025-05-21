@@ -12,92 +12,92 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
-type AddTodo = {
+type AddTodoMutation = {
     __typename: "Mutation";
     addTodo: {
         __typename: "Todo";
-        id: "id-1";
-        title: "example";
-        completed: false;
+        id: "5030c6a2-c9b3-4198-876f-25e8ad308ff3";
+        title: "Est dolor ipsa ipsa culpa.";
+        completed: true;
     };
 };
 
-export const aAddTodo = createBuilder<AddTodo>({
+export const aAddTodoMutation = createBuilder<AddTodoMutation>({
     __typename: "Mutation",
     addTodo: {
         __typename: "Todo",
-        id: "id-1",
-        title: "example",
-        completed: false,
+        id: "5030c6a2-c9b3-4198-876f-25e8ad308ff3",
+        title: "Est dolor ipsa ipsa culpa.",
+        completed: true,
     },
 });
 
-type DeleteTodo = {
+type DeleteTodoMutation = {
     __typename: "Mutation";
-    deleteTodo: false;
+    deleteTodo: true;
 };
 
-export const aDeleteTodo = createBuilder<DeleteTodo>({
+export const aDeleteTodoMutation = createBuilder<DeleteTodoMutation>({
     __typename: "Mutation",
-    deleteTodo: false,
+    deleteTodo: true,
 });
 
-type TodoDetailsPage = {
+type TodoDetailsPageQuery = {
     __typename: "Query";
     todo: {
         __typename: "Todo";
-        id: "id-1";
-        title: "example";
-        completed: false;
+        id: "673c52d1-870e-4faa-aaf8-7e4a29fce454";
+        title: "Quasi explicabo esse officiis est voluptatem.";
+        completed: true;
     };
 };
 
-export const aTodoDetailsPage = createBuilder<TodoDetailsPage>({
+export const aTodoDetailsPageQuery = createBuilder<TodoDetailsPageQuery>({
     __typename: "Query",
     todo: {
         __typename: "Todo",
-        id: "id-1",
-        title: "example",
-        completed: false,
+        id: "673c52d1-870e-4faa-aaf8-7e4a29fce454",
+        title: "Quasi explicabo esse officiis est voluptatem.",
+        completed: true,
     },
 });
 
-type TodosPage = {
+type TodosPageQuery = {
     __typename: "Query";
     todos: {
         __typename: "Todo";
-        id: "id-1";
-        title: "example";
-        completed: false;
+        id: "7781e65b-74f4-4e8c-b1c3-a1fa5d76b472";
+        title: "Natus suscipit ipsam nesciunt eligendi quia.";
+        completed: true;
     };
 };
 
-export const aTodosPage = createBuilder<TodosPage>({
+export const aTodosPageQuery = createBuilder<TodosPageQuery>({
     __typename: "Query",
     todos: {
         __typename: "Todo",
-        id: "id-1",
-        title: "example",
-        completed: false,
+        id: "7781e65b-74f4-4e8c-b1c3-a1fa5d76b472",
+        title: "Natus suscipit ipsam nesciunt eligendi quia.",
+        completed: true,
     },
 });
 
-type ToggleTodo = {
+type ToggleTodoMutation = {
     __typename: "Mutation";
     toggleTodo: {
         __typename: "Todo";
-        id: "id-1";
-        title: "example";
-        completed: false;
+        id: "ef3f73b2-bfe7-4998-95c3-b7bc318c0cbf";
+        title: "Recusandae enim et cupiditate aut magnam omnis.";
+        completed: true;
     };
 };
 
-export const aToggleTodo = createBuilder<ToggleTodo>({
+export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
     __typename: "Mutation",
     toggleTodo: {
         __typename: "Todo",
-        id: "id-1",
-        title: "example",
-        completed: false,
+        id: "ef3f73b2-bfe7-4998-95c3-b7bc318c0cbf",
+        title: "Recusandae enim et cupiditate aut magnam omnis.",
+        completed: true,
     },
 });
