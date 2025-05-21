@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ES2021",
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "declaration": true,
+        "declarationMap": true,
+        "emitDeclarationOnly": true,
+        "outDir": "dist",
+        "baseUrl": ".",
+        "types": ["node"]
+    },
+    "include": ["src"]
+}

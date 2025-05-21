@@ -1,0 +1,27 @@
+{
+    "name": "@graphql-codegen/typescript-mock-data",
+    "version": "1.0.0",
+    "description": "a graphql codegen plugin that is useful for generating mocks of your graphql schema and queries",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsup src/index.ts --format esm,cjs --dts --out-dir dist"
+    },
+    "dependencies": {
+        "casual": "^1.6.2",
+        "lodash": "^4.17.21",
+        "path": "^0.12.7"
+    },
+    "peerDependencies": {
+        "@types/lodash": "^4.0.0",
+        "graphql": "^16.0.0",
+        "lodash": "^4.0.0"
+    },
+    "devDependencies": {
+        "@graphql-codegen/plugin-helpers": "^5.1.0",
+        "@types/lodash": "^4.0.0",
+        "graphql": "^16.11.0",
+        "lodash": "^4.0.0",
+        "tsup": "^8.5.0"
+    }
+}
