@@ -5,7 +5,7 @@
     "packageManager": "yarn@4.9.1",
     "workspaces": [
         "packages/*",
-        "examples/*"
+        "apps/*"
     ],
     "scripts": {
         "build:package": "yarn workspace @graphql-codegen/typescript-mock-data build"
