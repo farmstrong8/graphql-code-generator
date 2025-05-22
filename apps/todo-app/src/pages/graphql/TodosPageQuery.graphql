@@ -3,5 +3,6 @@ query TodosPage {
         id
         title
         completed
+        dueAt
     }
 }

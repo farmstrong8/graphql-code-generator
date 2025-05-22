@@ -7697,9 +7697,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"todo-app-server@workspace:examples/todo-app-server":
+"todo-app-server@workspace:apps/todo-app-server":
   version: 0.0.0-use.local
-  resolution: "todo-app-server@workspace:examples/todo-app-server"
+  resolution: "todo-app-server@workspace:apps/todo-app-server"
   dependencies:
     "@apollo/server": "npm:^4.12.1"
     "@types/node": "npm:^22.15.19"
@@ -7709,9 +7709,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"todo-app@workspace:examples/todo-app":
+"todo-app@workspace:apps/todo-app":
   version: 0.0.0-use.local
-  resolution: "todo-app@workspace:examples/todo-app"
+  resolution: "todo-app@workspace:apps/todo-app"
   dependencies:
     "@apollo/client": "npm:^3.13.8"
     "@eslint/js": "npm:^9.25.0"

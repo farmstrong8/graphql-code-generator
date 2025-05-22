@@ -1,24 +1,28 @@
 import {
     GraphQLSchema,
     GraphQLObjectType,
-    type SelectionSetNode,
+    SelectionSetNode,
     isScalarType,
     isObjectType,
     isListType,
     getNamedType,
 } from "graphql";
-import casual from "casual";
+
+import type { TypeScriptMockDataPluginConfig } from "./config";
+import { generateScalarMock } from "./generateScalarMock";
 
 export function buildMockObject({
     schema,
     parentType,
     selectionSet,
+    config,
 }: {
     schema: GraphQLSchema;
     parentType: GraphQLObjectType;
     selectionSet: SelectionSetNode;
-}): object {
-    const result: Record<string, any> = {
+    config: TypeScriptMockDataPluginConfig;
+}): Record<string, unknown> {
+    const result: Record<string, unknown> = {
         __typename: parentType.name,
     };
 
@@ -33,39 +37,25 @@ export function buildMockObject({
         const namedType = getNamedType(fieldType);
         const isList = isListType(fieldType);
 
-        let value: any;
+        const getValue = () => {
+            if (isScalarType(namedType)) {
+                return generateScalarMock(namedType.name, config);
+            }
+            if (isObjectType(namedType) && selection.selectionSet) {
+                return buildMockObject({
+                    schema,
+                    parentType: namedType,
+                    selectionSet: selection.selectionSet,
+                    config,
+                });
+            }
+            return null;
+        };
 
-        if (isScalarType(namedType)) {
-            value = getScalarMock(namedType.name);
-        } else if (isObjectType(namedType) && selection.selectionSet) {
-            value = buildMockObject({
-                schema,
-                parentType: namedType,
-                selectionSet: selection.selectionSet,
-            });
-        } else {
-            value = null;
-        }
+        const value = getValue();
 
         result[fieldName] = isList ? [value] : value;
     }
 
     return result;
-}
-
-function getScalarMock(scalarName: string): any {
-    switch (scalarName) {
-        case "ID":
-            return casual.uuid;
-        case "String":
-            return casual.sentence;
-        case "Int":
-            return casual.integer();
-        case "Float":
-            return casual.double();
-        case "Boolean":
-            return true;
-        default:
-            return `${scalarName.toLowerCase()}-mock`;
-    }
 }

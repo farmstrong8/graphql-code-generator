@@ -7,6 +7,7 @@ import {
 
 import { buildMockObject } from "./buildMockObject";
 import { buildMockCode } from "./buildMockCode";
+import { TypeScriptMockDataPluginConfig } from "./config";
 
 export interface MockArtifact {
     operationName: string;
@@ -17,6 +18,7 @@ export interface MockArtifact {
 export function processDocument(
     document: DocumentNode,
     schema: GraphQLSchema,
+    config: TypeScriptMockDataPluginConfig,
 ): MockArtifact[] {
     const artifacts: MockArtifact[] = [];
 
@@ -35,6 +37,7 @@ export function processDocument(
             schema,
             parentType: rootType,
             selectionSet: operation.selectionSet,
+            config,
         });
 
         const code = buildMockCode({

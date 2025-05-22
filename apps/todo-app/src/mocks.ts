@@ -16,8 +16,8 @@ type AddTodoMutation = {
   "__typename": "Mutation",
   "addTodo": {
     "__typename": "Todo",
-    "id": "753c2298-2370-4212-a847-4a297e84acbb",
-    "title": "Sit nemo numquam facere culpa asperiores.",
+    "id": "f507e324-418e-4a38-9ba6-a70ed175022a",
+    "title": "Quia natus in sit aut et consequatur rerum animi qui.",
     "completed": true
   }
 };
@@ -26,8 +26,8 @@ type AddTodoMutation = {
   "__typename": "Mutation",
   "addTodo": {
     "__typename": "Todo",
-    "id": "753c2298-2370-4212-a847-4a297e84acbb",
-    "title": "Sit nemo numquam facere culpa asperiores.",
+    "id": "f507e324-418e-4a38-9ba6-a70ed175022a",
+    "title": "Quia natus in sit aut et consequatur rerum animi qui.",
     "completed": true
   }
 });
@@ -46,8 +46,8 @@ type TodoDetailsPageQuery = {
   "__typename": "Query",
   "todo": {
     "__typename": "Todo",
-    "id": "fbe2c725-5c15-44dc-9ba8-0b57daa65834",
-    "title": "Rerum nulla est sed praesentium temporibus iste et provident reprehenderit.",
+    "id": "a846e797-f2ec-4e37-bcc8-f4191c48514d",
+    "title": "Distinctio eos et.",
     "completed": true
   }
 };
@@ -56,8 +56,8 @@ type TodoDetailsPageQuery = {
   "__typename": "Query",
   "todo": {
     "__typename": "Todo",
-    "id": "fbe2c725-5c15-44dc-9ba8-0b57daa65834",
-    "title": "Rerum nulla est sed praesentium temporibus iste et provident reprehenderit.",
+    "id": "a846e797-f2ec-4e37-bcc8-f4191c48514d",
+    "title": "Distinctio eos et.",
     "completed": true
   }
 });
@@ -66,9 +66,10 @@ type TodosPageQuery = {
   "__typename": "Query",
   "todos": {
     "__typename": "Todo",
-    "id": "ea89daf5-cf02-420f-8b6c-5ed4f10bde7c",
-    "title": "Fuga sunt sint vel officiis adipisci.",
-    "completed": true
+    "id": "b11173ac-b1f8-414b-a07c-1632fa4b5cf1",
+    "title": "Officia aliquid odio eius.",
+    "completed": true,
+    "dueAt": "1987-12-28"
   }
 };
   
@@ -76,9 +77,10 @@ type TodosPageQuery = {
   "__typename": "Query",
   "todos": {
     "__typename": "Todo",
-    "id": "ea89daf5-cf02-420f-8b6c-5ed4f10bde7c",
-    "title": "Fuga sunt sint vel officiis adipisci.",
-    "completed": true
+    "id": "b11173ac-b1f8-414b-a07c-1632fa4b5cf1",
+    "title": "Officia aliquid odio eius.",
+    "completed": true,
+    "dueAt": "1987-12-28"
   }
 });
 
@@ -86,8 +88,8 @@ type ToggleTodoMutation = {
   "__typename": "Mutation",
   "toggleTodo": {
     "__typename": "Todo",
-    "id": "c318f077-d1db-4dfe-8a07-ff34cabb9c88",
-    "title": "Ut odio quae veniam iure.",
+    "id": "a07c0622-a7c2-4703-aaea-ea70f9f0d4ec",
+    "title": "Ex eaque facere delectus quidem voluptatem porro maiores et.",
     "completed": true
   }
 };
@@ -96,8 +98,8 @@ type ToggleTodoMutation = {
   "__typename": "Mutation",
   "toggleTodo": {
     "__typename": "Todo",
-    "id": "c318f077-d1db-4dfe-8a07-ff34cabb9c88",
-    "title": "Ut odio quae veniam iure.",
+    "id": "a07c0622-a7c2-4703-aaea-ea70f9f0d4ec",
+    "title": "Ex eaque facere delectus quidem voluptatem porro maiores et.",
     "completed": true
   }
 });

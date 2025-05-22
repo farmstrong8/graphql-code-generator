@@ -6,7 +6,7 @@ const defaultOptions = {} as const;
 export type TodosPageQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type TodosPageQuery = { __typename?: 'Query', todos: Array<{ __typename?: 'Todo', id: string, title: string, completed: boolean }> };
+export type TodosPageQuery = { __typename?: 'Query', todos: Array<{ __typename?: 'Todo', id: string, title: string, completed: boolean, dueAt?: any | null }> };
 
 
 export const TodosPageDocument = gql`
@@ -15,6 +15,7 @@ export const TodosPageDocument = gql`
     id
     title
     completed
+    dueAt
   }
 }
     `;
