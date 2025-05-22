@@ -53,6 +53,18 @@ const config: CodegenConfig = {
             documents: ["src/**/*.{ts,tsx,graphql}", "!(src/**/generated/*)"],
             plugins: ["typescript-mock-data"],
         },
+
+        // 4. Collocate example
+        "src/mocks": {
+            documents: ["src/**/*.{ts,tsx,graphql}", "!(src/**/generated/*)"],
+            preset: "near-operation-file",
+            presetConfig: {
+                baseTypesPath: "../types.generated.ts",
+                folder: "mocks",
+                extension: ".mock.ts",
+            },
+            plugins: ["typescript-mock-data"],
+        },
     },
 };
 

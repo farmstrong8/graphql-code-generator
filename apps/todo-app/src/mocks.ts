@@ -1,103 +1,103 @@
 import { merge } from "lodash";
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
-    ? T
-    : T extends Array<infer U>
-    ? Array<DeepPartial<U>>
-    : T extends object
-    ? { [K in keyof T]?: DeepPartial<T[K]> }
-    : T;
+  ? T
+  : T extends Array<infer U>
+  ? Array<DeepPartial<U>>
+  : T extends object
+  ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : T;
 
 function createBuilder<T extends object>(base: T) {
-    return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
+  return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
 type AddTodoMutation = {
-    __typename: "Mutation";
-    addTodo: {
-        __typename: "Todo";
-        id: "5030c6a2-c9b3-4198-876f-25e8ad308ff3";
-        title: "Est dolor ipsa ipsa culpa.";
-        completed: true;
-    };
+  "__typename": "Mutation",
+  "addTodo": {
+    "__typename": "Todo",
+    "id": "753c2298-2370-4212-a847-4a297e84acbb",
+    "title": "Sit nemo numquam facere culpa asperiores.",
+    "completed": true
+  }
 };
-
-export const aAddTodoMutation = createBuilder<AddTodoMutation>({
-    __typename: "Mutation",
-    addTodo: {
-        __typename: "Todo",
-        id: "5030c6a2-c9b3-4198-876f-25e8ad308ff3",
-        title: "Est dolor ipsa ipsa culpa.",
-        completed: true,
-    },
+  
+  export const aAddTodoMutation = createBuilder<AddTodoMutation>({
+  "__typename": "Mutation",
+  "addTodo": {
+    "__typename": "Todo",
+    "id": "753c2298-2370-4212-a847-4a297e84acbb",
+    "title": "Sit nemo numquam facere culpa asperiores.",
+    "completed": true
+  }
 });
 
 type DeleteTodoMutation = {
-    __typename: "Mutation";
-    deleteTodo: true;
+  "__typename": "Mutation",
+  "deleteTodo": true
 };
-
-export const aDeleteTodoMutation = createBuilder<DeleteTodoMutation>({
-    __typename: "Mutation",
-    deleteTodo: true,
+  
+  export const aDeleteTodoMutation = createBuilder<DeleteTodoMutation>({
+  "__typename": "Mutation",
+  "deleteTodo": true
 });
 
 type TodoDetailsPageQuery = {
-    __typename: "Query";
-    todo: {
-        __typename: "Todo";
-        id: "673c52d1-870e-4faa-aaf8-7e4a29fce454";
-        title: "Quasi explicabo esse officiis est voluptatem.";
-        completed: true;
-    };
+  "__typename": "Query",
+  "todo": {
+    "__typename": "Todo",
+    "id": "fbe2c725-5c15-44dc-9ba8-0b57daa65834",
+    "title": "Rerum nulla est sed praesentium temporibus iste et provident reprehenderit.",
+    "completed": true
+  }
 };
-
-export const aTodoDetailsPageQuery = createBuilder<TodoDetailsPageQuery>({
-    __typename: "Query",
-    todo: {
-        __typename: "Todo",
-        id: "673c52d1-870e-4faa-aaf8-7e4a29fce454",
-        title: "Quasi explicabo esse officiis est voluptatem.",
-        completed: true,
-    },
+  
+  export const aTodoDetailsPageQuery = createBuilder<TodoDetailsPageQuery>({
+  "__typename": "Query",
+  "todo": {
+    "__typename": "Todo",
+    "id": "fbe2c725-5c15-44dc-9ba8-0b57daa65834",
+    "title": "Rerum nulla est sed praesentium temporibus iste et provident reprehenderit.",
+    "completed": true
+  }
 });
 
 type TodosPageQuery = {
-    __typename: "Query";
-    todos: {
-        __typename: "Todo";
-        id: "7781e65b-74f4-4e8c-b1c3-a1fa5d76b472";
-        title: "Natus suscipit ipsam nesciunt eligendi quia.";
-        completed: true;
-    };
+  "__typename": "Query",
+  "todos": {
+    "__typename": "Todo",
+    "id": "ea89daf5-cf02-420f-8b6c-5ed4f10bde7c",
+    "title": "Fuga sunt sint vel officiis adipisci.",
+    "completed": true
+  }
 };
-
-export const aTodosPageQuery = createBuilder<TodosPageQuery>({
-    __typename: "Query",
-    todos: {
-        __typename: "Todo",
-        id: "7781e65b-74f4-4e8c-b1c3-a1fa5d76b472",
-        title: "Natus suscipit ipsam nesciunt eligendi quia.",
-        completed: true,
-    },
+  
+  export const aTodosPageQuery = createBuilder<TodosPageQuery>({
+  "__typename": "Query",
+  "todos": {
+    "__typename": "Todo",
+    "id": "ea89daf5-cf02-420f-8b6c-5ed4f10bde7c",
+    "title": "Fuga sunt sint vel officiis adipisci.",
+    "completed": true
+  }
 });
 
 type ToggleTodoMutation = {
-    __typename: "Mutation";
-    toggleTodo: {
-        __typename: "Todo";
-        id: "ef3f73b2-bfe7-4998-95c3-b7bc318c0cbf";
-        title: "Recusandae enim et cupiditate aut magnam omnis.";
-        completed: true;
-    };
+  "__typename": "Mutation",
+  "toggleTodo": {
+    "__typename": "Todo",
+    "id": "c318f077-d1db-4dfe-8a07-ff34cabb9c88",
+    "title": "Ut odio quae veniam iure.",
+    "completed": true
+  }
 };
-
-export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
-    __typename: "Mutation",
-    toggleTodo: {
-        __typename: "Todo",
-        id: "ef3f73b2-bfe7-4998-95c3-b7bc318c0cbf",
-        title: "Recusandae enim et cupiditate aut magnam omnis.",
-        completed: true,
-    },
+  
+  export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
+  "__typename": "Mutation",
+  "toggleTodo": {
+    "__typename": "Todo",
+    "id": "c318f077-d1db-4dfe-8a07-ff34cabb9c88",
+    "title": "Ut odio quae veniam iure.",
+    "completed": true
+  }
 });
