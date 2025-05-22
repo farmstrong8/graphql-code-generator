@@ -8,11 +8,11 @@ This plugin is ideal for testing, Storybook development, and fixture generation.
 
 ## ✨ Features
 
--   ✅ Generates per-operation mocks: `aAddTodoMutation`, `aTodosPageQuery`, etc.
--   ✅ Builders use `DeepPartial` + `lodash.merge` for easy overrides
--   ✅ Support for `Date`, `UUID`, and other custom scalars via config
--   ✅ Fully static types — no runtime dependencies beyond your mocks
--   ✅ Designed for [`near-operation-file`](https://the-guild.dev/graphql/codegen/plugins/presets/near-operation-file) workflows
+- ✅ Generates per-operation mocks: `aAddTodoMutation`, `aTodosPageQuery`, etc.
+- ✅ Builders use `DeepPartial` + `lodash.merge` for easy overrides
+- ✅ Support for `Date`, `UUID`, and other custom scalars via config
+- ✅ Fully static types — no runtime dependencies beyond your mocks
+- ✅ Designed for [`near-operation-file`](https://the-guild.dev/graphql/codegen/plugins/presets/near-operation-file) workflows
 
 ---
 
@@ -154,30 +154,41 @@ Please define them under the 'scalars' field in your plugin config.
 
 ## 🧪 Best Practices
 
--   Use alongside `typescript` and `near-operation-file`
--   Do **not** combine with `typescript-operations` in the same output
--   Use `.mock.ts` files or `__mocks__/` folders for isolation
--   Check your mocks into source control if needed for visibility or snapshot testing
+- Use alongside `typescript` and `near-operation-file`
+- Do **not** combine with `typescript-operations` in the same output
+- Use `.mock.ts` files or `__mocks__/` folders for isolation
+- Check your mocks into source control if needed for visibility or snapshot testing
+
+### 🧼 Code Formatting
+
+Mock files are emitted as plain TypeScript.  
+To format them using your local Prettier config:
+
+```bash
+prettier --write 'src/**/*.mock.ts'
 
 ---
 
 ## 📂 Output Structure (Example)
 
 ```
+
 src/
 ├── pages/
-│   └── graphql/
-│       └── AddTodoMutation.graphql
+│ └── graphql/
+│ └── AddTodoMutation.graphql
 ├── types.generated.ts
 ├── pages/
-│   └── graphql/
-│       └── generated/
-│           └── AddTodoMutation.mock.ts
+│ └── graphql/
+│ └── generated/
+│ └── AddTodoMutation.mock.ts
+
 ```
 
 ---
 
 ## 💬 Feedback & Contributions
 
-This plugin is actively evolving.  
+This plugin is actively evolving.
 Feel free to open [issues](https://github.com/farmstrong8/graphql-code-generator/issues) or [PRs](https://github.com/farmstrong8/graphql-code-generator/pulls) to improve its capabilities.
+```
