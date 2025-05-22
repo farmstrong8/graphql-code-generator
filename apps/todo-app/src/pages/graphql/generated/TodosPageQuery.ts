@@ -1,12 +1,13 @@
 import type * as Types from '../../../types.generated';
 
 import { gql } from '@apollo/client';
+import { AuthorFragmentFragmentDoc } from './AuthorFragment';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type TodosPageQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type TodosPageQuery = { __typename?: 'Query', todos: Array<{ __typename?: 'Todo', id: string, title: string, completed: boolean, dueAt?: any | null }> };
+export type TodosPageQuery = { __typename?: 'Query', todos: Array<{ __typename?: 'Todo', id: string, title: string, completed: boolean, dueAt?: any | null, author: { __typename?: 'Author', id: string, name: string } }> };
 
 
 export const TodosPageDocument = gql`
@@ -16,9 +17,12 @@ export const TodosPageDocument = gql`
     title
     completed
     dueAt
+    author {
+      ...AuthorFragment
+    }
   }
 }
-    `;
+    ${AuthorFragmentFragmentDoc}`;
 
 /**
  * __useTodosPageQuery__

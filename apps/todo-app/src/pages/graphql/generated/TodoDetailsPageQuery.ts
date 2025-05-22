@@ -8,15 +8,20 @@ export type TodoDetailsPageQueryVariables = Types.Exact<{
 }>;
 
 
-export type TodoDetailsPageQuery = { __typename?: 'Query', todo?: { __typename?: 'Todo', id: string, title: string, completed: boolean } | null };
+export type TodoDetailsPageQuery = { __typename?: 'Query', todo?: { __typename?: 'Error', message: string } | { __typename?: 'Todo', id: string, title: string, completed: boolean } | null };
 
 
 export const TodoDetailsPageDocument = gql`
     query TodoDetailsPage($todoId: ID!) {
   todo(id: $todoId) {
-    id
-    title
-    completed
+    ... on Todo {
+      id
+      title
+      completed
+    }
+    ... on Error {
+      message
+    }
   }
 }
     `;

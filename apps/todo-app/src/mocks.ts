@@ -16,8 +16,8 @@ type AddTodoMutation = {
   "__typename": "Mutation",
   "addTodo": {
     "__typename": "Todo",
-    "id": "f507e324-418e-4a38-9ba6-a70ed175022a",
-    "title": "Quia natus in sit aut et consequatur rerum animi qui.",
+    "id": "dd47a064-8000-4c58-adf3-13d4989c6a44",
+    "title": "Error dolores corporis nobis sequi.",
     "completed": true
   }
 };
@@ -26,10 +26,22 @@ type AddTodoMutation = {
   "__typename": "Mutation",
   "addTodo": {
     "__typename": "Todo",
-    "id": "f507e324-418e-4a38-9ba6-a70ed175022a",
-    "title": "Quia natus in sit aut et consequatur rerum animi qui.",
+    "id": "dd47a064-8000-4c58-adf3-13d4989c6a44",
+    "title": "Error dolores corporis nobis sequi.",
     "completed": true
   }
+});
+
+type AuthorFragmentFragment = {
+  "__typename": "Author",
+  "id": "a77929d3-b2e3-4bee-96e1-d474ae2813b3",
+  "name": "Deleniti numquam dolor aspernatur rem hic deserunt molestiae asperiores ipsam."
+};
+  
+  export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
+  "__typename": "Author",
+  "id": "a77929d3-b2e3-4bee-96e1-d474ae2813b3",
+  "name": "Deleniti numquam dolor aspernatur rem hic deserunt molestiae asperiores ipsam."
 });
 
 type DeleteTodoMutation = {
@@ -42,23 +54,39 @@ type DeleteTodoMutation = {
   "deleteTodo": true
 });
 
-type TodoDetailsPageQuery = {
+type TodoDetailsPageAsTodoQuery = {
   "__typename": "Query",
   "todo": {
     "__typename": "Todo",
-    "id": "a846e797-f2ec-4e37-bcc8-f4191c48514d",
-    "title": "Distinctio eos et.",
+    "id": "c30ee61d-a543-410b-889b-4ce5fc58682c",
+    "title": "Eos quo unde iure molestiae.",
     "completed": true
   }
 };
   
-  export const aTodoDetailsPageQuery = createBuilder<TodoDetailsPageQuery>({
+  export const aTodoDetailsPageAsTodoQuery = createBuilder<TodoDetailsPageAsTodoQuery>({
   "__typename": "Query",
   "todo": {
     "__typename": "Todo",
-    "id": "a846e797-f2ec-4e37-bcc8-f4191c48514d",
-    "title": "Distinctio eos et.",
+    "id": "c30ee61d-a543-410b-889b-4ce5fc58682c",
+    "title": "Eos quo unde iure molestiae.",
     "completed": true
+  }
+});
+
+type TodoDetailsPageAsErrorQuery = {
+  "__typename": "Query",
+  "todo": {
+    "__typename": "Error",
+    "message": "Tempore cumque hic iste atque."
+  }
+};
+  
+  export const aTodoDetailsPageAsErrorQuery = createBuilder<TodoDetailsPageAsErrorQuery>({
+  "__typename": "Query",
+  "todo": {
+    "__typename": "Error",
+    "message": "Tempore cumque hic iste atque."
   }
 });
 
@@ -66,10 +94,11 @@ type TodosPageQuery = {
   "__typename": "Query",
   "todos": {
     "__typename": "Todo",
-    "id": "b11173ac-b1f8-414b-a07c-1632fa4b5cf1",
-    "title": "Officia aliquid odio eius.",
+    "id": "aca2ab85-5906-40e6-9fbb-e5b754d82fcc",
+    "title": "Quibusdam qui quam architecto.",
     "completed": true,
-    "dueAt": "1987-12-28"
+    "dueAt": "1998-12-05",
+    "author": null
   }
 };
   
@@ -77,10 +106,11 @@ type TodosPageQuery = {
   "__typename": "Query",
   "todos": {
     "__typename": "Todo",
-    "id": "b11173ac-b1f8-414b-a07c-1632fa4b5cf1",
-    "title": "Officia aliquid odio eius.",
+    "id": "aca2ab85-5906-40e6-9fbb-e5b754d82fcc",
+    "title": "Quibusdam qui quam architecto.",
     "completed": true,
-    "dueAt": "1987-12-28"
+    "dueAt": "1998-12-05",
+    "author": null
   }
 });
 
@@ -88,8 +118,8 @@ type ToggleTodoMutation = {
   "__typename": "Mutation",
   "toggleTodo": {
     "__typename": "Todo",
-    "id": "a07c0622-a7c2-4703-aaea-ea70f9f0d4ec",
-    "title": "Ex eaque facere delectus quidem voluptatem porro maiores et.",
+    "id": "7872d245-efaf-480c-8b5a-c020feef3308",
+    "title": "Earum est et hic eligendi velit.",
     "completed": true
   }
 };
@@ -98,8 +128,8 @@ type ToggleTodoMutation = {
   "__typename": "Mutation",
   "toggleTodo": {
     "__typename": "Todo",
-    "id": "a07c0622-a7c2-4703-aaea-ea70f9f0d4ec",
-    "title": "Ex eaque facere delectus quidem voluptatem porro maiores et.",
+    "id": "7872d245-efaf-480c-8b5a-c020feef3308",
+    "title": "Earum est et hic eligendi velit.",
     "completed": true
   }
 });

@@ -18,8 +18,8 @@ type ToggleTodoMutation = {
   "__typename": "Mutation",
   "toggleTodo": {
     "__typename": "Todo",
-    "id": "11495c2e-0379-4834-80e4-e8841097bc73",
-    "title": "Temporibus ut magnam quia hic magnam ut non.",
+    "id": "77cbe290-7593-452d-9cdd-261e32b3b919",
+    "title": "Consequatur facilis consequatur adipisci aut corrupti.",
     "completed": true
   }
 };
@@ -28,8 +28,8 @@ type ToggleTodoMutation = {
   "__typename": "Mutation",
   "toggleTodo": {
     "__typename": "Todo",
-    "id": "11495c2e-0379-4834-80e4-e8841097bc73",
-    "title": "Temporibus ut magnam quia hic magnam ut non.",
+    "id": "77cbe290-7593-452d-9cdd-261e32b3b919",
+    "title": "Consequatur facilis consequatur adipisci aut corrupti.",
     "completed": true
   }
 });

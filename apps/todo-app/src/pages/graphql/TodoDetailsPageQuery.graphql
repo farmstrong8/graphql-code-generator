@@ -1,7 +1,12 @@
 query TodoDetailsPage($todoId: ID!) {
     todo(id: $todoId) {
-        id
-        title
-        completed
+        ... on Todo {
+            id
+            title
+            completed
+        }
+        ... on Error {
+            message
+        }
     }
 }

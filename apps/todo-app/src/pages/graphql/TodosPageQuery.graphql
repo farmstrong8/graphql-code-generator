@@ -4,5 +4,8 @@ query TodosPage {
         title
         completed
         dueAt
+        author {
+            ...AuthorFragment
+        }
     }
 }
