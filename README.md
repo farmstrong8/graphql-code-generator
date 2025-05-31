@@ -10,6 +10,7 @@ This plugin is ideal for testing, Storybook development, and fixture generation.
 
 - ✅ Generates per-operation mocks: `aAddTodoMutation`, `aTodosPageQuery`, etc.
 - ✅ Builders use `DeepPartial` + `lodash.merge` for easy overrides
+- ✅ Support for inline fragments and union/interface types
 - ✅ Support for `Date`, `UUID`, and other custom scalars via config
 - ✅ Fully static types — no runtime dependencies beyond your mocks
 - ✅ Designed for [`near-operation-file`](https://the-guild.dev/graphql/codegen/plugins/presets/near-operation-file) workflows
@@ -94,6 +95,60 @@ scalars:
 ```
 
 ➡️ Becomes `casual.date('YYYY-MM-DD')`
+
+---
+
+## 🔀 Fragments & Union Types
+
+The plugin supports several GraphQL fragment patterns:
+
+### Inline Fragments
+
+```graphql
+query TodoDetails($id: ID!) {
+    todoById(id: $id) {
+        ... on Todo {
+            id
+            title
+            completed
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+```
+
+This generates multiple mock variants:
+
+- `aTodoDetailsAsTodo()` - for the Todo case
+- `aTodoDetailsAsError()` - for the Error case
+
+### Same-File Fragments
+
+```graphql
+fragment AuthorInfo on Author {
+    id
+    name
+    email
+}
+
+query TodosWithAuthor {
+    todos {
+        id
+        title
+        author {
+            ...AuthorInfo
+        }
+    }
+}
+```
+
+✅ **Works:** Fragment and query are in the same `.graphql` file
+
+### Cross-File Fragments (Limited)
+
+❌ **Limited:** Fragment spreads across separate files don't work with `near-operation-file` preset due to how GraphQL Code Generator processes documents independently.
 
 ---
 
@@ -205,23 +260,22 @@ To format them using your local Prettier config:
 
 ```bash
 prettier --write 'src/**/*.mock.ts'
+```
 
 ---
 
 ## 📂 Output Structure (Example)
 
 ```
-
 src/
 ├── pages/
-│ └── graphql/
-│ └── AddTodoMutation.graphql
+│   └── graphql/
+│       └── AddTodoMutation.graphql
 ├── types.generated.ts
-├── pages/
-│ └── graphql/
-│ └── generated/
-│ └── AddTodoMutation.mock.ts
-
+└── pages/
+    └── graphql/
+        └── mocks/
+            └── AddTodoMutation.mock.ts
 ```
 
 ---
@@ -230,4 +284,3 @@ src/
 
 This plugin is actively evolving.
 Feel free to open [issues](https://github.com/farmstrong8/graphql-code-generator/issues) or [PRs](https://github.com/farmstrong8/graphql-code-generator/pulls) to improve its capabilities.
-```
