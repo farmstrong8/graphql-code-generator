@@ -18,8 +18,8 @@ type ToggleTodo = {
     __typename: "Mutation";
     toggleTodo: {
         __typename: "Todo";
-        id: "2e49a648-6da6-4f80-bd61-21c41ce304a1";
-        title: "Inventore voluptatem illum est.";
+        id: "caaa7b14-7c20-4e6c-b7f7-2a9cead7f7a0";
+        title: "Est nostrum architecto nulla totam.";
         completed: true;
     };
 };
@@ -28,8 +28,8 @@ export const aToggleTodo = createBuilder<ToggleTodo>({
     __typename: "Mutation",
     toggleTodo: {
         __typename: "Todo",
-        id: "2e49a648-6da6-4f80-bd61-21c41ce304a1",
-        title: "Inventore voluptatem illum est.",
+        id: "caaa7b14-7c20-4e6c-b7f7-2a9cead7f7a0",
+        title: "Est nostrum architecto nulla totam.",
         completed: true,
     },
 });

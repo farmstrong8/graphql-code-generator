@@ -18,9 +18,9 @@ type TodoDetailsPage = {
     __typename: "Query";
     todo: {
         __typename: "Todo";
-        id: "60fa0d3e-ead1-4faf-9942-9b2dafd4574e";
-        title: "Minima doloribus et.";
-        completed: true;
+        id: "d0305ed2-456c-44e1-9b20-e85b698d2cbf";
+        title: "Quidem nesciunt est dolorem.";
+        completed: false;
     };
 };
 
@@ -28,8 +28,8 @@ export const aTodoDetailsPage = createBuilder<TodoDetailsPage>({
     __typename: "Query",
     todo: {
         __typename: "Todo",
-        id: "60fa0d3e-ead1-4faf-9942-9b2dafd4574e",
-        title: "Minima doloribus et.",
-        completed: true,
+        id: "d0305ed2-456c-44e1-9b20-e85b698d2cbf",
+        title: "Quidem nesciunt est dolorem.",
+        completed: false,
     },
 });
