@@ -59,7 +59,8 @@ describe("MockDataGenerator", () => {
 
         expect(result).toContain("export const aGetTodos");
         expect(result).toContain("createBuilder<GetTodosQuery>");
-        expect(result).toContain("todos: [{"); // Correctly generated as array
+        expect(result).toContain("todos: [aGetTodosTodo()]"); // References nested builder
+        expect(result).toContain("export const aGetTodosTodo"); // Separate builder for nested type
         expect(result).toContain("id:");
         expect(result).toContain("title:");
         expect(result).toContain("completed:");
@@ -81,7 +82,7 @@ describe("MockDataGenerator", () => {
 
         expect(result).toContain("export const aAddTodo");
         expect(result).toContain("createBuilder<AddTodoMutation>");
-        expect(result).toContain("addTodo: {");
+        expect(result).toContain("addTodo: aAddTodoTodo()");
     });
 
     it("should handle fragments in same document", () => {

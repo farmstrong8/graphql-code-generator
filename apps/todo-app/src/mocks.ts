@@ -12,24 +12,28 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
+type AddTodoTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+};
+
+export const aAddTodoTodo = createBuilder<AddTodoTodo>({
+    __typename: "Todo",
+    id: "d2ee5776-b80f-4324-bbde-97bfd4aab4b3",
+    title: "Blanditiis voluptas minus earum vel ad molestiae.",
+    completed: true,
+});
+
 type AddTodoMutation = {
     __typename: "Mutation";
-    addTodo: {
-        __typename: "Todo";
-        id: string;
-        title: string;
-        completed: boolean;
-    };
+    addTodo: AddTodoTodo;
 };
 
 export const aAddTodoMutation = createBuilder<AddTodoMutation>({
     __typename: "Mutation",
-    addTodo: {
-        __typename: "Todo",
-        id: "0c2c821d-6cb2-42da-8d1f-fe25587c0565",
-        title: "Sequi non at sed fugit tempora.",
-        completed: true,
-    },
+    addTodo: aAddTodoTodo(),
 });
 
 type AuthorFragmentFragment = {
@@ -40,8 +44,8 @@ type AuthorFragmentFragment = {
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "fe659d06-ab20-4159-9a23-6b89472ed85f",
-    name: "Sit laudantium molestias.",
+    id: "e38984d8-98ba-4e21-aa6c-4b724aa107d7",
+    name: "Autem ullam provident corrupti illo aut qui porro.",
 });
 
 type DeleteTodoMutation = {
@@ -60,8 +64,7 @@ type TodoDetailsPageQueryAsTodo = {
         id: string;
         title: string;
         completed: boolean;
-        message: string;
-        __typename: "Todo" | "Error";
+        __typename: "Todo";
     };
 };
 
@@ -70,20 +73,17 @@ export const aTodoDetailsPageQueryAsTodo =
         __typename: "Query",
         todo: {
             __typename: "Todo",
-            id: "78204fb0-3272-40dd-abf4-741c1e1c4c80",
-            title: "Corrupti enim aliquid sapiente tempora nihil qui.",
-            completed: false,
+            id: "482cbe09-61cd-44e0-8c9b-19d892c6f694",
+            title: "Assumenda eveniet sequi ratione voluptatem itaque.",
+            completed: true,
         },
     });
 
 type TodoDetailsPageQueryAsError = {
     __typename: "Query";
     todo: {
-        id: string;
-        title: string;
-        completed: boolean;
         message: string;
-        __typename: "Todo" | "Error";
+        __typename: "Error";
     };
 };
 
@@ -93,87 +93,96 @@ export const aTodoDetailsPageQueryAsError =
         todo: {
             __typename: "Error",
             message:
-                "Voluptas quas beatae reiciendis eius nulla adipisci totam veritatis.",
+                "Quia dolorum necessitatibus nesciunt asperiores sit esse laborum quasi.",
         },
     });
 
+type TodosPageTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+    dueAt: string;
+    author: {
+        __typename: "Author";
+    };
+};
+
+export const aTodosPageTodo = createBuilder<TodosPageTodo>({
+    __typename: "Todo",
+    id: "02e1e85d-9b12-4fac-ae15-9f72dbc16b75",
+    title: "Optio error minus error et.",
+    completed: false,
+    dueAt: "1993-10-27",
+    author: {
+        __typename: "Author",
+    },
+});
+
 type TodosPageQuery = {
     __typename: "Query";
-    todos: Array<{
-        __typename: "Todo";
-        id: string;
-        title: string;
-        completed: boolean;
-        dueAt: string;
-        author: {
-            __typename: "Author";
-        };
-    }>;
+    todos: Array<TodosPageTodo>;
 };
 
 export const aTodosPageQuery = createBuilder<TodosPageQuery>({
     __typename: "Query",
-    todos: [
-        {
-            __typename: "Todo",
-            id: "d2d69b41-6e0a-4441-bdb1-8c80d57451d2",
-            title: "Eos et consectetur nesciunt.",
-            completed: false,
-            dueAt: "1986-09-11",
-            author: {
-                __typename: "Author",
-            },
-        },
-    ],
+    todos: [aTodosPageTodo()],
 });
+
+type TodosPageWithInlineFragmentTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+    dueAt: string;
+    author: {
+        __typename: "Author";
+    };
+};
+
+export const aTodosPageWithInlineFragmentTodo =
+    createBuilder<TodosPageWithInlineFragmentTodo>({
+        __typename: "Todo",
+        id: "78b07ae5-1245-4aca-b681-6321f35b8c85",
+        title: "Sit nihil excepturi quis quia ea animi sequi.",
+        completed: false,
+        dueAt: "2013-10-23",
+        author: {
+            __typename: "Author",
+        },
+    });
 
 type TodosPageWithInlineFragmentQuery = {
     __typename: "Query";
-    todos: Array<{
-        __typename: "Todo";
-        id: string;
-        title: string;
-        completed: boolean;
-        dueAt: string;
-        author: {
-            __typename: "Author";
-        };
-    }>;
+    todos: Array<TodosPageWithInlineFragmentTodo>;
 };
 
 export const aTodosPageWithInlineFragmentQuery =
     createBuilder<TodosPageWithInlineFragmentQuery>({
         __typename: "Query",
-        todos: [
-            {
-                __typename: "Todo",
-                id: "d3a95ea0-e518-49e3-bbf7-63c6bd348f71",
-                title: "Eum et tempora neque vel at rem qui.",
-                completed: true,
-                dueAt: "1975-04-04",
-                author: {
-                    __typename: "Author",
-                },
-            },
-        ],
+        todos: [aTodosPageWithInlineFragmentTodo()],
     });
+
+type ToggleTodoTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+};
+
+export const aToggleTodoTodo = createBuilder<ToggleTodoTodo>({
+    __typename: "Todo",
+    id: "838760f4-9fda-4080-9ddf-e0b02857874a",
+    title: "Ipsam earum voluptatem ullam suscipit molestiae sunt.",
+    completed: false,
+});
 
 type ToggleTodoMutation = {
     __typename: "Mutation";
-    toggleTodo: {
-        __typename: "Todo";
-        id: string;
-        title: string;
-        completed: boolean;
-    };
+    toggleTodo: ToggleTodoTodo;
 };
 
 export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
     __typename: "Mutation",
-    toggleTodo: {
-        __typename: "Todo",
-        id: "8a1eb894-9379-472b-90ed-9cd104cc2170",
-        title: "Recusandae dolorem aliquid placeat laborum reiciendis.",
-        completed: true,
-    },
+    toggleTodo: aToggleTodoTodo(),
 });

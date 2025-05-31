@@ -21,5 +21,5 @@ type DeleteTodoMutation = {
 
 export const aDeleteTodoMutation = createBuilder<DeleteTodoMutation>({
     __typename: "Mutation",
-    deleteTodo: true,
+    deleteTodo: false,
 });

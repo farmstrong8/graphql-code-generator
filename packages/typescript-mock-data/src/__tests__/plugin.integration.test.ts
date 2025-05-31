@@ -131,9 +131,10 @@ describe("Plugin Integration", () => {
         expect(result).toContain('"__typename": "Mutation"');
         expect(result).toContain('"__typename": "Query"');
 
-        // Should handle nested objects
-        expect(result).toContain("todos: [{"); // Correctly generated as array
-        expect(result).toContain("author: {");
+        // Should handle nested objects with separate builders
+        expect(result).toContain("todos: [aGetTodosTodo()]"); // References nested builder
+        expect(result).toContain("export const aGetTodosTodo"); // Separate builder for nested type
+        expect(result).toContain("author: {"); // Some nested objects might still be inline if they don't meet the criteria
     });
 
     it("should handle empty documents gracefully", async () => {

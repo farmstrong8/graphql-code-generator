@@ -22,39 +22,42 @@ type AuthorFragmentFragment = {
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "043495d0-2b97-4ef9-b126-acd54d73ae1e",
-    name: "Quasi unde aut modi.",
+    id: "c92127f9-5db8-449b-818d-6f03d95f9140",
+    name: "Aliquam inventore ea a consequuntur.",
 });
+
+type TodosPageWithInlineFragmentTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+    dueAt: string;
+    author: {
+        __typename: "Author";
+    };
+};
+
+export const aTodosPageWithInlineFragmentTodo =
+    createBuilder<TodosPageWithInlineFragmentTodo>({
+        __typename: "Todo",
+        id: "0348efcb-7a25-447e-88fb-115ba2ec011b",
+        title: "Delectus aliquid aut nihil modi dolor labore illum odio.",
+        completed: false,
+        dueAt: "2011-12-16",
+        author: {
+            __typename: "Author",
+            id: "c69ce243-e6ce-4308-a260-a3cfac0c26a2",
+            name: "Consequatur voluptas enim qui odio accusamus aut.",
+        },
+    });
 
 type TodosPageWithInlineFragmentQuery = {
     __typename: "Query";
-    todos: Array<{
-        __typename: "Todo";
-        id: string;
-        title: string;
-        completed: boolean;
-        dueAt: string;
-        author: {
-            __typename: "Author";
-        };
-    }>;
+    todos: Array<TodosPageWithInlineFragmentTodo>;
 };
 
 export const aTodosPageWithInlineFragmentQuery =
     createBuilder<TodosPageWithInlineFragmentQuery>({
         __typename: "Query",
-        todos: [
-            {
-                __typename: "Todo",
-                id: "86138ef5-bebf-43bf-adc5-9d03e9257c7a",
-                title: "Quos dolorem ducimus ullam ut.",
-                completed: false,
-                dueAt: "1981-01-07",
-                author: {
-                    __typename: "Author",
-                    id: "ccfb498c-2b6a-4738-beb7-0d52d5c46cd3",
-                    name: "Rem sunt in quia.",
-                },
-            },
-        ],
+        todos: [aTodosPageWithInlineFragmentTodo()],
     });

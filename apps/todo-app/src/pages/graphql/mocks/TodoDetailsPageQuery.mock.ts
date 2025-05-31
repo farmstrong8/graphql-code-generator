@@ -20,8 +20,7 @@ type TodoDetailsPageQueryAsTodo = {
         id: string;
         title: string;
         completed: boolean;
-        message: string;
-        __typename: "Todo" | "Error";
+        __typename: "Todo";
     };
 };
 
@@ -30,20 +29,17 @@ export const aTodoDetailsPageQueryAsTodo =
         __typename: "Query",
         todo: {
             __typename: "Todo",
-            id: "4dec18a8-1efb-4b58-8b23-809e061d2536",
-            title: "Sint eius ipsa quibusdam incidunt quibusdam maiores cumque.",
-            completed: true,
+            id: "de99c238-123a-4485-8d58-c4ce50d58707",
+            title: "Odio est quas dolores optio ut.",
+            completed: false,
         },
     });
 
 type TodoDetailsPageQueryAsError = {
     __typename: "Query";
     todo: {
-        id: string;
-        title: string;
-        completed: boolean;
         message: string;
-        __typename: "Todo" | "Error";
+        __typename: "Error";
     };
 };
 
@@ -52,6 +48,6 @@ export const aTodoDetailsPageQueryAsError =
         __typename: "Query",
         todo: {
             __typename: "Error",
-            message: "Pariatur et saepe non vitae.",
+            message: "Dolore eum sint sed et.",
         },
     });

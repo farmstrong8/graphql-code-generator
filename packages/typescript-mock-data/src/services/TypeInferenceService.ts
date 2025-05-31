@@ -34,6 +34,8 @@ export interface SemanticTypeInfo {
     isNullable: boolean;
     /** For object types, the fields that should be included */
     objectFields?: Record<string, SemanticTypeInfo>;
+    /** For union types, the fields for each variant type */
+    unionVariants?: Record<string, Record<string, SemanticTypeInfo>>;
 }
 
 /**
@@ -312,11 +314,11 @@ export class TypeInferenceService {
             };
         }
 
-        // Collect fields from all inline fragments
-        const unionFields: Record<string, SemanticTypeInfo> = {};
-
-        // For union types, __typename will be determined by the specific variant
-        // We'll use a union of literal types
+        // Collect individual union variants instead of merging all fields
+        const unionVariants: Record<
+            string,
+            Record<string, SemanticTypeInfo>
+        > = {};
         const typeNames: string[] = [];
 
         // Process inline fragments
@@ -324,8 +326,10 @@ export class TypeInferenceService {
             if (selection.kind === "InlineFragment") {
                 const typeCondition = selection.typeCondition?.name.value;
                 if (typeCondition) {
-                    // Collect the type name for __typename union
                     typeNames.push(`"${typeCondition}"`);
+
+                    // Initialize variant fields object for this specific type
+                    const variantFields: Record<string, SemanticTypeInfo> = {};
 
                     // Find the type in the schema
                     const fragmentType = this.schema.getType(typeCondition);
@@ -345,7 +349,7 @@ export class TypeInferenceService {
                                         fragmentType.getFields()[fieldName];
 
                                     if (fieldDef) {
-                                        unionFields[fieldName] =
+                                        variantFields[fieldName] =
                                             this.analyzeGraphQLType(
                                                 fieldDef.type,
                                                 fragmentSelection.selectionSet,
@@ -356,31 +360,26 @@ export class TypeInferenceService {
                             }
                         }
                     }
+
+                    // Add __typename field for this specific variant
+                    variantFields["__typename"] = {
+                        typeString: `"${typeCondition}"`,
+                        isArray: false,
+                        isNullable: false,
+                    };
+
+                    // Store this variant's fields
+                    unionVariants[typeCondition] = variantFields;
                 }
             }
         }
 
-        // Add __typename field with union of literal types
-        if (typeNames.length > 0) {
-            unionFields["__typename"] = {
-                typeString: typeNames.join(" | "),
-                isArray: false,
-                isNullable: false,
-            };
-        } else {
-            // Fallback if no fragments found
-            unionFields["__typename"] = {
-                typeString: "string",
-                isArray: false,
-                isNullable: false,
-            };
-        }
-
+        // Return union type information that preserves individual variants
         return {
-            typeString: "object",
+            typeString: "union",
             isArray: false,
             isNullable: true,
-            objectFields: unionFields,
+            unionVariants: unionVariants,
         };
     }
 
@@ -406,7 +405,22 @@ export class TypeInferenceService {
     generateTypeString(typeInfo: SemanticTypeInfo): string {
         let baseType = typeInfo.typeString;
 
-        if (typeInfo.objectFields) {
+        if (typeInfo.unionVariants) {
+            // Generate union type from individual variants
+            const variantTypes: string[] = [];
+            for (const [typeName, fields] of Object.entries(
+                typeInfo.unionVariants,
+            )) {
+                const properties: string[] = [];
+                for (const [key, value] of Object.entries(fields)) {
+                    const keyStr = this.needsQuotes(key) ? `"${key}"` : key;
+                    const valueType = this.generateTypeString(value);
+                    properties.push(`${keyStr}: ${valueType}`);
+                }
+                variantTypes.push(`{\n  ${properties.join(",\n  ")}\n}`);
+            }
+            baseType = variantTypes.join(" | ");
+        } else if (typeInfo.objectFields) {
             // Generate object type
             const properties: string[] = [];
             for (const [key, value] of Object.entries(typeInfo.objectFields)) {

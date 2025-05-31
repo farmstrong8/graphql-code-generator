@@ -14,32 +14,34 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
+type TodosPageTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+    dueAt: string;
+    author: {
+        __typename: "Author";
+    };
+};
+
+export const aTodosPageTodo = createBuilder<TodosPageTodo>({
+    __typename: "Todo",
+    id: "faedaa0c-4181-4907-a5e2-1ff367888815",
+    title: "Laudantium dicta nemo voluptatem qui eveniet adipisci non porro non.",
+    completed: false,
+    dueAt: "2000-05-31",
+    author: {
+        __typename: "Author",
+    },
+});
+
 type TodosPageQuery = {
     __typename: "Query";
-    todos: Array<{
-        __typename: "Todo";
-        id: string;
-        title: string;
-        completed: boolean;
-        dueAt: string;
-        author: {
-            __typename: "Author";
-        };
-    }>;
+    todos: Array<TodosPageTodo>;
 };
 
 export const aTodosPageQuery = createBuilder<TodosPageQuery>({
     __typename: "Query",
-    todos: [
-        {
-            __typename: "Todo",
-            id: "1ad68707-e9f5-4fe7-aa0d-cb16f7206b74",
-            title: "Est et quisquam nihil voluptatem et.",
-            completed: false,
-            dueAt: "2003-08-27",
-            author: {
-                __typename: "Author",
-            },
-        },
-    ],
+    todos: [aTodosPageTodo()],
 });

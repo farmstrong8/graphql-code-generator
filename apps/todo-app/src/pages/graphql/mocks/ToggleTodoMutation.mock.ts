@@ -14,22 +14,26 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
+type ToggleTodoTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+};
+
+export const aToggleTodoTodo = createBuilder<ToggleTodoTodo>({
+    __typename: "Todo",
+    id: "2e6c6e2b-004a-4b7d-b715-fd5d7d8d1622",
+    title: "Sunt fugit animi aut quae fuga voluptate blanditiis facere.",
+    completed: false,
+});
+
 type ToggleTodoMutation = {
     __typename: "Mutation";
-    toggleTodo: {
-        __typename: "Todo";
-        id: string;
-        title: string;
-        completed: boolean;
-    };
+    toggleTodo: ToggleTodoTodo;
 };
 
 export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
     __typename: "Mutation",
-    toggleTodo: {
-        __typename: "Todo",
-        id: "4ba69f77-d703-4857-a935-97f858fa06dd",
-        title: "Laborum exercitationem enim itaque.",
-        completed: false,
-    },
+    toggleTodo: aToggleTodoTodo(),
 });
