@@ -28,8 +28,8 @@ export const aAddTodoMutation = createBuilder<AddTodoMutation>({
     __typename: "Mutation",
     addTodo: {
         __typename: "Todo",
-        id: "e082f9d5-c3b1-4b4e-bb65-4c35505fe1c9",
-        title: "Illum enim repellat.",
-        completed: true,
+        id: "a08203e9-9857-48f1-b90e-98e6f8ea78a8",
+        title: "Voluptas tempora mollitia facere et fuga consequatur consequatur eius odit.",
+        completed: false,
     },
 });

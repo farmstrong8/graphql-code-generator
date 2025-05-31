@@ -14,14 +14,14 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
-type AuthorFragment = {
+type AuthorFragmentFragment = {
     __typename: "Author";
     id: string;
     name: string;
 };
 
-export const aAuthorFragment = createBuilder<AuthorFragment>({
+export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "90368f81-3844-423b-944f-49dbd6e1ed44",
-    name: "Quaerat dolor ratione delectus alias voluptas.",
+    id: "aa2743ec-ed9f-43ec-9d50-de3c1560c0fa",
+    name: "Laborum et ut eum quis quidem et.",
 });

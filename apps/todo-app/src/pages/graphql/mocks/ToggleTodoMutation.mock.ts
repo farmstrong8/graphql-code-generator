@@ -28,8 +28,8 @@ export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
     __typename: "Mutation",
     toggleTodo: {
         __typename: "Todo",
-        id: "436edcc1-ea9f-4f03-8a79-5062c3db08ce",
-        title: "Sapiente veritatis illo nobis sint.",
+        id: "4ba69f77-d703-4857-a935-97f858fa06dd",
+        title: "Laborum exercitationem enim itaque.",
         completed: false,
     },
 });

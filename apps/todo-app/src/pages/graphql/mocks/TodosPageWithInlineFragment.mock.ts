@@ -14,16 +14,16 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
-type AuthorFragment = {
+type AuthorFragmentFragment = {
     __typename: "Author";
     id: string;
     name: string;
 };
 
-export const aAuthorFragment = createBuilder<AuthorFragment>({
+export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "0bcb061b-4b10-4ca8-8b6e-cca8ae349ecd",
-    name: "Eum deserunt et id.",
+    id: "043495d0-2b97-4ef9-b126-acd54d73ae1e",
+    name: "Quasi unde aut modi.",
 });
 
 type TodosPageWithInlineFragmentQuery = {
@@ -43,16 +43,18 @@ type TodosPageWithInlineFragmentQuery = {
 export const aTodosPageWithInlineFragmentQuery =
     createBuilder<TodosPageWithInlineFragmentQuery>({
         __typename: "Query",
-        todos: {
-            __typename: "Todo",
-            id: "a9c8cc01-1a3b-4bc2-ac8f-d9af713d69e4",
-            title: "Ullam ut cumque doloremque cupiditate est et vel aperiam.",
-            completed: false,
-            dueAt: "1974-12-31",
-            author: {
-                __typename: "Author",
-                id: "50fabdae-7b45-4f8f-9344-bfff9287da11",
-                name: "Omnis et autem sunt occaecati est vel.",
+        todos: [
+            {
+                __typename: "Todo",
+                id: "86138ef5-bebf-43bf-adc5-9d03e9257c7a",
+                title: "Quos dolorem ducimus ullam ut.",
+                completed: false,
+                dueAt: "1981-01-07",
+                author: {
+                    __typename: "Author",
+                    id: "ccfb498c-2b6a-4738-beb7-0d52d5c46cd3",
+                    name: "Rem sunt in quia.",
+                },
             },
-        },
+        ],
     });

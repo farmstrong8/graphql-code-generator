@@ -30,14 +30,16 @@ type TodosPageQuery = {
 
 export const aTodosPageQuery = createBuilder<TodosPageQuery>({
     __typename: "Query",
-    todos: {
-        __typename: "Todo",
-        id: "5d7fbb3e-9f50-4272-aae8-88f50e091831",
-        title: "Doloremque ea aut qui sapiente quia cupiditate quas.",
-        completed: true,
-        dueAt: "1996-10-15",
-        author: {
-            __typename: "Author",
+    todos: [
+        {
+            __typename: "Todo",
+            id: "1ad68707-e9f5-4fe7-aa0d-cb16f7206b74",
+            title: "Est et quisquam nihil voluptatem et.",
+            completed: false,
+            dueAt: "2003-08-27",
+            author: {
+                __typename: "Author",
+            },
         },
-    },
+    ],
 });

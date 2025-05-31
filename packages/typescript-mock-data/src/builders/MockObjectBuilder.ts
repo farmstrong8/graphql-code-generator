@@ -14,6 +14,7 @@ import {
     isUnionType,
     isScalarType,
     isListType,
+    isNonNullType,
     getNamedType,
     Kind,
 } from "graphql";
@@ -294,7 +295,7 @@ export class MockObjectBuilder {
 
         const fieldType = fieldDef.type;
         const namedType = getNamedType(fieldType);
-        const isList = isListType(fieldType);
+        const isList = this.isListTypeRecursive(fieldType);
 
         const getValue = (): unknown => {
             if (isScalarType(namedType)) {
@@ -323,5 +324,22 @@ export class MockObjectBuilder {
 
         const value = getValue();
         return isList ? [value] : value;
+    }
+
+    /**
+     * Recursively checks if a GraphQL type (with potential wrappers) is a list type.
+     * This handles NonNull wrappers around List types, e.g., [Todo!]! -> true
+     *
+     * @param graphqlType - The GraphQL type to check
+     * @returns True if the type is a list type after unwrapping wrappers
+     */
+    private isListTypeRecursive(graphqlType: any): boolean {
+        // Handle non-null wrappers - unwrap and check the inner type
+        if (isNonNullType(graphqlType)) {
+            return this.isListTypeRecursive(graphqlType.ofType);
+        }
+
+        // Check if this is actually a list type
+        return isListType(graphqlType);
     }
 }

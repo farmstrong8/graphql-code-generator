@@ -30,8 +30,8 @@ export const aTodoDetailsPageQueryAsTodo =
         __typename: "Query",
         todo: {
             __typename: "Todo",
-            id: "30325e21-f003-4120-94bc-b5a20152d28a",
-            title: "Inventore totam explicabo maxime ea id.",
+            id: "4dec18a8-1efb-4b58-8b23-809e061d2536",
+            title: "Sint eius ipsa quibusdam incidunt quibusdam maiores cumque.",
             completed: true,
         },
     });
@@ -52,6 +52,6 @@ export const aTodoDetailsPageQueryAsError =
         __typename: "Query",
         todo: {
             __typename: "Error",
-            message: "Officiis aut et quidem.",
+            message: "Pariatur et saepe non vitae.",
         },
     });

@@ -132,7 +132,7 @@ describe("Plugin Integration", () => {
         expect(result).toContain('"__typename": "Query"');
 
         // Should handle nested objects
-        expect(result).toContain("todos: {"); // Single object, not array
+        expect(result).toContain("todos: [{"); // Correctly generated as array
         expect(result).toContain("author: {");
     });
 
@@ -253,8 +253,8 @@ describe("Plugin Integration", () => {
         expect(result).toContain("export const aGetUser");
         expect(result).toContain("profile: {");
         expect(result).toContain("settings: {");
-        expect(result).toContain("posts: {"); // Single object, not array
-        expect(result).toContain("friends: {"); // Single object, not array
+        expect(result).toContain("posts: [{"); // Correctly generated as array
+        expect(result).toContain("friends: [{"); // Correctly generated as array
         expect(result).toContain("author: {");
 
         // Should handle proper nesting and array structures

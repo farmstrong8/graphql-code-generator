@@ -26,22 +26,22 @@ export const aAddTodoMutation = createBuilder<AddTodoMutation>({
     __typename: "Mutation",
     addTodo: {
         __typename: "Todo",
-        id: "047bde61-cda2-449f-a4f2-1a66d426e3a3",
-        title: "Vitae voluptatem quam omnis eaque.",
+        id: "0c2c821d-6cb2-42da-8d1f-fe25587c0565",
+        title: "Sequi non at sed fugit tempora.",
         completed: true,
     },
 });
 
-type AuthorFragment = {
+type AuthorFragmentFragment = {
     __typename: "Author";
     id: string;
     name: string;
 };
 
-export const aAuthorFragment = createBuilder<AuthorFragment>({
+export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "881340fe-1e62-4df6-8fb6-5d7cac0ac7a2",
-    name: "At non enim impedit ut reiciendis neque ut illum.",
+    id: "fe659d06-ab20-4159-9a23-6b89472ed85f",
+    name: "Sit laudantium molestias.",
 });
 
 type DeleteTodoMutation = {
@@ -51,7 +51,7 @@ type DeleteTodoMutation = {
 
 export const aDeleteTodoMutation = createBuilder<DeleteTodoMutation>({
     __typename: "Mutation",
-    deleteTodo: true,
+    deleteTodo: false,
 });
 
 type TodoDetailsPageQueryAsTodo = {
@@ -70,9 +70,9 @@ export const aTodoDetailsPageQueryAsTodo =
         __typename: "Query",
         todo: {
             __typename: "Todo",
-            id: "36c8445c-1985-4a17-8867-6bf213f5af42",
-            title: "Nobis odit non maxime reprehenderit eaque odit sequi.",
-            completed: true,
+            id: "78204fb0-3272-40dd-abf4-741c1e1c4c80",
+            title: "Corrupti enim aliquid sapiente tempora nihil qui.",
+            completed: false,
         },
     });
 
@@ -92,7 +92,8 @@ export const aTodoDetailsPageQueryAsError =
         __typename: "Query",
         todo: {
             __typename: "Error",
-            message: "At enim ipsam et fuga minima.",
+            message:
+                "Voluptas quas beatae reiciendis eius nulla adipisci totam veritatis.",
         },
     });
 
@@ -112,16 +113,18 @@ type TodosPageQuery = {
 
 export const aTodosPageQuery = createBuilder<TodosPageQuery>({
     __typename: "Query",
-    todos: {
-        __typename: "Todo",
-        id: "f859cb36-ed99-4f64-9be9-7c5b42759bfb",
-        title: "Magni rem quaerat nam maiores.",
-        completed: true,
-        dueAt: "2009-10-07",
-        author: {
-            __typename: "Author",
+    todos: [
+        {
+            __typename: "Todo",
+            id: "d2d69b41-6e0a-4441-bdb1-8c80d57451d2",
+            title: "Eos et consectetur nesciunt.",
+            completed: false,
+            dueAt: "1986-09-11",
+            author: {
+                __typename: "Author",
+            },
         },
-    },
+    ],
 });
 
 type TodosPageWithInlineFragmentQuery = {
@@ -141,16 +144,18 @@ type TodosPageWithInlineFragmentQuery = {
 export const aTodosPageWithInlineFragmentQuery =
     createBuilder<TodosPageWithInlineFragmentQuery>({
         __typename: "Query",
-        todos: {
-            __typename: "Todo",
-            id: "7d34d23d-2539-4879-8dab-740a1cc376e5",
-            title: "Earum voluptate impedit similique commodi.",
-            completed: false,
-            dueAt: "1996-04-08",
-            author: {
-                __typename: "Author",
+        todos: [
+            {
+                __typename: "Todo",
+                id: "d3a95ea0-e518-49e3-bbf7-63c6bd348f71",
+                title: "Eum et tempora neque vel at rem qui.",
+                completed: true,
+                dueAt: "1975-04-04",
+                author: {
+                    __typename: "Author",
+                },
             },
-        },
+        ],
     });
 
 type ToggleTodoMutation = {
@@ -167,8 +172,8 @@ export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
     __typename: "Mutation",
     toggleTodo: {
         __typename: "Todo",
-        id: "d36503b9-0798-4bcd-b50e-cc2f658b4429",
-        title: "Optio commodi sunt impedit aut doloremque ut architecto aut natus.",
+        id: "8a1eb894-9379-472b-90ed-9cd104cc2170",
+        title: "Recusandae dolorem aliquid placeat laborum reiciendis.",
         completed: true,
     },
 });

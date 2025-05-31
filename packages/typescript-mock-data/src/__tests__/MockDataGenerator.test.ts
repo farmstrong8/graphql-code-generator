@@ -59,7 +59,7 @@ describe("MockDataGenerator", () => {
 
         expect(result).toContain("export const aGetTodos");
         expect(result).toContain("createBuilder<GetTodosQuery>");
-        expect(result).toContain("todos: {"); // Single object, not array
+        expect(result).toContain("todos: [{"); // Correctly generated as array
         expect(result).toContain("id:");
         expect(result).toContain("title:");
         expect(result).toContain("completed:");
