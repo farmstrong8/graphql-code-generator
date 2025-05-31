@@ -15,12 +15,10 @@ function createBuilder<T extends object>(base: T) {
 }
 
 type ToggleTodo = {
-    __typename: "Mutation";
     toggleTodo: {
-        __typename: "Todo";
-        id: "8e521f6c-4c06-4009-92cf-d43cdc26f98e";
-        title: "Porro at debitis et velit porro dolores quaerat occaecati.";
-        completed: false;
+        id: string;
+        title: string;
+        completed: boolean;
     };
 };
 
@@ -28,8 +26,8 @@ export const aToggleTodo = createBuilder<ToggleTodo>({
     __typename: "Mutation",
     toggleTodo: {
         __typename: "Todo",
-        id: "8e521f6c-4c06-4009-92cf-d43cdc26f98e",
-        title: "Porro at debitis et velit porro dolores quaerat occaecati.",
+        id: "ed331587-8a9a-4433-9214-84dc0f2877ad",
+        title: "Accusamus maxime fuga ut.",
         completed: false,
     },
 });

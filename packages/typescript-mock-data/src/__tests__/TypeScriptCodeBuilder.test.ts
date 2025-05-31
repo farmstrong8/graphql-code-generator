@@ -1,12 +1,43 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { buildSchema } from "graphql";
 import { TypeScriptCodeBuilder } from "../builders/TypeScriptCodeBuilder";
+import { TypeInferenceService } from "../services/TypeInferenceService";
+import { NestedTypeCollector } from "../services/NestedTypeCollector";
 import type { MockDataVariants, MockDataObject } from "../types";
+
+const schema = buildSchema(`
+  type Query {
+    user(id: ID!): User
+  }
+  
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+  }
+  
+  type Mutation {
+    createUser(input: CreateUserInput!): User
+  }
+  
+  input CreateUserInput {
+    name: String!
+    email: String!
+  }
+`);
 
 describe("TypeScriptCodeBuilder", () => {
     let builder: TypeScriptCodeBuilder;
+    let typeInferenceService: TypeInferenceService;
+    let nestedTypeCollector: NestedTypeCollector;
 
     beforeEach(() => {
-        builder = new TypeScriptCodeBuilder();
+        typeInferenceService = new TypeInferenceService(schema);
+        nestedTypeCollector = new NestedTypeCollector(schema);
+        builder = new TypeScriptCodeBuilder(
+            typeInferenceService,
+            nestedTypeCollector,
+        );
     });
 
     describe("buildCodeArtifact", () => {

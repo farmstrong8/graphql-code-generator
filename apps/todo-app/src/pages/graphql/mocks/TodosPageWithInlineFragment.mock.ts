@@ -15,31 +15,24 @@ function createBuilder<T extends object>(base: T) {
 }
 
 type AuthorFragmentFragment = {
-    __typename: "Author";
-    id: "97dbccba-69c1-407a-b780-f6f305fbf8a5";
-    name: "Delectus et perferendis reprehenderit animi vel nulla.";
+    id: string;
+    name: string;
 };
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "97dbccba-69c1-407a-b780-f6f305fbf8a5",
-    name: "Delectus et perferendis reprehenderit animi vel nulla.",
+    id: "af82c42d-fee2-4704-90c3-2e9be389eb05",
+    name: "Voluptas corrupti ea aut consequuntur praesentium odio voluptatibus.",
 });
 
 type TodosPageWithInlineFragment = {
-    __typename: "Query";
-    todos: {
-        __typename: "Todo";
-        id: "49b4a523-1b21-451c-96cb-7e87099337ee";
-        title: "Est tempore quibusdam et.";
-        completed: false;
-        dueAt: "1974-12-24";
-        author: {
-            __typename: "Author";
-            id: "8cc56e26-1cd7-45b0-b999-8b2a4d9f7cd6";
-            name: "Labore culpa eius et.";
-        };
-    };
+    todos: Array<{
+        id: string;
+        title: string;
+        completed: boolean;
+        dueAt: string;
+        author: {};
+    }>;
 };
 
 export const aTodosPageWithInlineFragment =
@@ -47,14 +40,14 @@ export const aTodosPageWithInlineFragment =
         __typename: "Query",
         todos: {
             __typename: "Todo",
-            id: "49b4a523-1b21-451c-96cb-7e87099337ee",
-            title: "Est tempore quibusdam et.",
+            id: "87734860-9de7-4af7-9294-5608bd05eaf2",
+            title: "Saepe vitae hic libero sapiente ipsa voluptatibus consequatur magnam.",
             completed: false,
-            dueAt: "1974-12-24",
+            dueAt: "2015-08-24",
             author: {
                 __typename: "Author",
-                id: "8cc56e26-1cd7-45b0-b999-8b2a4d9f7cd6",
-                name: "Labore culpa eius et.",
+                id: "18ae539d-3e4c-4027-aa66-bbe7af973b87",
+                name: "Commodi cupiditate ratione sed tempora nostrum qui labore.",
             },
         },
     });

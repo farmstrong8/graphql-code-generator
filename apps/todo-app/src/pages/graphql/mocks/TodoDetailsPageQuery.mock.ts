@@ -15,37 +15,27 @@ function createBuilder<T extends object>(base: T) {
 }
 
 type TodoDetailsPageAsTodo = {
-    __typename: "Query";
-    todo: {
-        __typename: "Todo";
-        id: "a7133b43-2415-4046-8036-398886429e5d";
-        title: "Ad vel voluptas vitae inventore.";
-        completed: false;
-    };
+    todo: object;
 };
 
 export const aTodoDetailsPageAsTodo = createBuilder<TodoDetailsPageAsTodo>({
     __typename: "Query",
     todo: {
         __typename: "Todo",
-        id: "a7133b43-2415-4046-8036-398886429e5d",
-        title: "Ad vel voluptas vitae inventore.",
-        completed: false,
+        id: "388f5c9d-a303-41e3-abae-3d6de68438ea",
+        title: "Accusantium beatae voluptatem non et ipsa soluta et.",
+        completed: true,
     },
 });
 
 type TodoDetailsPageAsError = {
-    __typename: "Query";
-    todo: {
-        __typename: "Error";
-        message: "Nam sed quis sunt quis.";
-    };
+    todo: object;
 };
 
 export const aTodoDetailsPageAsError = createBuilder<TodoDetailsPageAsError>({
     __typename: "Query",
     todo: {
         __typename: "Error",
-        message: "Nam sed quis sunt quis.",
+        message: "Voluptatem sint beatae maxime sit.",
     },
 });

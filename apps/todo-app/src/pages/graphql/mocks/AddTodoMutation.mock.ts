@@ -15,12 +15,10 @@ function createBuilder<T extends object>(base: T) {
 }
 
 type AddTodo = {
-    __typename: "Mutation";
     addTodo: {
-        __typename: "Todo";
-        id: "646024a5-dc30-41e5-84b2-f1365e4b889b";
-        title: "In iure est.";
-        completed: false;
+        id: string;
+        title: string;
+        completed: boolean;
     };
 };
 
@@ -28,8 +26,8 @@ export const aAddTodo = createBuilder<AddTodo>({
     __typename: "Mutation",
     addTodo: {
         __typename: "Todo",
-        id: "646024a5-dc30-41e5-84b2-f1365e4b889b",
-        title: "In iure est.",
+        id: "e27f6710-7d9e-40f7-8793-5e948bf2738f",
+        title: "Explicabo perspiciatis adipisci aut optio a et et qui.",
         completed: false,
     },
 });

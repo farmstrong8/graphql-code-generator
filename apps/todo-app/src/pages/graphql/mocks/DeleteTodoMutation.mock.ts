@@ -15,8 +15,7 @@ function createBuilder<T extends object>(base: T) {
 }
 
 type DeleteTodo = {
-    __typename: "Mutation";
-    deleteTodo: false;
+    deleteTodo: boolean;
 };
 
 export const aDeleteTodo = createBuilder<DeleteTodo>({

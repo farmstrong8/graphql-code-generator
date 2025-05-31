@@ -15,13 +15,12 @@ function createBuilder<T extends object>(base: T) {
 }
 
 type AuthorFragmentFragment = {
-    __typename: "Author";
-    id: "6442d7f4-bc93-4887-bd50-f79f3db43ac7";
-    name: "Eius ut architecto eligendi expedita vel ipsam cupiditate.";
+    id: string;
+    name: string;
 };
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "6442d7f4-bc93-4887-bd50-f79f3db43ac7",
-    name: "Eius ut architecto eligendi expedita vel ipsam cupiditate.",
+    id: "80913858-fb8b-4be1-8884-8c57aa2a128b",
+    name: "Pariatur recusandae voluptatum laboriosam.",
 });

@@ -6,6 +6,8 @@ import { TypeScriptCodeBuilder } from "../builders/TypeScriptCodeBuilder";
 import { ScalarHandler } from "../handlers/ScalarHandler";
 import { UnionHandler } from "../handlers/UnionHandler";
 import { SelectionSetHandler } from "../handlers/SelectionSetHandler";
+import { TypeInferenceService } from "../services/TypeInferenceService";
+import { NestedTypeCollector } from "../services/NestedTypeCollector";
 
 /**
  * Factory for creating specialized processors and handlers for mock generation.
@@ -16,6 +18,8 @@ import { SelectionSetHandler } from "../handlers/SelectionSetHandler";
 export class ArtifactFactory {
     private readonly scalarHandler: ScalarHandler;
     private readonly selectionSetHandler: SelectionSetHandler;
+    private readonly typeInferenceService: TypeInferenceService;
+    private readonly nestedTypeCollector: NestedTypeCollector;
     private readonly mockObjectBuilder: MockObjectBuilder;
     private readonly codeBuilder: TypeScriptCodeBuilder;
     private readonly unionHandler: UnionHandler;
@@ -24,10 +28,17 @@ export class ArtifactFactory {
         private readonly schema: GraphQLSchema,
         private readonly config: PluginConfig,
     ) {
+        // Initialize services first
+        this.typeInferenceService = new TypeInferenceService(this.schema);
+        this.nestedTypeCollector = new NestedTypeCollector(this.schema);
+
         // Initialize handlers with minimal dependencies first
         this.scalarHandler = new ScalarHandler(this.config);
         this.selectionSetHandler = new SelectionSetHandler(this.schema);
-        this.codeBuilder = new TypeScriptCodeBuilder();
+        this.codeBuilder = new TypeScriptCodeBuilder(
+            this.typeInferenceService,
+            this.nestedTypeCollector,
+        );
 
         // Initialize builders that depend on handlers
         this.mockObjectBuilder = new MockObjectBuilder(

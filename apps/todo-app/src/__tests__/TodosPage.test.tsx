@@ -1,16 +1,9 @@
-import React from "react";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TodosPage } from "../pages/TodosPage";
 import { renderWithProviders } from "../test/utils";
-import { 
-    TodosPageDocument,
-    AddTodoDocument,
-    DeleteTodoDocument,
-    ToggleTodoDocument
-} from "../pages/graphql/generated/TodosPageQuery";
-import { aTodosPage } from "../pages/graphql/mocks/TodosPageQuery.mock";
-import { aAddTodo } from "../pages/graphql/mocks/AddTodoMutation.mock";
+import { TodosPageDocument } from "@/pages/graphql/generated/TodosPageQuery";
+import { aTodosPage, aAddTodo } from "@/mocks";
 
 // Mock data builders for different scenarios
 const mockTodosEmpty = {
@@ -18,9 +11,7 @@ const mockTodosEmpty = {
         query: TodosPageDocument,
     },
     result: {
-        data: aTodosPage({
-            todos: []
-        }),
+        data: aTodosPage(),
     },
 };
 
@@ -40,8 +31,8 @@ const mockTodosWithItems = {
                     author: {
                         __typename: "Author",
                         id: "author-1",
-                        name: "John Doe"
-                    }
+                        name: "John Doe",
+                    },
                 },
                 {
                     __typename: "Todo",
@@ -52,10 +43,10 @@ const mockTodosWithItems = {
                     author: {
                         __typename: "Author",
                         id: "author-1",
-                        name: "John Doe"
-                    }
-                }
-            ]
+                        name: "John Doe",
+                    },
+                },
+            ],
         }),
     },
 };
@@ -72,8 +63,8 @@ const mockAddTodo = {
             addTodo: {
                 id: "3",
                 title: "New test todo",
-                completed: false
-            }
+                completed: false,
+            },
         }),
     },
 };
@@ -142,7 +133,9 @@ describe("TodosPage", () => {
             });
 
             await waitFor(() => {
-                expect(screen.getByText("Error loading todos")).toBeInTheDocument();
+                expect(
+                    screen.getByText("Error loading todos"),
+                ).toBeInTheDocument();
             });
         });
     });
@@ -154,11 +147,17 @@ describe("TodosPage", () => {
             });
 
             await waitFor(() => {
-                expect(screen.getByText("No todos yet. Add one above!")).toBeInTheDocument();
+                expect(
+                    screen.getByText("No todos yet. Add one above!"),
+                ).toBeInTheDocument();
             });
 
-            expect(screen.getByPlaceholderText("Add a new task...")).toBeInTheDocument();
-            expect(screen.getByRole("button", { name: /add/i })).toBeInTheDocument();
+            expect(
+                screen.getByPlaceholderText("Add a new task..."),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByRole("button", { name: /add/i }),
+            ).toBeInTheDocument();
         });
     });
 
@@ -190,10 +189,10 @@ describe("TodosPage", () => {
             await waitFor(() => {
                 const checkboxes = screen.getAllByRole("checkbox");
                 expect(checkboxes).toHaveLength(2);
-                
+
                 // First todo (Buy groceries) should be unchecked
                 expect(checkboxes[0]).not.toBeChecked();
-                
+
                 // Second todo (Walk the dog) should be checked
                 expect(checkboxes[1]).toBeChecked();
             });
@@ -214,13 +213,15 @@ describe("TodosPage", () => {
     describe("Adding Todos", () => {
         it("adds a todo when Add button is clicked", async () => {
             const user = userEvent.setup();
-            
+
             renderWithProviders(<TodosPage />, {
                 mocks: [mockTodosEmpty, mockAddTodo, mockTodosEmpty], // Refetch after add
             });
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText("Add a new task...")).toBeInTheDocument();
+                expect(
+                    screen.getByPlaceholderText("Add a new task..."),
+                ).toBeInTheDocument();
             });
 
             const input = screen.getByPlaceholderText("Add a new task...");
@@ -237,13 +238,15 @@ describe("TodosPage", () => {
 
         it("adds a todo when Enter key is pressed", async () => {
             const user = userEvent.setup();
-            
+
             renderWithProviders(<TodosPage />, {
                 mocks: [mockTodosEmpty, mockAddTodo, mockTodosEmpty],
             });
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText("Add a new task...")).toBeInTheDocument();
+                expect(
+                    screen.getByPlaceholderText("Add a new task..."),
+                ).toBeInTheDocument();
             });
 
             const input = screen.getByPlaceholderText("Add a new task...");
@@ -258,13 +261,15 @@ describe("TodosPage", () => {
 
         it("does not add empty todos", async () => {
             const user = userEvent.setup();
-            
+
             renderWithProviders(<TodosPage />, {
                 mocks: [mockTodosEmpty],
             });
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText("Add a new task...")).toBeInTheDocument();
+                expect(
+                    screen.getByPlaceholderText("Add a new task..."),
+                ).toBeInTheDocument();
             });
 
             const addButton = screen.getByRole("button", { name: /add/i });
@@ -278,7 +283,7 @@ describe("TodosPage", () => {
     describe("Todo Interactions", () => {
         it("toggles todo completion when checkbox is clicked", async () => {
             const user = userEvent.setup();
-            
+
             renderWithProviders(<TodosPage />, {
                 mocks: [mockTodosWithItems, mockToggleTodo, mockTodosWithItems],
             });
@@ -296,7 +301,7 @@ describe("TodosPage", () => {
 
         it("deletes todo when delete button is clicked", async () => {
             const user = userEvent.setup();
-            
+
             renderWithProviders(<TodosPage />, {
                 mocks: [mockTodosWithItems, mockDeleteTodo, mockTodosWithItems],
             });
@@ -305,7 +310,8 @@ describe("TodosPage", () => {
                 expect(screen.getAllByLabelText("Delete todo")).toHaveLength(2);
             });
 
-            const firstDeleteButton = screen.getAllByLabelText("Delete todo")[0];
+            const firstDeleteButton =
+                screen.getAllByLabelText("Delete todo")[0];
             await user.click(firstDeleteButton);
 
             // The mutation should be called (verified by mock expectation)
@@ -344,7 +350,9 @@ describe("TodosPage", () => {
             });
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText("Add a new task...")).toBeInTheDocument();
+                expect(
+                    screen.getByPlaceholderText("Add a new task..."),
+                ).toBeInTheDocument();
             });
         });
 

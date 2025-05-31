@@ -99,6 +99,11 @@ export class DocumentProcessor {
             operationName,
             operationType,
             mockDataObjects,
+            {
+                parentType: rootType,
+                selectionSet: operation.selectionSet,
+                fragmentRegistry,
+            },
         );
     }
 
@@ -135,6 +140,11 @@ export class DocumentProcessor {
             fragmentName,
             "fragment",
             mockDataObjects,
+            {
+                parentType: targetType as any,
+                selectionSet: fragment.selectionSet,
+                fragmentRegistry,
+            },
         );
     }
 

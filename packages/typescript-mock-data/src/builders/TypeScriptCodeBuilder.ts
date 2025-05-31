@@ -3,7 +3,24 @@ import type {
     MockDataVariants,
     GeneratedCodeArtifact,
 } from "../types";
+import type {
+    GraphQLObjectType,
+    GraphQLInterfaceType,
+    SelectionSetNode,
+    FragmentDefinitionNode,
+} from "graphql";
 import { MOCK_BUILDER_BOILERPLATE } from "../utils/codeTemplates";
+import type { TypeInferenceService } from "../services/TypeInferenceService";
+import type { NestedTypeCollector } from "../services/NestedTypeCollector";
+
+/**
+ * Context information for generating semantic types from GraphQL schema.
+ */
+export interface SchemaGenerationContext {
+    parentType: GraphQLObjectType | GraphQLInterfaceType;
+    selectionSet: SelectionSetNode;
+    fragmentRegistry: Map<string, FragmentDefinitionNode>;
+}
 
 /**
  * Builds TypeScript code from mock data objects.
@@ -12,18 +29,24 @@ import { MOCK_BUILDER_BOILERPLATE } from "../utils/codeTemplates";
  * with proper typing and builder functions for easy testing.
  */
 export class TypeScriptCodeBuilder {
+    constructor(
+        private readonly typeInferenceService: TypeInferenceService,
+        private readonly nestedTypeCollector: NestedTypeCollector,
+    ) {}
     /**
      * Generates a complete code artifact from mock data objects.
      *
      * @param operationName - Name of the GraphQL operation
      * @param operationType - Type of operation (query, mutation, subscription, fragment)
      * @param mockDataObjects - Array of mock data objects to convert
+     * @param schemaContext - GraphQL schema context for semantic type generation
      * @returns Complete code artifact with TypeScript code
      */
     buildCodeArtifact(
         operationName: string,
         operationType: "query" | "mutation" | "subscription" | "fragment",
         mockDataObjects: MockDataVariants,
+        schemaContext?: SchemaGenerationContext,
     ): GeneratedCodeArtifact {
         // Start with the imports and boilerplate
         const codeBlocks: string[] = [MOCK_BUILDER_BOILERPLATE];
@@ -33,6 +56,7 @@ export class TypeScriptCodeBuilder {
             const typeDefinition = this.generateTypeDefinition(
                 mockData.mockName,
                 mockData.mockValue,
+                schemaContext,
             );
             const builderFunction = this.generateBuilderFunction(
                 mockData.mockName,
@@ -91,14 +115,20 @@ export class TypeScriptCodeBuilder {
      *
      * @param mockName - The name of the mock data object
      * @param mockValue - The value of the mock data object
+     * @param schemaContext - Optional GraphQL schema context for semantic types
      * @returns TypeScript type definition string
      */
     private generateTypeDefinition(
         mockName: string,
         mockValue: unknown,
+        schemaContext?: SchemaGenerationContext,
     ): string {
         const typeName = this.getTypeNameFromMockName(mockName);
-        const typeBody = this.generateTypeBody(mockValue);
+
+        // Use semantic types from schema if available, otherwise fall back to mock-based types
+        const typeBody = schemaContext
+            ? this.generateSemanticTypeBody(schemaContext)
+            : this.generateTypeBody(mockValue);
 
         return `type ${typeName} = ${typeBody};`;
     }
@@ -258,5 +288,26 @@ export class TypeScriptCodeBuilder {
     private needsQuotes(key: string): boolean {
         // Simple check for valid JavaScript identifier
         return !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) || key === "__typename";
+    }
+
+    /**
+     * Generates semantic type body from GraphQL schema context.
+     *
+     * @param schemaContext - GraphQL schema context
+     * @returns TypeScript semantic type body string
+     */
+    private generateSemanticTypeBody(
+        schemaContext: SchemaGenerationContext,
+    ): string {
+        const { parentType, selectionSet, fragmentRegistry } = schemaContext;
+
+        // Use TypeInferenceService to generate semantic types
+        const semanticType = this.typeInferenceService.analyzeGraphQLType(
+            parentType,
+            selectionSet,
+            fragmentRegistry,
+        );
+
+        return this.typeInferenceService.generateTypeString(semanticType);
     }
 }

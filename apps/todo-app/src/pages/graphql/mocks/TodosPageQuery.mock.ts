@@ -15,27 +15,23 @@ function createBuilder<T extends object>(base: T) {
 }
 
 type TodosPage = {
-    __typename: "Query";
-    todos: {
-        __typename: "Todo";
-        id: "be4ef751-1003-4f1e-9368-ae01d91c76d1";
-        title: "Nobis asperiores similique.";
-        completed: true;
-        dueAt: "1973-10-08";
-        author: {
-            __typename: "Author";
-        };
-    };
+    todos: Array<{
+        id: string;
+        title: string;
+        completed: boolean;
+        dueAt: string;
+        author: {};
+    }>;
 };
 
 export const aTodosPage = createBuilder<TodosPage>({
     __typename: "Query",
     todos: {
         __typename: "Todo",
-        id: "be4ef751-1003-4f1e-9368-ae01d91c76d1",
-        title: "Nobis asperiores similique.",
-        completed: true,
-        dueAt: "1973-10-08",
+        id: "081d863e-ba52-4d68-878f-90cbf39d9985",
+        title: "Nemo molestiae sed et incidunt saepe.",
+        completed: false,
+        dueAt: "1979-03-20",
         author: {
             __typename: "Author",
         },
