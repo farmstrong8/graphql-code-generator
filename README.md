@@ -159,6 +159,7 @@ Please define them under the 'scalars' field in your plugin config.
 When using the `near-operation-file` preset with fragments in separate `.graphql` files, the plugin cannot access fragment definitions from other files during generation. This means:
 
 **❌ Won't work with collocation:**
+
 ```
 src/
 ├── AuthorFragment.graphql        # Fragment definition
@@ -169,19 +170,20 @@ src/
 ```
 
 **✅ Works in single files:**
+
 ```graphql
 # TodosPageQuery.graphql - Fragment and query in same file
 fragment AuthorFragment on Author {
-  id
-  name
+    id
+    name
 }
 
 query TodosPageQuery {
-  todos {
-    author {
-      ...AuthorFragment
+    todos {
+        author {
+            ...AuthorFragment
+        }
     }
-  }
 }
 ```
 
@@ -228,3 +230,4 @@ src/
 
 This plugin is actively evolving.
 Feel free to open [issues](https://github.com/farmstrong8/graphql-code-generator/issues) or [PRs](https://github.com/farmstrong8/graphql-code-generator/pulls) to improve its capabilities.
+```
