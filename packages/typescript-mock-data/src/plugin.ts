@@ -1,23 +1,18 @@
 import type { PluginFunction } from "@graphql-codegen/plugin-helpers";
-import type { TypeScriptMockDataPluginConfig } from "./config";
+import { MockDataGenerator } from "./core/MockDataGenerator";
+import type { TypeScriptMockDataPluginConfig } from "./config/types";
 
-import { processDocument } from "./processDocument";
-import { MOCK_BUILDER_BOILERPLATE } from "./constants";
-
+/**
+ * GraphQL Code Generator plugin for generating TypeScript mock data.
+ *
+ * This plugin processes GraphQL documents and generates mock builders
+ * that can be used for testing and development purposes.
+ */
 export const plugin: PluginFunction<TypeScriptMockDataPluginConfig> = (
     schema,
     documents,
     config,
 ): string => {
-    const allMocks: string[] = [];
-
-    for (const doc of documents) {
-        if (!doc.document) continue;
-        const artifacts = processDocument(doc.document, schema, config);
-        for (const { code } of artifacts) {
-            allMocks.push(code);
-        }
-    }
-
-    return [MOCK_BUILDER_BOILERPLATE, ...allMocks].join("\n\n");
+    const generator = new MockDataGenerator(schema, config);
+    return generator.generateFromDocuments(documents);
 };

@@ -5,35 +5,39 @@ import { merge } from "lodash";
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
     ? T
     : T extends Array<infer U>
-    ? Array<DeepPartial<U>>
-    : T extends object
-    ? { [K in keyof T]?: DeepPartial<T[K]> }
-    : T;
+      ? Array<DeepPartial<U>>
+      : T extends object
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : T;
 
 function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
-type TodosPageQuery = {
+type TodosPage = {
     __typename: "Query";
     todos: {
         __typename: "Todo";
-        id: "7847221c-4880-41c1-b97a-94fcf5f37176";
-        title: "Sunt quod ea quis quis quis ducimus hic.";
+        id: "b476f11e-c456-42d3-a26c-4f3b6ac608ef";
+        title: "Sint accusantium rem rerum laborum.";
         completed: true;
-        dueAt: "1974-06-14";
-        author: null;
+        dueAt: "2000-01-11";
+        author: {
+            __typename: "Author";
+        };
     };
 };
 
-export const aTodosPageQuery = createBuilder<TodosPageQuery>({
+export const aTodosPage = createBuilder<TodosPage>({
     __typename: "Query",
     todos: {
         __typename: "Todo",
-        id: "7847221c-4880-41c1-b97a-94fcf5f37176",
-        title: "Sunt quod ea quis quis quis ducimus hic.",
+        id: "b476f11e-c456-42d3-a26c-4f3b6ac608ef",
+        title: "Sint accusantium rem rerum laborum.",
         completed: true,
-        dueAt: "1974-06-14",
-        author: null,
+        dueAt: "2000-01-11",
+        author: {
+            __typename: "Author",
+        },
     },
 });

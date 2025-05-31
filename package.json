@@ -8,10 +8,12 @@
         "apps/*"
     ],
     "scripts": {
-        "build:package": "yarn workspace @graphql-codegen/typescript-mock-data build"
+        "build:package": "yarn workspace @graphql-codegen/typescript-mock-data build",
+        "format": "prettier --write '**/*.{ts,tsx}'"
     },
     "devDependencies": {
         "graphql": "^16.11.0",
+        "prettier": "^3.5.3",
         "tsup": "^8.5.0"
     }
 }

@@ -1,3 +1,11 @@
+/**
+ * TypeScript code templates used for generating mock builder functions.
+ */
+
+/**
+ * Boilerplate code that provides the createBuilder function and DeepPartial type.
+ * This template is prepended to all generated mock files.
+ */
 export const MOCK_BUILDER_BOILERPLATE = `
 import { merge } from "lodash";
 

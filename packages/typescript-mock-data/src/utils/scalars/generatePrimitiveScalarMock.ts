@@ -1,6 +1,12 @@
 import casual from "casual";
 
-export const generatePrimitiveScalarMock = (scalarName: string) => {
+/**
+ * Generates mock values for GraphQL primitive scalar types.
+ *
+ * @param scalarName - The name of the primitive scalar type
+ * @returns A mock value appropriate for the scalar type
+ */
+export function generatePrimitiveScalarMock(scalarName: string): unknown {
     switch (scalarName) {
         case "ID":
             return casual.uuid;
@@ -11,8 +17,8 @@ export const generatePrimitiveScalarMock = (scalarName: string) => {
         case "Float":
             return casual.double();
         case "Boolean":
-            return true;
+            return casual.boolean;
         default:
             return `${scalarName.toLowerCase()}-mock`;
     }
-};
+}
