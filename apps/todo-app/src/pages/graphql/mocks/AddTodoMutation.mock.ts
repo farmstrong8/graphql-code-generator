@@ -18,8 +18,8 @@ type AddTodo = {
     __typename: "Mutation";
     addTodo: {
         __typename: "Todo";
-        id: "79125a37-26ba-45f5-90a8-089d74658cfc";
-        title: "Sunt eaque similique molestiae vero.";
+        id: "646024a5-dc30-41e5-84b2-f1365e4b889b";
+        title: "In iure est.";
         completed: false;
     };
 };
@@ -28,8 +28,8 @@ export const aAddTodo = createBuilder<AddTodo>({
     __typename: "Mutation",
     addTodo: {
         __typename: "Todo",
-        id: "79125a37-26ba-45f5-90a8-089d74658cfc",
-        title: "Sunt eaque similique molestiae vero.",
+        id: "646024a5-dc30-41e5-84b2-f1365e4b889b",
+        title: "In iure est.",
         completed: false,
     },
 });

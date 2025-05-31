@@ -18,8 +18,8 @@ type TodoDetailsPageAsTodo = {
     __typename: "Query";
     todo: {
         __typename: "Todo";
-        id: "45e7d38e-4b16-406c-bb3d-08c58b1e2a97";
-        title: "Consequatur dolores et suscipit vitae.";
+        id: "a7133b43-2415-4046-8036-398886429e5d";
+        title: "Ad vel voluptas vitae inventore.";
         completed: false;
     };
 };
@@ -28,8 +28,8 @@ export const aTodoDetailsPageAsTodo = createBuilder<TodoDetailsPageAsTodo>({
     __typename: "Query",
     todo: {
         __typename: "Todo",
-        id: "45e7d38e-4b16-406c-bb3d-08c58b1e2a97",
-        title: "Consequatur dolores et suscipit vitae.",
+        id: "a7133b43-2415-4046-8036-398886429e5d",
+        title: "Ad vel voluptas vitae inventore.",
         completed: false,
     },
 });
@@ -38,7 +38,7 @@ type TodoDetailsPageAsError = {
     __typename: "Query";
     todo: {
         __typename: "Error";
-        message: "Ut nihil ab rerum aut et ratione laudantium.";
+        message: "Nam sed quis sunt quis.";
     };
 };
 
@@ -46,6 +46,6 @@ export const aTodoDetailsPageAsError = createBuilder<TodoDetailsPageAsError>({
     __typename: "Query",
     todo: {
         __typename: "Error",
-        message: "Ut nihil ab rerum aut et ratione laudantium.",
+        message: "Nam sed quis sunt quis.",
     },
 });

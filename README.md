@@ -143,12 +143,49 @@ const customTodo = aAddTodoMutation({
 ## ❗ Validation
 
 The plugin will validate your schema at build time.  
-If your schema includes a custom scalar (e.g. `Date`) and it’s not configured, you’ll get:
+If your schema includes a custom scalar (e.g. `Date`) and it's not configured, you'll get:
 
 ```
 Missing mock generators for custom scalars: Date.
 Please define them under the 'scalars' field in your plugin config.
 ```
+
+---
+
+## ⚠️ Known Limitations
+
+### Fragment Collocation
+
+When using the `near-operation-file` preset with fragments in separate `.graphql` files, the plugin cannot access fragment definitions from other files during generation. This means:
+
+**❌ Won't work with collocation:**
+```
+src/
+├── AuthorFragment.graphql        # Fragment definition
+├── TodosPageQuery.graphql        # Uses AuthorFragment
+└── mocks/
+    ├── AuthorFragment.mock.ts    # ✅ Fragment mock works
+    └── TodosPageQuery.mock.ts    # ❌ Cannot resolve AuthorFragment
+```
+
+**✅ Works in single files:**
+```graphql
+# TodosPageQuery.graphql - Fragment and query in same file
+fragment AuthorFragment on Author {
+  id
+  name
+}
+
+query TodosPageQuery {
+  todos {
+    author {
+      ...AuthorFragment
+    }
+  }
+}
+```
+
+**Workaround:** Include fragment definitions in the same `.graphql` file as operations that use them, or use a single mock file approach instead of collocation.
 
 ---
 
@@ -191,4 +228,3 @@ src/
 
 This plugin is actively evolving.
 Feel free to open [issues](https://github.com/farmstrong8/graphql-code-generator/issues) or [PRs](https://github.com/farmstrong8/graphql-code-generator/pulls) to improve its capabilities.
-```

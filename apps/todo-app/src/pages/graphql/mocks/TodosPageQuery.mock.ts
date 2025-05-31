@@ -18,10 +18,10 @@ type TodosPage = {
     __typename: "Query";
     todos: {
         __typename: "Todo";
-        id: "1ffd2ae3-4af6-4ca6-9475-6271c2219feb";
-        title: "Deleniti asperiores perspiciatis est.";
-        completed: false;
-        dueAt: "1993-11-27";
+        id: "be4ef751-1003-4f1e-9368-ae01d91c76d1";
+        title: "Nobis asperiores similique.";
+        completed: true;
+        dueAt: "1973-10-08";
         author: {
             __typename: "Author";
         };
@@ -32,10 +32,10 @@ export const aTodosPage = createBuilder<TodosPage>({
     __typename: "Query",
     todos: {
         __typename: "Todo",
-        id: "1ffd2ae3-4af6-4ca6-9475-6271c2219feb",
-        title: "Deleniti asperiores perspiciatis est.",
-        completed: false,
-        dueAt: "1993-11-27",
+        id: "be4ef751-1003-4f1e-9368-ae01d91c76d1",
+        title: "Nobis asperiores similique.",
+        completed: true,
+        dueAt: "1973-10-08",
         author: {
             __typename: "Author",
         },

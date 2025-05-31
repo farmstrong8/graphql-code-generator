@@ -1,0 +1,16 @@
+fragment AuthorFragment on Author {
+    id
+    name
+}
+
+query TodosPageWithInlineFragment {
+    todos {
+        id
+        title
+        completed
+        dueAt
+        author {
+            ...AuthorFragment
+        }
+    }
+}
