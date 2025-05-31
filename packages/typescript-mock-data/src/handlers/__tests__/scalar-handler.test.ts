@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { buildSchema, GraphQLSchema } from "graphql";
-import { ScalarHandler } from "../handlers/ScalarHandler";
-import { PluginConfig } from "../config/PluginConfig";
+import { ScalarHandler } from "../ScalarHandler";
+import { PluginConfig } from "../../config/PluginConfig";
 
 describe("ScalarHandler", () => {
     let schema: GraphQLSchema;

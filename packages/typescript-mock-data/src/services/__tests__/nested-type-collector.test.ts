@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { TypeScriptCodeBuilder } from "../builders/TypeScriptCodeBuilder";
-import { TypeInferenceService } from "../services/TypeInferenceService";
-import { NestedTypeCollector } from "../services/NestedTypeCollector";
+import { TypeScriptCodeBuilder } from "../../builders/TypeScriptCodeBuilder";
+import { TypeInferenceService } from "../TypeInferenceService";
+import { NestedTypeCollector } from "../NestedTypeCollector";
 import { buildSchema, parse } from "graphql";
 
 describe("Nested Type Extraction", () => {
@@ -80,8 +80,7 @@ describe("Nested Type Extraction", () => {
             mockDataObjects,
             schemaContext,
         );
-        console.log("Generated code:");
-        console.log(result.generatedCode); // Should have separate nested type definition
+
         expect(result.generatedCode).toContain("type TodosPageQueryTodo = {");
         expect(result.generatedCode).toContain('"__typename": "Todo",');
         expect(result.generatedCode).toContain("id: string,");

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PluginConfig } from "../config/PluginConfig";
+import { PluginConfig } from "../PluginConfig";
 
 describe("PluginConfig", () => {
     it("should create default config when no options provided", () => {

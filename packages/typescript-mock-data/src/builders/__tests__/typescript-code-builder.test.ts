@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { buildSchema } from "graphql";
-import { TypeScriptCodeBuilder } from "../builders/TypeScriptCodeBuilder";
-import { TypeInferenceService } from "../services/TypeInferenceService";
-import { NestedTypeCollector } from "../services/NestedTypeCollector";
-import type { MockDataVariants, MockDataObject } from "../types";
+import { TypeScriptCodeBuilder } from "../TypeScriptCodeBuilder";
+import { TypeInferenceService } from "../../services/TypeInferenceService";
+import { NestedTypeCollector } from "../../services/NestedTypeCollector";
+import type { MockDataVariants, MockDataObject } from "../../types";
 
 const schema = buildSchema(`
   type Query {

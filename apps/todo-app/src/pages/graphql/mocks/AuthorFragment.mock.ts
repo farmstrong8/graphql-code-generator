@@ -22,6 +22,6 @@ type AuthorFragmentFragment = {
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "34664bad-8cc8-4a8d-860c-d94387a9dc1a",
-    name: "Dolores distinctio dolore tempora quia quos omnis sit totam.",
+    id: "0d4d843b-a2e1-4f5c-99b8-3bf5bc425500",
+    name: "Saepe et est rem et.",
 });

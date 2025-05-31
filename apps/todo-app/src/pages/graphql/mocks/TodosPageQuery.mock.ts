@@ -27,10 +27,10 @@ type TodosPageTodo = {
 
 export const aTodosPageTodo = createBuilder<TodosPageTodo>({
     __typename: "Todo",
-    id: "faedaa0c-4181-4907-a5e2-1ff367888815",
-    title: "Laudantium dicta nemo voluptatem qui eveniet adipisci non porro non.",
+    id: "6f158b87-d24e-471d-a6f7-27acf68488ef",
+    title: "Dolore sapiente at.",
     completed: false,
-    dueAt: "2000-05-31",
+    dueAt: "1978-10-29",
     author: {
         __typename: "Author",
     },

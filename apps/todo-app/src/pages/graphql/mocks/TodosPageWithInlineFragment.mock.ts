@@ -22,8 +22,8 @@ type AuthorFragmentFragment = {
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "c92127f9-5db8-449b-818d-6f03d95f9140",
-    name: "Aliquam inventore ea a consequuntur.",
+    id: "cfd0b030-9065-4432-92da-fa7a6446c8e9",
+    name: "Et voluptates eius illo eveniet.",
 });
 
 type TodosPageWithInlineFragmentTodo = {
@@ -40,14 +40,14 @@ type TodosPageWithInlineFragmentTodo = {
 export const aTodosPageWithInlineFragmentTodo =
     createBuilder<TodosPageWithInlineFragmentTodo>({
         __typename: "Todo",
-        id: "0348efcb-7a25-447e-88fb-115ba2ec011b",
-        title: "Delectus aliquid aut nihil modi dolor labore illum odio.",
+        id: "d4ea7cdb-fedc-4b71-8309-d41bc3f827ea",
+        title: "Voluptas sed ea necessitatibus illo.",
         completed: false,
-        dueAt: "2011-12-16",
+        dueAt: "1989-09-03",
         author: {
             __typename: "Author",
-            id: "c69ce243-e6ce-4308-a260-a3cfac0c26a2",
-            name: "Consequatur voluptas enim qui odio accusamus aut.",
+            id: "b9b07d99-df77-4be9-96c5-88c095d70366",
+            name: "Officiis vitae molestiae maiores earum dolore quia nihil temporibus.",
         },
     });
 

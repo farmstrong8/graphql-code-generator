@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildSchema, parse } from "graphql";
-import { SelectionSetHandler } from "../handlers/SelectionSetHandler";
+import { SelectionSetHandler } from "../SelectionSetHandler";
 
 const schema = buildSchema(`
   type Query {

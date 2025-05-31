@@ -9,11 +9,11 @@ import {
     SelectionSetNode,
 } from "graphql";
 import { parse } from "graphql";
-import { UnionHandler } from "../handlers/UnionHandler";
-import { MockObjectBuilder } from "../builders/MockObjectBuilder";
-import { ScalarHandler } from "../handlers/ScalarHandler";
-import { SelectionSetHandler } from "../handlers/SelectionSetHandler";
-import { PluginConfig } from "../config/PluginConfig";
+import { UnionHandler } from "../UnionHandler";
+import { MockObjectBuilder } from "../../builders/MockObjectBuilder";
+import { ScalarHandler } from "../ScalarHandler";
+import { SelectionSetHandler } from "../SelectionSetHandler";
+import { PluginConfig } from "../../config/PluginConfig";
 
 describe("UnionHandler", () => {
     let handler: UnionHandler;
