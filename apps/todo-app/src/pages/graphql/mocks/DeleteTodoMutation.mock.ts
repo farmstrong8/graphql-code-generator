@@ -14,11 +14,12 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
-type DeleteTodo = {
+type DeleteTodoMutation = {
+    __typename: "Mutation";
     deleteTodo: boolean;
 };
 
-export const aDeleteTodo = createBuilder<DeleteTodo>({
+export const aDeleteTodoMutation = createBuilder<DeleteTodoMutation>({
     __typename: "Mutation",
-    deleteTodo: false,
+    deleteTodo: true,
 });

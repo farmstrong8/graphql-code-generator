@@ -105,20 +105,20 @@ describe("Plugin Integration", () => {
         expect(result).toContain("type DeepPartial<T>");
 
         // Should generate fragment mock
-        expect(result).toContain("export const aAuthorFields");
+        expect(result).toContain("export const aAuthorFieldsFragment");
         expect(result).toContain("createBuilder<AuthorFieldsFragment>");
 
         // Should generate query mocks
-        expect(result).toContain("export const aGetTodos");
-        expect(result).toContain("createBuilder<GetTodos>");
+        expect(result).toContain("export const aGetTodosQuery");
+        expect(result).toContain("createBuilder<GetTodosQuery>");
 
         // Should generate inline fragment variants
-        expect(result).toContain("export const aGetTodoByIdAsTodo");
-        expect(result).toContain("export const aGetTodoByIdAsError");
+        expect(result).toContain("export const aGetTodoByIdQueryAsTodo");
+        expect(result).toContain("export const aGetTodoByIdQueryAsError");
 
         // Should generate mutation mock
-        expect(result).toContain("export const aAddTodo");
-        expect(result).toContain("createBuilder<AddTodo>");
+        expect(result).toContain("export const aAddTodoMutation");
+        expect(result).toContain("createBuilder<AddTodoMutation>");
 
         // Should handle custom scalars
         expect(result).toContain("dueAt:");

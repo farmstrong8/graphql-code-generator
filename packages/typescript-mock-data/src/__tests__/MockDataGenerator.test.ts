@@ -58,7 +58,7 @@ describe("MockDataGenerator", () => {
         const result = generator.generateFromDocuments([{ document }]);
 
         expect(result).toContain("export const aGetTodos");
-        expect(result).toContain("createBuilder<GetTodos>");
+        expect(result).toContain("createBuilder<GetTodosQuery>");
         expect(result).toContain("todos: {"); // Single object, not array
         expect(result).toContain("id:");
         expect(result).toContain("title:");
@@ -80,7 +80,7 @@ describe("MockDataGenerator", () => {
         const result = generator.generateFromDocuments([{ document }]);
 
         expect(result).toContain("export const aAddTodo");
-        expect(result).toContain("createBuilder<AddTodo>");
+        expect(result).toContain("createBuilder<AddTodoMutation>");
         expect(result).toContain("addTodo: {");
     });
 

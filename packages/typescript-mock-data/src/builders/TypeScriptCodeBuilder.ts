@@ -57,10 +57,14 @@ export class TypeScriptCodeBuilder {
                 mockData.mockName,
                 mockData.mockValue,
                 schemaContext,
+                operationName,
+                operationType,
             );
             const builderFunction = this.generateBuilderFunction(
                 mockData.mockName,
                 mockData.mockValue,
+                operationName,
+                operationType,
             );
 
             codeBlocks.push("");
@@ -84,14 +88,23 @@ export class TypeScriptCodeBuilder {
      */
     generateCode(mockData: MockDataObject): GeneratedCodeArtifact {
         const { mockName, mockValue } = mockData;
+        const operationType = this.inferOperationType(mockName);
 
         // Generate the type definition
-        const typeDefinition = this.generateTypeDefinition(mockName, mockValue);
+        const typeDefinition = this.generateTypeDefinition(
+            mockName,
+            mockValue,
+            undefined,
+            undefined,
+            operationType,
+        );
 
         // Generate the builder function
         const builderFunction = this.generateBuilderFunction(
             mockName,
             mockValue,
+            undefined,
+            operationType,
         );
 
         // Combine all parts
@@ -105,7 +118,7 @@ export class TypeScriptCodeBuilder {
 
         return {
             operationName: mockName,
-            operationType: this.inferOperationType(mockName),
+            operationType,
             generatedCode,
         };
     }
@@ -116,14 +129,22 @@ export class TypeScriptCodeBuilder {
      * @param mockName - The name of the mock data object
      * @param mockValue - The value of the mock data object
      * @param schemaContext - Optional GraphQL schema context for semantic types
+     * @param operationName - The name of the GraphQL operation
+     * @param operationType - The type of the GraphQL operation
      * @returns TypeScript type definition string
      */
     private generateTypeDefinition(
         mockName: string,
         mockValue: unknown,
         schemaContext?: SchemaGenerationContext,
+        operationName?: string,
+        operationType?: "query" | "mutation" | "subscription" | "fragment",
     ): string {
-        const typeName = this.getTypeNameFromMockName(mockName);
+        const typeName = this.getTypeNameFromMockName(
+            mockName,
+            operationName,
+            operationType,
+        );
 
         // Use semantic types from schema if available, otherwise fall back to mock-based types
         const typeBody = schemaContext
@@ -138,13 +159,21 @@ export class TypeScriptCodeBuilder {
      *
      * @param mockName - The name of the mock data object
      * @param mockValue - The value of the mock data object
+     * @param operationName - The name of the GraphQL operation
+     * @param operationType - The type of the GraphQL operation
      * @returns TypeScript builder function string
      */
     private generateBuilderFunction(
         mockName: string,
         mockValue: unknown,
+        operationName?: string,
+        operationType?: "query" | "mutation" | "subscription" | "fragment",
     ): string {
-        const typeName = this.getTypeNameFromMockName(mockName);
+        const typeName = this.getTypeNameFromMockName(
+            mockName,
+            operationName,
+            operationType,
+        );
         const builderName = `a${typeName}`;
         const mockValueString = this.generateMockValue(mockValue);
 
@@ -257,11 +286,73 @@ export class TypeScriptCodeBuilder {
      * Converts a mock name to a TypeScript type name.
      *
      * @param mockName - The mock name
+     * @param operationName - Optional operation name to use as base type name
+     * @param operationType - Optional operation type to append as suffix
      * @returns Capitalized type name
      */
-    private getTypeNameFromMockName(mockName: string): string {
-        // Capitalize first letter for type name
+    private getTypeNameFromMockName(
+        mockName: string,
+        operationName?: string,
+        operationType?: "query" | "mutation" | "subscription" | "fragment",
+    ): string {
+        // If we have an operation name and the mock name contains "As", use operation name + variant
+        if (operationName && mockName.includes("As")) {
+            const variantPart = mockName.split("As")[1];
+            const baseName = this.getOperationNameWithSuffix(
+                operationName,
+                operationType,
+            );
+            return baseName + (variantPart ? `As${variantPart}` : "");
+        }
+
+        // If the mockName already has the expected operation suffix or is a variant, use it directly
+        if (operationName) {
+            const expectedSuffix = this.getOperationNameWithSuffix(
+                operationName,
+                operationType,
+            );
+
+            // If mockName is exactly the expected name or is a variant of it, use mockName
+            if (
+                mockName === expectedSuffix ||
+                mockName.startsWith(expectedSuffix) ||
+                mockName.includes("Variant")
+            ) {
+                return mockName;
+            }
+
+            // Otherwise, use the operation name with suffix
+            return expectedSuffix;
+        }
+
+        // Fallback to capitalizing mock name
         return mockName.charAt(0).toUpperCase() + mockName.slice(1);
+    }
+
+    /**
+     * Adds operation type suffix to operation name.
+     *
+     * @param operationName - The operation name
+     * @param operationType - The operation type
+     * @returns Operation name with appropriate suffix
+     */
+    private getOperationNameWithSuffix(
+        operationName: string,
+        operationType?: "query" | "mutation" | "subscription" | "fragment",
+    ): string {
+        if (!operationType || operationType === "fragment") {
+            return operationName;
+        }
+
+        const suffix =
+            operationType.charAt(0).toUpperCase() + operationType.slice(1);
+
+        // Avoid duplicate suffixes
+        if (operationName.endsWith(suffix)) {
+            return operationName;
+        }
+
+        return operationName + suffix;
     }
 
     /**

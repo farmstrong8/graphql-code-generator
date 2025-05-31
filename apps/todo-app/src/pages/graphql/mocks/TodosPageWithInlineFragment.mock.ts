@@ -14,40 +14,45 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
-type AuthorFragmentFragment = {
+type AuthorFragment = {
+    __typename: "Author";
     id: string;
     name: string;
 };
 
-export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
+export const aAuthorFragment = createBuilder<AuthorFragment>({
     __typename: "Author",
-    id: "af82c42d-fee2-4704-90c3-2e9be389eb05",
-    name: "Voluptas corrupti ea aut consequuntur praesentium odio voluptatibus.",
+    id: "0bcb061b-4b10-4ca8-8b6e-cca8ae349ecd",
+    name: "Eum deserunt et id.",
 });
 
-type TodosPageWithInlineFragment = {
+type TodosPageWithInlineFragmentQuery = {
+    __typename: "Query";
     todos: Array<{
+        __typename: "Todo";
         id: string;
         title: string;
         completed: boolean;
         dueAt: string;
-        author: {};
+        author: {
+            __typename: "Author";
+        };
     }>;
 };
 
-export const aTodosPageWithInlineFragment =
-    createBuilder<TodosPageWithInlineFragment>({
+export const aTodosPageWithInlineFragmentQuery =
+    createBuilder<TodosPageWithInlineFragmentQuery>({
         __typename: "Query",
         todos: {
             __typename: "Todo",
-            id: "87734860-9de7-4af7-9294-5608bd05eaf2",
-            title: "Saepe vitae hic libero sapiente ipsa voluptatibus consequatur magnam.",
+            id: "a9c8cc01-1a3b-4bc2-ac8f-d9af713d69e4",
+            title: "Ullam ut cumque doloremque cupiditate est et vel aperiam.",
             completed: false,
-            dueAt: "2015-08-24",
+            dueAt: "1974-12-31",
             author: {
                 __typename: "Author",
-                id: "18ae539d-3e4c-4027-aa66-bbe7af973b87",
-                name: "Commodi cupiditate ratione sed tempora nostrum qui labore.",
+                id: "50fabdae-7b45-4f8f-9344-bfff9287da11",
+                name: "Omnis et autem sunt occaecati est vel.",
             },
         },
     });

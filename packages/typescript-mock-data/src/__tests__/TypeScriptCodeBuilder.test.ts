@@ -140,7 +140,7 @@ describe("TypeScriptCodeBuilder", () => {
 
             expect(result.operationName).toBe("User");
             expect(result.operationType).toBe("fragment");
-            expect(result.generatedCode).toContain("type UserFragment");
+            expect(result.generatedCode).toContain("type User");
             expect(result.generatedCode).toContain("fragment@example.com");
         });
 

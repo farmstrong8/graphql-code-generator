@@ -9,6 +9,7 @@ import type {
     FieldNode,
     SelectionSetNode,
     FragmentDefinitionNode,
+    InlineFragmentNode,
 } from "graphql";
 import {
     isObjectType,
@@ -134,7 +135,11 @@ export class TypeInferenceService {
 
         // Handle union types
         if (isUnionType(namedType)) {
-            return this.inferUnionType(namedType);
+            return this.inferUnionType(
+                namedType,
+                selectionSet,
+                fragmentRegistry,
+            );
         }
 
         return this.createUnknownType();
@@ -188,9 +193,9 @@ export class TypeInferenceService {
                         isNullable: true,
                     };
                 }
-                // Default custom scalars to string
+                // Default unknown custom scalars to any for type safety
                 return {
-                    typeString: "string",
+                    typeString: "any",
                     isArray: false,
                     isNullable: true,
                 };
@@ -218,6 +223,13 @@ export class TypeInferenceService {
         const objectFields: Record<string, SemanticTypeInfo> = {};
         const fields = objectType.getFields();
 
+        // Always include __typename for object types with literal type
+        objectFields["__typename"] = {
+            typeString: `"${objectType.name}"`,
+            isArray: false,
+            isNullable: false,
+        };
+
         // Process each selection in the selection set
         for (const selection of selectionSet.selections) {
             if (selection.kind === "Field") {
@@ -231,8 +243,43 @@ export class TypeInferenceService {
                         fragmentRegistry,
                     );
                 }
+            } else if (selection.kind === "InlineFragment") {
+                // Handle inline fragments for union types
+                if (selection.selectionSet) {
+                    // Get the type condition (e.g., "Todo", "Error")
+                    const typeCondition = selection.typeCondition?.name.value;
+                    if (typeCondition) {
+                        // Find the type in the schema
+                        const fragmentType = this.schema.getType(typeCondition);
+                        if (
+                            fragmentType &&
+                            (isObjectType(fragmentType) ||
+                                isInterfaceType(fragmentType))
+                        ) {
+                            // Process the fragment's selection set
+                            for (const fragmentSelection of selection
+                                .selectionSet.selections) {
+                                if (fragmentSelection.kind === "Field") {
+                                    const fieldName =
+                                        fragmentSelection.name.value;
+                                    const fieldDef =
+                                        fragmentType.getFields()[fieldName];
+
+                                    if (fieldDef) {
+                                        objectFields[fieldName] =
+                                            this.analyzeGraphQLType(
+                                                fieldDef.type,
+                                                fragmentSelection.selectionSet,
+                                                fragmentRegistry,
+                                            );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            // TODO: Handle inline fragments and fragment spreads if needed
+            // TODO: Handle fragment spreads if needed
         }
 
         return {
@@ -247,15 +294,93 @@ export class TypeInferenceService {
      * Infers semantic type for GraphQL union types.
      *
      * @param unionType - The GraphQL union type
+     * @param selectionSet - Selection set containing inline fragments
+     * @param fragmentRegistry - Available fragment definitions
      * @returns Semantic type information for the union
      */
-    private inferUnionType(unionType: GraphQLUnionType): SemanticTypeInfo {
-        // Union types are complex and handled separately by UnionHandler
-        // For type generation purposes, we treat them as generic objects
+    private inferUnionType(
+        unionType: GraphQLUnionType,
+        selectionSet?: SelectionSetNode,
+        fragmentRegistry?: Map<string, FragmentDefinitionNode>,
+    ): SemanticTypeInfo {
+        if (!selectionSet) {
+            // If no selection set, treat as generic object
+            return {
+                typeString: "object",
+                isArray: false,
+                isNullable: true,
+            };
+        }
+
+        // Collect fields from all inline fragments
+        const unionFields: Record<string, SemanticTypeInfo> = {};
+
+        // For union types, __typename will be determined by the specific variant
+        // We'll use a union of literal types
+        const typeNames: string[] = [];
+
+        // Process inline fragments
+        for (const selection of selectionSet.selections) {
+            if (selection.kind === "InlineFragment") {
+                const typeCondition = selection.typeCondition?.name.value;
+                if (typeCondition) {
+                    // Collect the type name for __typename union
+                    typeNames.push(`"${typeCondition}"`);
+
+                    // Find the type in the schema
+                    const fragmentType = this.schema.getType(typeCondition);
+                    if (
+                        fragmentType &&
+                        (isObjectType(fragmentType) ||
+                            isInterfaceType(fragmentType))
+                    ) {
+                        // Process the fragment's selection set
+                        if (selection.selectionSet) {
+                            for (const fragmentSelection of selection
+                                .selectionSet.selections) {
+                                if (fragmentSelection.kind === "Field") {
+                                    const fieldName =
+                                        fragmentSelection.name.value;
+                                    const fieldDef =
+                                        fragmentType.getFields()[fieldName];
+
+                                    if (fieldDef) {
+                                        unionFields[fieldName] =
+                                            this.analyzeGraphQLType(
+                                                fieldDef.type,
+                                                fragmentSelection.selectionSet,
+                                                fragmentRegistry,
+                                            );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add __typename field with union of literal types
+        if (typeNames.length > 0) {
+            unionFields["__typename"] = {
+                typeString: typeNames.join(" | "),
+                isArray: false,
+                isNullable: false,
+            };
+        } else {
+            // Fallback if no fragments found
+            unionFields["__typename"] = {
+                typeString: "string",
+                isArray: false,
+                isNullable: false,
+            };
+        }
+
         return {
             typeString: "object",
             isArray: false,
             isNullable: true,
+            objectFields: unionFields,
         };
     }
 
