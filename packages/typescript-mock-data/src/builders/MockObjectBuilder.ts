@@ -110,12 +110,144 @@ export class MockObjectBuilder {
                 fragmentRegistry,
             );
 
+        // Check if any fields return union types - if so, we need to generate variants
+        const unionFields = this.findUnionFields(
+            parentType,
+            resolvedSelectionSet,
+        );
+
+        if (unionFields.length > 0) {
+            return this.buildObjectMockWithUnionVariants({
+                parentType,
+                selectionSet: resolvedSelectionSet,
+                operationName,
+                fragmentRegistry,
+                unionFields,
+            });
+        }
+
+        // Standard object mock generation
+        return this.buildSingleObjectMock({
+            parentType,
+            selectionSet: resolvedSelectionSet,
+            operationName,
+            fragmentRegistry,
+        });
+    }
+
+    /**
+     * Finds fields in a selection set that return union types.
+     */
+    private findUnionFields(
+        parentType: GraphQLObjectType | GraphQLInterfaceType,
+        selectionSet: SelectionSetNode,
+    ): FieldNode[] {
+        const unionFields: FieldNode[] = [];
+
+        for (const selection of selectionSet.selections) {
+            if (selection.kind !== Kind.FIELD) continue;
+
+            const fieldDef = parentType.getFields()[selection.name.value];
+            if (!fieldDef) continue;
+
+            const namedType = getNamedType(fieldDef.type);
+            if (isUnionType(namedType) && selection.selectionSet) {
+                unionFields.push(selection);
+            }
+        }
+
+        return unionFields;
+    }
+
+    /**
+     * Builds multiple mock variants when union fields are present.
+     */
+    private buildObjectMockWithUnionVariants(params: {
+        parentType: GraphQLObjectType | GraphQLInterfaceType;
+        selectionSet: SelectionSetNode;
+        operationName: string;
+        fragmentRegistry: Map<string, FragmentDefinitionNode>;
+        unionFields: FieldNode[];
+    }): MockDataVariants {
+        const {
+            parentType,
+            selectionSet,
+            operationName,
+            fragmentRegistry,
+            unionFields,
+        } = params;
+        const allVariants: MockDataVariants = [];
+
+        // For each union field, generate variants
+        for (const unionField of unionFields) {
+            const fieldDef = parentType.getFields()[unionField.name.value];
+            const unionType = getNamedType(fieldDef.type) as GraphQLUnionType;
+
+            // Generate union variants for this field
+            const unionVariants = this.unionHandler!.processUnionType({
+                unionType,
+                selectionSet: unionField.selectionSet!,
+                operationName,
+                fragmentRegistry,
+            });
+
+            // Create a parent mock for each union variant
+            for (const unionVariant of unionVariants) {
+                const mockValue: Record<string, unknown> = {
+                    __typename: parentType.name,
+                };
+
+                // Process all non-union fields normally
+                for (const selection of selectionSet.selections) {
+                    if (selection.kind !== Kind.FIELD) continue;
+
+                    const fieldName = selection.name.value;
+
+                    if (fieldName === unionField.name.value) {
+                        // Use the union variant value for this field
+                        mockValue[fieldName] = unionVariant.mockValue;
+                    } else {
+                        // Generate normal field value
+                        const fieldValue = this.generateFieldValue(
+                            parentType,
+                            selection,
+                            operationName,
+                            fragmentRegistry,
+                        );
+                        if (fieldValue !== undefined) {
+                            mockValue[fieldName] = fieldValue;
+                        }
+                    }
+                }
+
+                allVariants.push({
+                    mockName: unionVariant.mockName,
+                    mockValue,
+                });
+            }
+        }
+
+        return allVariants;
+    }
+
+    /**
+     * Builds a single mock object (no union variants).
+     */
+    private buildSingleObjectMock(params: {
+        parentType: GraphQLObjectType | GraphQLInterfaceType;
+        selectionSet: SelectionSetNode;
+        operationName: string;
+        fragmentRegistry: Map<string, FragmentDefinitionNode>;
+    }): MockDataVariants {
+        const { parentType, selectionSet, operationName, fragmentRegistry } =
+            params;
+
         const mockValue: Record<string, unknown> = {
             __typename: parentType.name,
         };
 
         // Process each field in the selection set
-        for (const selection of resolvedSelectionSet.selections) {
+        for (const selection of selectionSet.selections) {
             if (selection.kind !== Kind.FIELD) continue;
 
             const fieldValue = this.generateFieldValue(

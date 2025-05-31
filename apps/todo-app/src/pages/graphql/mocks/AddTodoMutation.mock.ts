@@ -18,8 +18,8 @@ type AddTodo = {
     __typename: "Mutation";
     addTodo: {
         __typename: "Todo";
-        id: "2fe46c5c-e3ce-4ab9-b56f-6e1f7330deb1";
-        title: "Commodi officia voluptatum illo molestias voluptatum provident rem.";
+        id: "79125a37-26ba-45f5-90a8-089d74658cfc";
+        title: "Sunt eaque similique molestiae vero.";
         completed: false;
     };
 };
@@ -28,8 +28,8 @@ export const aAddTodo = createBuilder<AddTodo>({
     __typename: "Mutation",
     addTodo: {
         __typename: "Todo",
-        id: "2fe46c5c-e3ce-4ab9-b56f-6e1f7330deb1",
-        title: "Commodi officia voluptatum illo molestias voluptatum provident rem.",
+        id: "79125a37-26ba-45f5-90a8-089d74658cfc",
+        title: "Sunt eaque similique molestiae vero.",
         completed: false,
     },
 });

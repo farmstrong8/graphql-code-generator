@@ -16,10 +16,10 @@ function createBuilder<T extends object>(base: T) {
 
 type DeleteTodo = {
     __typename: "Mutation";
-    deleteTodo: true;
+    deleteTodo: false;
 };
 
 export const aDeleteTodo = createBuilder<DeleteTodo>({
     __typename: "Mutation",
-    deleteTodo: true,
+    deleteTodo: false,
 });

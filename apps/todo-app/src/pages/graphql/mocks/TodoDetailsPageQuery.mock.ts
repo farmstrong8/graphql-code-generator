@@ -14,22 +14,38 @@ function createBuilder<T extends object>(base: T) {
     return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
 }
 
-type TodoDetailsPage = {
+type TodoDetailsPageAsTodo = {
     __typename: "Query";
     todo: {
         __typename: "Todo";
-        id: "d0305ed2-456c-44e1-9b20-e85b698d2cbf";
-        title: "Quidem nesciunt est dolorem.";
+        id: "45e7d38e-4b16-406c-bb3d-08c58b1e2a97";
+        title: "Consequatur dolores et suscipit vitae.";
         completed: false;
     };
 };
 
-export const aTodoDetailsPage = createBuilder<TodoDetailsPage>({
+export const aTodoDetailsPageAsTodo = createBuilder<TodoDetailsPageAsTodo>({
     __typename: "Query",
     todo: {
         __typename: "Todo",
-        id: "d0305ed2-456c-44e1-9b20-e85b698d2cbf",
-        title: "Quidem nesciunt est dolorem.",
+        id: "45e7d38e-4b16-406c-bb3d-08c58b1e2a97",
+        title: "Consequatur dolores et suscipit vitae.",
         completed: false,
+    },
+});
+
+type TodoDetailsPageAsError = {
+    __typename: "Query";
+    todo: {
+        __typename: "Error";
+        message: "Ut nihil ab rerum aut et ratione laudantium.";
+    };
+};
+
+export const aTodoDetailsPageAsError = createBuilder<TodoDetailsPageAsError>({
+    __typename: "Query",
+    todo: {
+        __typename: "Error",
+        message: "Ut nihil ab rerum aut et ratione laudantium.",
     },
 });
