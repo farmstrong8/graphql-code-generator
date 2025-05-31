@@ -1,7 +1,7 @@
 import React from "react";
 import { render, type RenderOptions } from "@testing-library/react";
 import { MockedProvider, type MockedResponse } from "@apollo/client/testing";
-import { MemoryRouter } from "react-router-dom";
+// import { MemoryRouter } from "react-router-dom";
 
 // Custom render function that wraps components with Apollo MockedProvider and Router
 interface CustomRenderOptions extends Omit<RenderOptions, "wrapper"> {
