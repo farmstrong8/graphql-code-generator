@@ -21,9 +21,9 @@ type AddTodoTodo = {
 
 export const aAddTodoTodo = createBuilder<AddTodoTodo>({
     __typename: "Todo",
-    id: "f80c8518-45fd-404e-afdc-3414c239dea3",
-    title: "Consectetur reprehenderit aut consequatur.",
-    completed: true,
+    id: "cdc122e5-8627-456e-8c39-b6a318e5ab77",
+    title: "Enim voluptatem eum iste reprehenderit.",
+    completed: false,
 });
 
 type AddTodoMutation = {
@@ -44,8 +44,8 @@ type AuthorFragmentFragment = {
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "8cbcc4c1-36c8-45f6-903e-484e0f264f26",
-    name: "Minus porro qui vero voluptatem minus autem porro voluptatibus.",
+    id: "76aa8abe-8ec9-4508-a523-4616c0088b0a",
+    name: "Quisquam illo rem qui voluptatem dolorem voluptas ut.",
 });
 
 type DeleteTodoMutation = {
@@ -55,7 +55,7 @@ type DeleteTodoMutation = {
 
 export const aDeleteTodoMutation = createBuilder<DeleteTodoMutation>({
     __typename: "Mutation",
-    deleteTodo: true,
+    deleteTodo: false,
 });
 
 type TodoDetailsPageQueryAsTodo = {
@@ -73,9 +73,9 @@ export const aTodoDetailsPageQueryAsTodo =
         __typename: "Query",
         todo: {
             __typename: "Todo",
-            id: "a2da63f5-fe06-48fd-be5b-ccb621f4e01d",
-            title: "Repellendus non qui praesentium magnam.",
-            completed: true,
+            id: "1fb11e27-cf69-458b-bbc2-ad056927ec29",
+            title: "Voluptatem reprehenderit sed non perferendis praesentium aut.",
+            completed: false,
         },
     });
 
@@ -92,7 +92,8 @@ export const aTodoDetailsPageQueryAsError =
         __typename: "Query",
         todo: {
             __typename: "Error",
-            message: "Totam ratione quod aliquam soluta nemo omnis.",
+            message:
+                "Voluptates laudantium quis perferendis est voluptatibus sed earum libero.",
         },
     });
 
@@ -111,14 +112,14 @@ type TodosPageTodo = {
 
 export const aTodosPageTodo = createBuilder<TodosPageTodo>({
     __typename: "Todo",
-    id: "6ea379ac-480c-4903-a8e4-3224ace8804d",
-    title: "Molestias at vitae hic voluptatem molestiae placeat corrupti quam fugiat.",
+    id: "384abad0-4e41-453d-be0f-5a515dd3d7c9",
+    title: "Aliquid totam rerum voluptatem sapiente.",
     completed: false,
-    dueAt: "1981-04-02",
+    dueAt: "1972-09-23",
     author: {
         __typename: "Author",
-        id: "591102c4-0d03-4e23-8c0f-9305cb321305",
-        name: "Porro fugiat voluptas dolores.",
+        id: "486dbffe-10d1-4d99-a220-fe1ad9613012",
+        name: "Enim totam nihil.",
     },
 });
 
@@ -141,8 +142,8 @@ type AuthorInlineFragmentFragment = {
 export const aAuthorInlineFragmentFragment =
     createBuilder<AuthorInlineFragmentFragment>({
         __typename: "Author",
-        id: "df6c0d42-69a8-4fc7-8119-571158160dac",
-        name: "Suscipit labore quisquam qui sint odit.",
+        id: "33d29672-a938-46a4-a6d6-81b91c92ba9c",
+        name: "Non occaecati omnis itaque et blanditiis ea amet.",
     });
 
 type TodosPageWithInlineFragmentTodo = {
@@ -161,14 +162,14 @@ type TodosPageWithInlineFragmentTodo = {
 export const aTodosPageWithInlineFragmentTodo =
     createBuilder<TodosPageWithInlineFragmentTodo>({
         __typename: "Todo",
-        id: "17b94599-99f8-41eb-9a50-721b3bc1f676",
-        title: "Libero minus consectetur et quod consequatur et.",
-        completed: true,
-        dueAt: "1973-06-24",
+        id: "7ae6c217-005c-4395-9835-79601eeb8ecc",
+        title: "Perspiciatis possimus at occaecati vel.",
+        completed: false,
+        dueAt: "2013-04-11",
         author: {
             __typename: "Author",
-            id: "75133af8-c191-4674-b001-ec6fe1928963",
-            name: "Accusamus beatae voluptatem eligendi nihil velit explicabo.",
+            id: "5b48a3e1-6d95-4f2a-aec1-1f4b270d293a",
+            name: "Et tenetur laborum excepturi eum.",
         },
     });
 
@@ -192,8 +193,8 @@ type ToggleTodoTodo = {
 
 export const aToggleTodoTodo = createBuilder<ToggleTodoTodo>({
     __typename: "Todo",
-    id: "1fedfd5b-7737-4978-8788-c70da8b71e50",
-    title: "Omnis et quia expedita quod laborum non reiciendis.",
+    id: "b9b83d32-9c23-4ad0-8828-69a968bdaa18",
+    title: "Facere ipsam voluptatem sed ipsam cum.",
     completed: true,
 });
 

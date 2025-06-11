@@ -29,8 +29,8 @@ export const aTodoDetailsPageQueryAsTodo =
         __typename: "Query",
         todo: {
             __typename: "Todo",
-            id: "b0321cbb-8068-41fe-b73e-1757dddf1a7b",
-            title: "Sit quia adipisci enim voluptate placeat ex et recusandae aut.",
+            id: "592b1524-199c-4367-bc8b-e9fc802db32d",
+            title: "Necessitatibus soluta mollitia dolorum tempore.",
             completed: true,
         },
     });
@@ -48,6 +48,6 @@ export const aTodoDetailsPageQueryAsError =
         __typename: "Query",
         todo: {
             __typename: "Error",
-            message: "Hic et quisquam quia voluptas.",
+            message: "Sunt est id est unde.",
         },
     });

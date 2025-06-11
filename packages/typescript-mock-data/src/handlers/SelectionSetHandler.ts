@@ -14,6 +14,7 @@ import {
     isScalarType,
     getNamedType,
 } from "graphql";
+import { extractTypeNameFromFragmentName } from "../utils/fragmentUtils";
 
 /**
  * Handles resolution and processing of GraphQL selection sets.
@@ -206,8 +207,7 @@ export class SelectionSetHandler {
         fragmentRegistry: Map<string, FragmentDefinitionNode>,
     ): FieldNode[] {
         // Extract the type name from fragment name (e.g., "AuthorFragment" -> "Author")
-        const targetTypeName =
-            this.extractTypeNameFromFragmentName(fragmentName);
+        const targetTypeName = extractTypeNameFromFragmentName(fragmentName);
 
         if (!targetTypeName) {
             return [];
@@ -230,42 +230,9 @@ export class SelectionSetHandler {
     }
 
     /**
-     * Extracts the target type name from a fragment name using common naming patterns.
-     *
-     * @param fragmentName - Fragment name (e.g., "AuthorFragment", "UserFields", "PostDetails")
-     * @returns The extracted type name or null if cannot be determined
-     */
-    private extractTypeNameFromFragmentName(
-        fragmentName: string,
-    ): string | null {
-        // Common patterns:
-        // - "AuthorFragment" -> "Author"
-        // - "UserFields" -> "User"
-        // - "PostDetails" -> "Post"
-        // - "TodoInfo" -> "Todo"
-
-        // Remove common fragment suffixes
-        const suffixes = [
-            "Fragment",
-            "Fields",
-            "Details",
-            "Info",
-            "Data",
-            "Props",
-        ];
-
-        for (const suffix of suffixes) {
-            if (fragmentName.endsWith(suffix)) {
-                return fragmentName.slice(0, -suffix.length);
-            }
-        }
-
-        // If no suffix pattern matches, assume the fragment name is the type name
-        return fragmentName;
-    }
-
-    /**
-     * Generates synthetic field selections for common fields that fragments typically include.
+     * Generates synthetic field selections for fragment fallback.
+     * When fragment definitions are not available, this creates basic field
+     * selections based on the target type's available scalar fields.
      *
      * @param targetType - The GraphQL type to generate field selections for
      * @returns Array of FieldNode selections
@@ -276,19 +243,16 @@ export class SelectionSetHandler {
         const fieldSelections: FieldNode[] = [];
         const schemaFields = targetType.getFields();
 
-        // Include common identifier fields that fragments typically use
-        const commonFieldNames = [
-            "id",
-            "name",
-            "title",
-            "email",
-            "username",
-            "slug",
-        ];
+        // Include scalar fields from the type, up to a reasonable limit
+        let fieldCount = 0;
+        const maxFields = 3;
 
-        for (const fieldName of commonFieldNames) {
+        for (const fieldName of Object.keys(schemaFields)) {
+            if (fieldCount >= maxFields) break;
+
             const fieldDef = schemaFields[fieldName];
-            if (fieldDef) {
+            const namedType = getNamedType(fieldDef.type);
+            if (isScalarType(namedType)) {
                 fieldSelections.push({
                     kind: Kind.FIELD,
                     name: {
@@ -296,34 +260,7 @@ export class SelectionSetHandler {
                         value: fieldName,
                     },
                 });
-            }
-        }
-
-        // If we have very few fields so far, include a few more scalar fields
-        if (fieldSelections.length < 3) {
-            for (const fieldName of Object.keys(schemaFields)) {
-                if (
-                    fieldSelections.some((sel) => sel.name.value === fieldName)
-                ) {
-                    continue; // Already included
-                }
-
-                const fieldDef = schemaFields[fieldName];
-                const namedType = getNamedType(fieldDef.type);
-                if (isScalarType(namedType)) {
-                    fieldSelections.push({
-                        kind: Kind.FIELD,
-                        name: {
-                            kind: Kind.NAME,
-                            value: fieldName,
-                        },
-                    });
-
-                    // Stop when we have enough fields
-                    if (fieldSelections.length >= 3) {
-                        break;
-                    }
-                }
+                fieldCount++;
             }
         }
 

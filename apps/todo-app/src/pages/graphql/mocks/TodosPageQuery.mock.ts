@@ -22,23 +22,23 @@ type TodosPageTodo = {
     dueAt: string;
     author: {
         __typename: "Author";
+        email: string;
         id: string;
         name: string;
-        email: string;
     };
 };
 
 export const aTodosPageTodo = createBuilder<TodosPageTodo>({
     __typename: "Todo",
-    id: "8bde94c0-5756-4909-a4ec-5e9c5ebd259b",
-    title: "Sint aliquid non cumque omnis nihil eveniet id ducimus.",
-    completed: false,
-    dueAt: "1974-08-20",
+    id: "95aa3ec3-6509-4d91-abad-0156630dfdaa",
+    title: "Est aperiam iste quam facilis.",
+    completed: true,
+    dueAt: "2009-06-15",
     author: {
         __typename: "Author",
-        id: "ff0018e1-7510-4fa7-94d4-496f30778f90",
-        name: "Rerum maxime dolor eum.",
-        email: "Beatae ea sunt animi.",
+        email: "Ad modi fuga aut provident nulla atque animi.",
+        id: "3f8a5f61-ed4f-46b2-923e-20b554245c54",
+        name: "Consequatur et dolore.",
     },
 });
 

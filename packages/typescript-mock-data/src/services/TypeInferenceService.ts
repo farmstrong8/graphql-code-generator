@@ -21,6 +21,7 @@ import {
     getNamedType,
 } from "graphql";
 import { isPrimitiveScalar } from "../utils/scalars";
+import { extractTypeNameFromFragmentName } from "../utils/fragmentUtils";
 
 /**
  * Represents semantic type information for TypeScript generation.
@@ -503,8 +504,7 @@ export class TypeInferenceService {
         fragmentRegistry?: Map<string, FragmentDefinitionNode>,
     ): Record<string, SemanticTypeInfo> | null {
         // Extract the type name from fragment name (e.g., "AuthorFragment" -> "Author")
-        const targetTypeName =
-            this.extractTypeNameFromFragmentName(fragmentName);
+        const targetTypeName = extractTypeNameFromFragmentName(fragmentName);
 
         if (!targetTypeName) {
             return null;
@@ -527,43 +527,9 @@ export class TypeInferenceService {
     }
 
     /**
-     * Extracts the target type name from a fragment name using common naming patterns.
-     *
-     * @param fragmentName - Fragment name (e.g., "AuthorFragment", "UserFields", "PostDetails")
-     * @returns The extracted type name or null if cannot be determined
-     */
-    private extractTypeNameFromFragmentName(
-        fragmentName: string,
-    ): string | null {
-        // Common patterns:
-        // - "AuthorFragment" -> "Author"
-        // - "UserFields" -> "User"
-        // - "PostDetails" -> "Post"
-        // - "TodoInfo" -> "Todo"
-
-        // Remove common fragment suffixes
-        const suffixes = [
-            "Fragment",
-            "Fields",
-            "Details",
-            "Info",
-            "Data",
-            "Props",
-        ];
-
-        for (const suffix of suffixes) {
-            if (fragmentName.endsWith(suffix)) {
-                return fragmentName.slice(0, -suffix.length);
-            }
-        }
-
-        // If no suffix pattern matches, assume the fragment name is the type name
-        return fragmentName;
-    }
-
-    /**
-     * Generates common fields that fragments typically include for a given type.
-     * This creates a reasonable default set of fields based on GraphQL best practices.
+     * Generates a basic set of fields for fragment fallback.
+     * When fragment definitions are not available, this provides a minimal
+     * but reasonable set of fields based on the target type's schema.
      *
      * @param targetType - The GraphQL type to generate fields for
      * @returns Object fields with semantic type information
@@ -581,38 +547,17 @@ export class TypeInferenceService {
             isNullable: false,
         };
 
-        // Include common identifier fields that fragments typically use
-        const commonFieldNames = [
-            "id",
-            "name",
-            "title",
-            "email",
-            "username",
-            "slug",
-        ];
+        // Include scalar fields from the type, up to a reasonable limit
+        let fieldCount = 0;
+        const maxFields = 3;
 
-        for (const fieldName of commonFieldNames) {
-            const fieldDef = schemaFields[fieldName];
-            if (fieldDef) {
+        for (const [fieldName, fieldDef] of Object.entries(schemaFields)) {
+            if (fieldCount >= maxFields) break;
+
+            const namedType = getNamedType(fieldDef.type);
+            if (isScalarType(namedType)) {
                 fields[fieldName] = this.analyzeGraphQLType(fieldDef.type);
-            }
-        }
-
-        // If we have very few fields so far, include a few more scalar fields
-        const currentFieldCount = Object.keys(fields).length - 1; // Exclude __typename
-        if (currentFieldCount < 3) {
-            for (const [fieldName, fieldDef] of Object.entries(schemaFields)) {
-                if (fields[fieldName]) continue; // Already included
-
-                const namedType = getNamedType(fieldDef.type);
-                if (isScalarType(namedType)) {
-                    fields[fieldName] = this.analyzeGraphQLType(fieldDef.type);
-
-                    // Stop when we have enough fields
-                    if (Object.keys(fields).length - 1 >= 3) {
-                        break;
-                    }
-                }
+                fieldCount++;
             }
         }
 

@@ -23,8 +23,8 @@ type AuthorInlineFragmentFragment = {
 export const aAuthorInlineFragmentFragment =
     createBuilder<AuthorInlineFragmentFragment>({
         __typename: "Author",
-        id: "1a434995-c1d2-44dc-9483-2b86dca6a694",
-        name: "Provident dolor id.",
+        id: "36f666f4-37ce-4181-9fe2-7f83990cc884",
+        name: "Molestias similique reiciendis quidem beatae impedit consequuntur.",
     });
 
 type TodosPageWithInlineFragmentTodo = {
@@ -43,14 +43,14 @@ type TodosPageWithInlineFragmentTodo = {
 export const aTodosPageWithInlineFragmentTodo =
     createBuilder<TodosPageWithInlineFragmentTodo>({
         __typename: "Todo",
-        id: "c508458f-c222-4fbe-a541-2df3d8bd4c69",
-        title: "Consectetur blanditiis et perspiciatis voluptatem at et est.",
+        id: "2781205d-0890-4520-b683-84f6940f80fc",
+        title: "Quas enim ipsam labore hic.",
         completed: true,
-        dueAt: "1984-04-26",
+        dueAt: "2010-07-07",
         author: {
             __typename: "Author",
-            id: "763bea4a-1d43-46ce-9daa-10c6be091443",
-            name: "Natus dicta sapiente eaque.",
+            id: "2f18e499-5790-4108-806a-e8f57aa6fde8",
+            name: "Laboriosam sint sit dolorem incidunt perferendis qui.",
         },
     });
 
