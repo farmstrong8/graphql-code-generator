@@ -1,4 +1,4 @@
-fragment AuthorFragment on Author {
+fragment AuthorInlineFragment on Author {
     id
     name
 }
@@ -10,7 +10,7 @@ query TodosPageWithInlineFragment {
         completed
         dueAt
         author {
-            ...AuthorFragment
+            ...AuthorInlineFragment
         }
     }
 }

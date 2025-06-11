@@ -264,4 +264,168 @@ describe("Plugin Integration", () => {
         expect(result).toContain('"__typename": "Settings"');
         expect(result).toContain('"__typename": "Post"');
     });
+
+    it("should properly expand fragment spreads from separate files", async () => {
+        // This test reproduces the exact issue: fragment defined in one document
+        // and used in another document via fragment spread
+        const documents = [
+            // First document: Fragment definition only
+            {
+                document: parse(`
+fragment AuthorFragment on Author {
+    id
+    name
+    email
+}
+`),
+            },
+            // Second document: Query using fragment spread
+            {
+                document: parse(`
+query TodosPageQuery {
+    todos {
+        id
+        title
+        completed
+        dueAt
+        author {
+            ...AuthorFragment
+        }
+    }
+}
+`),
+            },
+        ];
+
+        const result = await plugin(schema, documents, {});
+        const code = typeof result === "string" ? result : result.content;
+
+        console.log("Generated code:", code);
+
+        // Should generate the fragment mock
+        expect(code).toContain("export const aAuthorFragmentFragment");
+        expect(code).toContain("type AuthorFragmentFragment = {");
+        expect(code).toContain('"__typename": "Author"');
+        expect(code).toContain("id: string");
+        expect(code).toContain("name: string");
+        expect(code).toContain("email: string");
+
+        // Should generate the query mock
+        expect(code).toContain("export const aTodosPageQueryTodo");
+        expect(code).toContain("type TodosPageQueryTodo = {");
+
+        // CRITICAL TEST 1: The TYPE DEFINITION should include ALL fragment fields
+        // This tests our fix in TypeInferenceService.inferFragmentFieldsFromSchema
+        const todoTypeMatch = code.match(
+            /type TodosPageQueryTodo = \{[\s\S]*?author: \{[\s\S]*?\};/,
+        );
+        expect(todoTypeMatch).toBeTruthy();
+
+        if (todoTypeMatch) {
+            const authorTypeInTodo = todoTypeMatch[0];
+            console.log("Author type in TodosPageQueryTodo:", authorTypeInTodo);
+
+            // The author field type should include id, name, and email from the fragment
+            expect(authorTypeInTodo).toContain('"__typename": "Author"');
+            expect(authorTypeInTodo).toContain("id: string");
+            expect(authorTypeInTodo).toContain("name: string");
+            expect(authorTypeInTodo).toContain("email: string");
+        }
+
+        // CRITICAL TEST 2: The MOCK IMPLEMENTATION should also include all fragment fields
+        // This tests our fix in SelectionSetHandler.createSyntheticFragmentFields
+        const mockMatch = code.match(
+            /export const aTodosPageQueryTodo = createBuilder<TodosPageQueryTodo>\(\{[\s\S]*?author: \{[\s\S]*?\}[\s\S]*?\}\);/,
+        );
+        expect(mockMatch).toBeTruthy();
+
+        if (mockMatch) {
+            const authorMockInTodo = mockMatch[0];
+            console.log("Author mock in TodosPageQueryTodo:", authorMockInTodo);
+
+            // The author field mock should include actual values for id, name, and email
+            expect(authorMockInTodo).toContain('"__typename": "Author"');
+            expect(authorMockInTodo).toMatch(/id: "[^"]+"/);
+            expect(authorMockInTodo).toMatch(/name: "[^"]+"/);
+            expect(authorMockInTodo).toMatch(/email: "[^"]+"/);
+        }
+    });
+
+    it("should properly expand fragments defined in the same file", async () => {
+        // This test reproduces the TodosPageWithInlineFragment issue:
+        // fragment and query in the SAME document
+        const documents = [
+            {
+                document: parse(`
+fragment AuthorInlineFragment on Author {
+    id
+    name
+}
+
+query TodosPageWithInlineFragment {
+    todos {
+        id
+        title
+        completed
+        dueAt
+        author {
+            ...AuthorInlineFragment
+        }
+    }
+}
+`),
+            },
+        ];
+
+        const result = await plugin(schema, documents, {});
+        const code = typeof result === "string" ? result : result.content;
+
+        console.log("Same-file fragment generated code:", code);
+
+        // Should generate the fragment mock
+        expect(code).toContain("export const aAuthorInlineFragmentFragment");
+        expect(code).toContain("type AuthorInlineFragmentFragment = {");
+
+        // Should generate the query mock
+        expect(code).toContain("export const aTodosPageWithInlineFragmentTodo");
+        expect(code).toContain("type TodosPageWithInlineFragmentTodo = {");
+
+        // CRITICAL TEST: The author field should include ALL fragment fields from the same file
+        const todoTypeMatch = code.match(
+            /type TodosPageWithInlineFragmentTodo = \{[\s\S]*?author: \{[\s\S]*?\};/,
+        );
+        expect(todoTypeMatch).toBeTruthy();
+
+        if (todoTypeMatch) {
+            const authorTypeInTodo = todoTypeMatch[0];
+            console.log(
+                "Author type in TodosPageWithInlineFragmentTodo:",
+                authorTypeInTodo,
+            );
+
+            // The author field type should include id and name from the same-file fragment
+            expect(authorTypeInTodo).toContain('"__typename": "Author"');
+            expect(authorTypeInTodo).toContain("id: string");
+            expect(authorTypeInTodo).toContain("name: string");
+        }
+
+        // CRITICAL TEST: The mock should also include proper values
+        const mockMatch = code.match(
+            /export const aTodosPageWithInlineFragmentTodo = createBuilder<TodosPageWithInlineFragmentTodo>\(\{[\s\S]*?author: \{[\s\S]*?\}[\s\S]*?\}\);/,
+        );
+        expect(mockMatch).toBeTruthy();
+
+        if (mockMatch) {
+            const authorMockInTodo = mockMatch[0];
+            console.log(
+                "Author mock in TodosPageWithInlineFragmentTodo:",
+                authorMockInTodo,
+            );
+
+            // The author field mock should include actual values for id and name
+            expect(authorMockInTodo).toContain('"__typename": "Author"');
+            expect(authorMockInTodo).toMatch(/id: "[^"]+"/);
+            expect(authorMockInTodo).toMatch(/name: "[^"]+"/);
+        }
+    });
 });

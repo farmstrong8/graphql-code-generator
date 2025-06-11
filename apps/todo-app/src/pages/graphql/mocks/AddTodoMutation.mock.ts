@@ -23,8 +23,8 @@ type AddTodoTodo = {
 
 export const aAddTodoTodo = createBuilder<AddTodoTodo>({
     __typename: "Todo",
-    id: "72bcca33-237c-473c-9e64-4ee5ccb7746c",
-    title: "Iusto fuga sapiente cupiditate.",
+    id: "017c967c-1ac1-484e-a3c2-39c7aa18ad04",
+    title: "Et vitae similique repellendus qui ut autem.",
     completed: true,
 });
 

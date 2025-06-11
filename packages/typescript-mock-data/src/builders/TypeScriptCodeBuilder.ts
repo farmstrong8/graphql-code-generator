@@ -167,6 +167,7 @@ export class TypeScriptCodeBuilder {
                             nestedTypeInfo,
                             operationName,
                             this.typeInferenceService,
+                            schemaContext.fragmentRegistry,
                         );
                     const nestedBuilderFunction =
                         this.builderFunctionGenerator.generateNestedBuilderFunction(

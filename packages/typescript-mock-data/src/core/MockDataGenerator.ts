@@ -1,4 +1,5 @@
-import type { GraphQLSchema } from "graphql";
+import type { GraphQLSchema, FragmentDefinitionNode } from "graphql";
+import { Kind } from "graphql";
 import type { Types } from "@graphql-codegen/plugin-helpers";
 import type { CodeArtifactCollection } from "../types";
 import { PluginConfig } from "../config/PluginConfig";
@@ -34,6 +35,10 @@ export class MockDataGenerator {
     generateFromDocuments(documents: Types.DocumentFile[]): string {
         const allArtifacts: CodeArtifactCollection = [];
 
+        // Build a global fragment registry from all documents first
+        const globalFragmentRegistry =
+            this.buildGlobalFragmentRegistry(documents);
+
         for (const document of documents) {
             if (!document.document) continue;
 
@@ -41,6 +46,7 @@ export class MockDataGenerator {
                 this.artifactFactory.createDocumentProcessor();
             const documentArtifacts = documentProcessor.processDocument(
                 document.document,
+                globalFragmentRegistry,
             );
             allArtifacts.push(...documentArtifacts);
         }
@@ -101,5 +107,34 @@ export class MockDataGenerator {
             endIndex + boilerplateEndMarker.length,
         );
         return afterBoilerplate.replace(/^\s*\n+/, ""); // Remove leading whitespace and newlines
+    }
+
+    /**
+     * Builds a global fragment registry from all documents.
+     *
+     * @param documents - Array of GraphQL documents
+     * @returns Map of fragment name to fragment definition
+     */
+    private buildGlobalFragmentRegistry(
+        documents: Types.DocumentFile[],
+    ): Map<string, FragmentDefinitionNode> {
+        const globalRegistry = new Map<string, FragmentDefinitionNode>();
+
+        for (const document of documents) {
+            if (!document.document) continue;
+
+            // Extract fragments from this document
+            const fragments = document.document.definitions.filter(
+                (def): def is FragmentDefinitionNode =>
+                    def.kind === Kind.FRAGMENT_DEFINITION,
+            );
+
+            // Add fragments to global registry
+            for (const fragment of fragments) {
+                globalRegistry.set(fragment.name.value, fragment);
+            }
+        }
+
+        return globalRegistry;
     }
 }

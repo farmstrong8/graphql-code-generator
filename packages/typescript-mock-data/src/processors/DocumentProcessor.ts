@@ -27,29 +27,43 @@ export class DocumentProcessor {
      * Processes a complete GraphQL document into code artifacts.
      *
      * @param document - The GraphQL document to process
+     * @param globalFragmentRegistry - Registry of all available fragments from all documents
      * @returns Array of generated code artifacts for each operation/fragment
      */
-    processDocument(document: DocumentNode): CodeArtifactCollection {
+    processDocument(
+        document: DocumentNode,
+        globalFragmentRegistry?: Map<string, FragmentDefinitionNode>,
+    ): CodeArtifactCollection {
         const artifacts: CodeArtifactCollection = [];
 
-        // Extract fragments first to build the registry
-        const fragments = this.extractFragments(document);
-        const fragmentRegistry = new Map(
-            fragments.map((fragment) => [fragment.name.value, fragment]),
-        );
+        // Use global fragment registry if provided, otherwise extract fragments from current document
+        let fragmentRegistry: Map<string, FragmentDefinitionNode>;
+        if (globalFragmentRegistry) {
+            fragmentRegistry = globalFragmentRegistry;
+        } else {
+            const fragments = this.extractFragments(document);
+            fragmentRegistry = new Map(
+                fragments.map((fragment) => [fragment.name.value, fragment]),
+            );
+        }
 
-        // Process each definition in the document
+        // Process fragments first to ensure they're available for operations
         for (const definition of document.definitions) {
-            if (definition.kind === Kind.OPERATION_DEFINITION) {
-                const artifact = this.processOperation(
+            if (definition.kind === Kind.FRAGMENT_DEFINITION) {
+                const artifact = this.processFragment(
                     definition,
                     fragmentRegistry,
                 );
                 if (artifact) {
                     artifacts.push(artifact);
                 }
-            } else if (definition.kind === Kind.FRAGMENT_DEFINITION) {
-                const artifact = this.processFragment(
+            }
+        }
+
+        // Then process operations that may use those fragments
+        for (const definition of document.definitions) {
+            if (definition.kind === Kind.OPERATION_DEFINITION) {
+                const artifact = this.processOperation(
                     definition,
                     fragmentRegistry,
                 );

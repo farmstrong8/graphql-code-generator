@@ -21,8 +21,8 @@ type AddTodoTodo = {
 
 export const aAddTodoTodo = createBuilder<AddTodoTodo>({
     __typename: "Todo",
-    id: "b5ae7a98-09e9-4d5e-8757-0ed19a627b37",
-    title: "Ut incidunt nam.",
+    id: "f80c8518-45fd-404e-afdc-3414c239dea3",
+    title: "Consectetur reprehenderit aut consequatur.",
     completed: true,
 });
 
@@ -44,8 +44,8 @@ type AuthorFragmentFragment = {
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "6ce9313a-b1ce-4de4-ae90-ad8cac0eb51d",
-    name: "Quia dolores vel consequatur et in accusamus deleniti animi ad.",
+    id: "8cbcc4c1-36c8-45f6-903e-484e0f264f26",
+    name: "Minus porro qui vero voluptatem minus autem porro voluptatibus.",
 });
 
 type DeleteTodoMutation = {
@@ -73,8 +73,8 @@ export const aTodoDetailsPageQueryAsTodo =
         __typename: "Query",
         todo: {
             __typename: "Todo",
-            id: "cf2fe330-4561-4d6f-b1e9-4c2baef02d18",
-            title: "Quibusdam sed et ut asperiores dolor odio dignissimos occaecati.",
+            id: "a2da63f5-fe06-48fd-be5b-ccb621f4e01d",
+            title: "Repellendus non qui praesentium magnam.",
             completed: true,
         },
     });
@@ -92,7 +92,7 @@ export const aTodoDetailsPageQueryAsError =
         __typename: "Query",
         todo: {
             __typename: "Error",
-            message: "Eum eos qui voluptatum neque harum aspernatur.",
+            message: "Totam ratione quod aliquam soluta nemo omnis.",
         },
     });
 
@@ -104,17 +104,21 @@ type TodosPageTodo = {
     dueAt: string;
     author: {
         __typename: "Author";
+        id: string;
+        name: string;
     };
 };
 
 export const aTodosPageTodo = createBuilder<TodosPageTodo>({
     __typename: "Todo",
-    id: "956ab18b-1b99-4228-8494-13d70ead0462",
-    title: "Nesciunt sed neque eum sit sit non expedita.",
+    id: "6ea379ac-480c-4903-a8e4-3224ace8804d",
+    title: "Molestias at vitae hic voluptatem molestiae placeat corrupti quam fugiat.",
     completed: false,
-    dueAt: "1984-02-14",
+    dueAt: "1981-04-02",
     author: {
         __typename: "Author",
+        id: "591102c4-0d03-4e23-8c0f-9305cb321305",
+        name: "Porro fugiat voluptas dolores.",
     },
 });
 
@@ -128,6 +132,19 @@ export const aTodosPageQuery = createBuilder<TodosPageQuery>({
     todos: [aTodosPageTodo()],
 });
 
+type AuthorInlineFragmentFragment = {
+    __typename: "Author";
+    id: string;
+    name: string;
+};
+
+export const aAuthorInlineFragmentFragment =
+    createBuilder<AuthorInlineFragmentFragment>({
+        __typename: "Author",
+        id: "df6c0d42-69a8-4fc7-8119-571158160dac",
+        name: "Suscipit labore quisquam qui sint odit.",
+    });
+
 type TodosPageWithInlineFragmentTodo = {
     __typename: "Todo";
     id: string;
@@ -136,18 +153,22 @@ type TodosPageWithInlineFragmentTodo = {
     dueAt: string;
     author: {
         __typename: "Author";
+        id: string;
+        name: string;
     };
 };
 
 export const aTodosPageWithInlineFragmentTodo =
     createBuilder<TodosPageWithInlineFragmentTodo>({
         __typename: "Todo",
-        id: "3e2bbcd3-7a6c-4ba4-be0f-45e301c8f321",
-        title: "Dignissimos quibusdam ut id vero non excepturi id excepturi.",
+        id: "17b94599-99f8-41eb-9a50-721b3bc1f676",
+        title: "Libero minus consectetur et quod consequatur et.",
         completed: true,
-        dueAt: "1989-11-09",
+        dueAt: "1973-06-24",
         author: {
             __typename: "Author",
+            id: "75133af8-c191-4674-b001-ec6fe1928963",
+            name: "Accusamus beatae voluptatem eligendi nihil velit explicabo.",
         },
     });
 
@@ -171,9 +192,9 @@ type ToggleTodoTodo = {
 
 export const aToggleTodoTodo = createBuilder<ToggleTodoTodo>({
     __typename: "Todo",
-    id: "4148427b-11af-49e8-a88f-0ac3e7cabd7e",
-    title: "Unde aperiam occaecati magnam.",
-    completed: false,
+    id: "1fedfd5b-7737-4978-8788-c70da8b71e50",
+    title: "Omnis et quia expedita quod laborum non reiciendis.",
+    completed: true,
 });
 
 type ToggleTodoMutation = {

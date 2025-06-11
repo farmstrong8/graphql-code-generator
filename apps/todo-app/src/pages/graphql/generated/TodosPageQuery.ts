@@ -1,7 +1,7 @@
 import type * as Types from "../../../types.generated";
 
 import { gql } from "@apollo/client";
-import { AuthorFragmentFragmentDoc } from "./TodosPageWithInlineFragment";
+import { AuthorFragmentFragmentDoc } from "./AuthorFragment";
 import * as Apollo from "@apollo/client";
 const defaultOptions = {} as const;
 export type TodosPageQueryVariables = Types.Exact<{ [key: string]: never }>;

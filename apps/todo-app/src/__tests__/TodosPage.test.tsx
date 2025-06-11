@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { TodosPage } from "../pages/TodosPage";
 import { renderWithProviders } from "../test/utils";
 import { TodosPageDocument } from "@/pages/graphql/generated/TodosPageQuery";
-import { aTodosPage, aAddTodo } from "@/mocks";
+import { aTodosPageQuery, aTodosPageTodo } from "@/mocks";
 
 // Mock data builders for different scenarios
 const mockTodosEmpty = {
@@ -11,7 +11,7 @@ const mockTodosEmpty = {
         query: TodosPageDocument,
     },
     result: {
-        data: aTodosPage(),
+        data: aTodosPageQuery(),
     },
 };
 
@@ -20,7 +20,7 @@ const mockTodosWithItems = {
         query: TodosPageDocument,
     },
     result: {
-        data: aTodosPage({
+        data: aTodosPageQuery({
             todos: [
                 {
                     __typename: "Todo",

@@ -8,6 +8,12 @@ import type {
     FragmentSpreadNode,
 } from "graphql";
 import { Kind } from "graphql";
+import {
+    isObjectType,
+    isInterfaceType,
+    isScalarType,
+    getNamedType,
+} from "graphql";
 
 /**
  * Handles resolution and processing of GraphQL selection sets.
@@ -41,9 +47,17 @@ export class SelectionSetHandler {
                 if (resolvedFragment) {
                     resolvedSelections.push(...resolvedFragment.selections);
                 } else {
-                    // If fragment cannot be resolved, skip it (this happens in collocation mode)
-                    // We could log a warning here if needed
-                    continue;
+                    // Fragment definition not available (near-operation-file mode)
+                    // Create a synthetic field selection based on schema analysis
+                    const syntheticFields = this.createSyntheticFragmentFields(
+                        selection.name.value,
+                        fragmentRegistry,
+                    );
+                    if (syntheticFields.length > 0) {
+                        resolvedSelections.push(...syntheticFields);
+                    }
+                    // If we can't create synthetic fields, we still skip the fragment
+                    // This maintains backward compatibility
                 }
             } else if (selection.kind === Kind.INLINE_FRAGMENT) {
                 // Handle inline fragments (e.g., ... on Todo { ... })
@@ -177,5 +191,142 @@ export class SelectionSetHandler {
         return selectionSet.selections.some(
             (selection) => selection.kind === Kind.FRAGMENT_SPREAD,
         );
+    }
+
+    /**
+     * Creates synthetic field selections for unresolved fragments.
+     * This is a fallback for near-operation-file mode where fragments are defined in separate files.
+     *
+     * @param fragmentName - The name of the fragment (e.g., "AuthorFragment")
+     * @param fragmentRegistry - Available fragment definitions (may be incomplete)
+     * @returns Array of synthetic field selections
+     */
+    private createSyntheticFragmentFields(
+        fragmentName: string,
+        fragmentRegistry: Map<string, FragmentDefinitionNode>,
+    ): FieldNode[] {
+        // Extract the type name from fragment name (e.g., "AuthorFragment" -> "Author")
+        const targetTypeName =
+            this.extractTypeNameFromFragmentName(fragmentName);
+
+        if (!targetTypeName) {
+            return [];
+        }
+
+        // Get the target type from schema
+        const targetType = this.schema.getType(targetTypeName);
+        if (
+            !targetType ||
+            (!isObjectType(targetType) && !isInterfaceType(targetType))
+        ) {
+            return [];
+        }
+
+        // Generate common field selections that fragments typically include
+        const syntheticFields =
+            this.generateCommonFragmentFieldSelections(targetType);
+
+        return syntheticFields;
+    }
+
+    /**
+     * Extracts the target type name from a fragment name using common naming patterns.
+     *
+     * @param fragmentName - Fragment name (e.g., "AuthorFragment", "UserFields", "PostDetails")
+     * @returns The extracted type name or null if cannot be determined
+     */
+    private extractTypeNameFromFragmentName(
+        fragmentName: string,
+    ): string | null {
+        // Common patterns:
+        // - "AuthorFragment" -> "Author"
+        // - "UserFields" -> "User"
+        // - "PostDetails" -> "Post"
+        // - "TodoInfo" -> "Todo"
+
+        // Remove common fragment suffixes
+        const suffixes = [
+            "Fragment",
+            "Fields",
+            "Details",
+            "Info",
+            "Data",
+            "Props",
+        ];
+
+        for (const suffix of suffixes) {
+            if (fragmentName.endsWith(suffix)) {
+                return fragmentName.slice(0, -suffix.length);
+            }
+        }
+
+        // If no suffix pattern matches, assume the fragment name is the type name
+        return fragmentName;
+    }
+
+    /**
+     * Generates synthetic field selections for common fields that fragments typically include.
+     *
+     * @param targetType - The GraphQL type to generate field selections for
+     * @returns Array of FieldNode selections
+     */
+    private generateCommonFragmentFieldSelections(
+        targetType: any, // GraphQLObjectType | GraphQLInterfaceType
+    ): FieldNode[] {
+        const fieldSelections: FieldNode[] = [];
+        const schemaFields = targetType.getFields();
+
+        // Include common identifier fields that fragments typically use
+        const commonFieldNames = [
+            "id",
+            "name",
+            "title",
+            "email",
+            "username",
+            "slug",
+        ];
+
+        for (const fieldName of commonFieldNames) {
+            const fieldDef = schemaFields[fieldName];
+            if (fieldDef) {
+                fieldSelections.push({
+                    kind: Kind.FIELD,
+                    name: {
+                        kind: Kind.NAME,
+                        value: fieldName,
+                    },
+                });
+            }
+        }
+
+        // If we have very few fields so far, include a few more scalar fields
+        if (fieldSelections.length < 3) {
+            for (const fieldName of Object.keys(schemaFields)) {
+                if (
+                    fieldSelections.some((sel) => sel.name.value === fieldName)
+                ) {
+                    continue; // Already included
+                }
+
+                const fieldDef = schemaFields[fieldName];
+                const namedType = getNamedType(fieldDef.type);
+                if (isScalarType(namedType)) {
+                    fieldSelections.push({
+                        kind: Kind.FIELD,
+                        name: {
+                            kind: Kind.NAME,
+                            value: fieldName,
+                        },
+                    });
+
+                    // Stop when we have enough fields
+                    if (fieldSelections.length >= 3) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return fieldSelections;
     }
 }

@@ -303,6 +303,7 @@ export class TypeDefinitionGenerator {
      * @param nestedTypeInfo - The nested type information
      * @param operationName - The operation name
      * @param typeInferenceService - Service for generating semantic types from GraphQL schema
+     * @param fragmentRegistry - Registry of available fragments
      * @returns TypeScript type definition string
      */
     generateNestedTypeDefinition(
@@ -310,6 +311,7 @@ export class TypeDefinitionGenerator {
         nestedTypeInfo: NestedTypeInfo,
         operationName: string,
         typeInferenceService?: any,
+        fragmentRegistry?: Map<string, any>,
     ): string {
         const typeName = builderName.substring(1); // Remove 'a' prefix
 
@@ -320,7 +322,7 @@ export class TypeDefinitionGenerator {
                 const semanticType = typeInferenceService.analyzeGraphQLType(
                     nestedTypeInfo.graphqlType,
                     nestedTypeInfo.selectionSet,
-                    new Map(), // Empty fragment registry for nested types
+                    fragmentRegistry || new Map(), // Use provided fragment registry or fallback to empty
                 );
                 typeBody =
                     typeInferenceService.generateTypeString(semanticType);
