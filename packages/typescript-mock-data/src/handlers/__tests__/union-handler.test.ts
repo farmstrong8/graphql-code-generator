@@ -9,16 +9,14 @@ import {
     SelectionSetNode,
 } from "graphql";
 import { parse } from "graphql";
-import { UnionHandler } from "../UnionHandler";
 import { MockObjectBuilder } from "../../builders/MockObjectBuilder";
 import { ScalarHandler } from "../ScalarHandler";
 import { SelectionSetHandler } from "../SelectionSetHandler";
 import { PluginConfig } from "../../config/PluginConfig";
 
-describe("UnionHandler", () => {
-    let handler: UnionHandler;
-    let schema: any;
+describe("MockObjectBuilder Union Handling", () => {
     let mockObjectBuilder: MockObjectBuilder;
+    let schema: any;
     let scalarHandler: ScalarHandler;
     let selectionSetHandler: SelectionSetHandler;
     let fragmentRegistry: Map<string, FragmentDefinitionNode>;
@@ -60,19 +58,9 @@ describe("UnionHandler", () => {
             scalarHandler,
             selectionSetHandler,
         );
-        handler = new UnionHandler(schema);
-        handler.setMockObjectBuilder(mockObjectBuilder);
     });
 
-    describe("setMockObjectBuilder", () => {
-        it("should set mock object builder", () => {
-            const newHandler = new UnionHandler(schema);
-            newHandler.setMockObjectBuilder(mockObjectBuilder);
-            expect(newHandler["mockObjectBuilder"]).toBe(mockObjectBuilder);
-        });
-    });
-
-    describe("processUnionType", () => {
+    describe("union type processing", () => {
         it("should process union type with inline fragments", () => {
             const query = parse(`
         query SearchQuery {
@@ -97,12 +85,12 @@ describe("UnionHandler", () => {
             ).selectionSet!.selections[0] as FieldNode;
             const selectionSet = searchField.selectionSet!;
 
-            const result = handler.processUnionType({
+            const result = mockObjectBuilder.buildForType(
                 unionType,
                 selectionSet,
-                operationName: "SearchQuery",
+                "SearchQuery",
                 fragmentRegistry,
-            });
+            );
 
             expect(result).toHaveLength(2);
             expect(result[0].mockName).toBe("SearchQueryAsUser");
@@ -125,12 +113,12 @@ describe("UnionHandler", () => {
                 selections: [],
             };
 
-            const result = handler.processUnionType({
+            const result = mockObjectBuilder.buildForType(
                 unionType,
                 selectionSet,
-                operationName: "EmptyQuery",
+                "EmptyQuery",
                 fragmentRegistry,
-            });
+            );
 
             expect(result).toHaveLength(0);
         });
@@ -153,12 +141,12 @@ describe("UnionHandler", () => {
             ).selectionSet!.selections[0] as FieldNode;
             const selectionSet = searchField.selectionSet!;
 
-            const result = handler.processUnionType({
+            const result = mockObjectBuilder.buildForType(
                 unionType,
                 selectionSet,
-                operationName: "SearchQuery",
+                "SearchQuery",
                 fragmentRegistry,
-            });
+            );
 
             // Should only process the inline fragment, ignoring the 'id' field
             expect(result).toHaveLength(1);
@@ -187,12 +175,12 @@ describe("UnionHandler", () => {
             ).selectionSet!.selections[0] as FieldNode;
             const selectionSet = searchField.selectionSet!;
 
-            const result = handler.processUnionType({
+            const result = mockObjectBuilder.buildForType(
                 unionType,
                 selectionSet,
-                operationName: "SearchQuery",
+                "SearchQuery",
                 fragmentRegistry,
-            });
+            );
 
             // Should create two variants even though they're both User types
             expect(result).toHaveLength(2);
@@ -201,8 +189,8 @@ describe("UnionHandler", () => {
         });
     });
 
-    describe("processInlineFragment (private method tested through processUnionType)", () => {
-        it("should return null when inline fragment has no type condition", () => {
+    describe("inline fragment error handling", () => {
+        it("should handle inline fragment with no type condition", () => {
             // Create a malformed inline fragment without type condition
             const selectionSet: SelectionSetNode = {
                 kind: Kind.SELECTION_SET,
@@ -220,17 +208,17 @@ describe("UnionHandler", () => {
 
             const unionType = schema.getType("SearchResult");
 
-            const result = handler.processUnionType({
+            const result = mockObjectBuilder.buildForType(
                 unionType,
                 selectionSet,
-                operationName: "TestQuery",
+                "TestQuery",
                 fragmentRegistry,
-            });
+            );
 
             expect(result).toHaveLength(0);
         });
 
-        it("should return null when target type does not exist in schema", () => {
+        it("should handle inline fragment with non-existent type", () => {
             const query = parse(`
         query SearchQuery {
           search(term: "test") {
@@ -247,18 +235,18 @@ describe("UnionHandler", () => {
             ).selectionSet!.selections[0] as FieldNode;
             const selectionSet = searchField.selectionSet!;
 
-            const result = handler.processUnionType({
+            const result = mockObjectBuilder.buildForType(
                 unionType,
                 selectionSet,
-                operationName: "SearchQuery",
+                "SearchQuery",
                 fragmentRegistry,
-            });
+            );
 
             expect(result).toHaveLength(0);
         });
 
-        it("should return null when target type is not a member of the union", () => {
-            // Add a type that exists but is not part of the SearchResult union
+        it("should handle inline fragment with type not in union", () => {
+            // Create a schema where Comment is not part of SearchResult
             const restrictedSchema = buildSchema(`
         union SearchResult = User | Post
 
@@ -282,13 +270,11 @@ describe("UnionHandler", () => {
         }
       `);
 
-            const restrictedHandler = new UnionHandler(restrictedSchema);
             const restrictedMockBuilder = new MockObjectBuilder(
                 restrictedSchema,
                 scalarHandler,
                 selectionSetHandler,
             );
-            restrictedHandler.setMockObjectBuilder(restrictedMockBuilder);
 
             const query = parse(`
         query SearchQuery {
@@ -307,67 +293,74 @@ describe("UnionHandler", () => {
             ).selectionSet!.selections[0] as FieldNode;
             const selectionSet = searchField.selectionSet!;
 
-            const result = restrictedHandler.processUnionType({
+            const result = restrictedMockBuilder.buildForType(
                 unionType,
                 selectionSet,
-                operationName: "SearchQuery",
+                "SearchQuery",
                 fragmentRegistry,
-            });
+            );
 
             expect(result).toHaveLength(0);
         });
+    });
 
-        it("should throw error when MockObjectBuilder is not set", () => {
-            const handlerWithoutBuilder = new UnionHandler(schema);
-            // Don't set mockObjectBuilder
+    describe("type checking", () => {
+        it("should handle union types correctly", () => {
+            const unionType = schema.getType("SearchResult");
+            const userType = schema.getType("User");
+            const stringType = schema.getType("String");
 
+            // Test that union processing works
             const query = parse(`
-        query SearchQuery {
-          search(term: "test") {
-            ... on User {
-              id
-              name
-            }
+        query TestQuery {
+          test {
+            ... on User { id }
           }
         }
       `);
 
-            const unionType = schema.getType("SearchResult");
-            const searchField = (
-                query.definitions[0] as OperationDefinitionNode
-            ).selectionSet!.selections[0] as FieldNode;
-            const selectionSet = searchField.selectionSet!;
+            const selectionSet: SelectionSetNode = {
+                kind: Kind.SELECTION_SET,
+                selections: [
+                    {
+                        kind: Kind.INLINE_FRAGMENT,
+                        typeCondition: {
+                            kind: Kind.NAMED_TYPE,
+                            name: { kind: Kind.NAME, value: "User" },
+                        },
+                        selectionSet: {
+                            kind: Kind.SELECTION_SET,
+                            selections: [
+                                {
+                                    kind: Kind.FIELD,
+                                    name: { kind: Kind.NAME, value: "id" },
+                                },
+                            ],
+                        },
+                    },
+                ],
+            };
 
-            expect(() => {
-                handlerWithoutBuilder.processUnionType({
-                    unionType,
-                    selectionSet,
-                    operationName: "SearchQuery",
-                    fragmentRegistry,
-                });
-            }).toThrow("MockObjectBuilder not set on UnionHandler");
-        });
-    });
+            const unionResult = mockObjectBuilder.buildForType(
+                unionType,
+                selectionSet,
+                "TestQuery",
+                fragmentRegistry,
+            );
 
-    describe("isUnionType", () => {
-        it("should return true for union types", () => {
-            const unionType = schema.getType("SearchResult");
-            expect(handler.isUnionType(unionType)).toBe(true);
-        });
+            const objectResult = mockObjectBuilder.buildForType(
+                userType,
+                selectionSet,
+                "TestQuery",
+                fragmentRegistry,
+            );
 
-        it("should return false for non-union types", () => {
-            const objectType = schema.getType("User");
-            expect(handler.isUnionType(objectType)).toBe(false);
-        });
+            // Union should produce variants, object should produce single result
+            expect(unionResult).toHaveLength(1);
+            expect(unionResult[0].mockName).toBe("TestQueryAsUser");
 
-        it("should return false for scalar types", () => {
-            const scalarType = schema.getType("String");
-            expect(handler.isUnionType(scalarType)).toBe(false);
-        });
-
-        it("should return false for null/undefined", () => {
-            expect(handler.isUnionType(null)).toBe(false);
-            expect(handler.isUnionType(undefined)).toBe(false);
+            expect(objectResult).toHaveLength(1);
+            expect(objectResult[0].mockName).toBe("TestQuery");
         });
     });
 });

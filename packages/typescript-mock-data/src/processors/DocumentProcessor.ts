@@ -3,6 +3,7 @@ import type {
     DocumentNode,
     OperationDefinitionNode,
     FragmentDefinitionNode,
+    GraphQLObjectType,
 } from "graphql";
 import { Kind, getNamedType } from "graphql";
 import type { GeneratedCodeArtifact, CodeArtifactCollection } from "../types";
@@ -179,9 +180,11 @@ export class DocumentProcessor {
      * Gets the root type for a given operation type.
      *
      * @param operationType - The operation type (query, mutation, subscription)
-     * @returns The root GraphQL type, or null if not found
+     * @returns The root GraphQL type, or null/undefined if not found
      */
-    private getRootTypeForOperation(operationType: string): any {
+    private getRootTypeForOperation(
+        operationType: string,
+    ): GraphQLObjectType | null | undefined {
         switch (operationType) {
             case "query":
                 return this.schema.getQueryType();
@@ -190,7 +193,7 @@ export class DocumentProcessor {
             case "subscription":
                 return this.schema.getSubscriptionType();
             default:
-                return null;
+                return undefined;
         }
     }
 }

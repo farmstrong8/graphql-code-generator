@@ -14,7 +14,7 @@ import {
     getNamedType,
     Kind,
 } from "graphql";
-import type { MockDataVariants } from "../types";
+import type { MockDataVariants, MockDataObject } from "../types";
 
 /**
  * Information about a reusable nested type.
@@ -89,7 +89,7 @@ export class NestedTypeCollector {
      *
      * @param mockData - The mock data object to analyze
      */
-    private analyzeOperationMock(mockData: any): void {
+    private analyzeOperationMock(mockData: MockDataObject): void {
         // Extract operation information from mock data
         // This is a simplified version - in a full implementation, we'd need
         // to track the original GraphQL operation information

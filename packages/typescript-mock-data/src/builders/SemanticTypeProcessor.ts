@@ -136,7 +136,7 @@ export class SemanticTypeProcessor {
      * @returns TypeScript type string
      */
     private generateTypeStringWithNestedTypes(
-        semanticType: any,
+        semanticType: SemanticTypeInfo,
         nestedTypes?: Map<string, string>,
     ): string {
         // If no nested types, fall back to regular generation

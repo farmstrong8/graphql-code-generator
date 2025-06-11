@@ -6,6 +6,8 @@ import type {
     FieldNode,
     InlineFragmentNode,
     FragmentSpreadNode,
+    GraphQLObjectType,
+    GraphQLInterfaceType,
 } from "graphql";
 import { Kind } from "graphql";
 import {
@@ -238,7 +240,7 @@ export class SelectionSetHandler {
      * @returns Array of FieldNode selections
      */
     private generateCommonFragmentFieldSelections(
-        targetType: any, // GraphQLObjectType | GraphQLInterfaceType
+        targetType: GraphQLObjectType | GraphQLInterfaceType,
     ): FieldNode[] {
         const fieldSelections: FieldNode[] = [];
         const schemaFields = targetType.getFields();

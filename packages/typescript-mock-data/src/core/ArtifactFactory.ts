@@ -4,7 +4,6 @@ import { DocumentProcessor } from "../processors/DocumentProcessor";
 import { MockObjectBuilder } from "../builders/MockObjectBuilder";
 import { TypeScriptCodeBuilder } from "../builders/TypeScriptCodeBuilder";
 import { ScalarHandler } from "../handlers/ScalarHandler";
-import { UnionHandler } from "../handlers/UnionHandler";
 import { SelectionSetHandler } from "../handlers/SelectionSetHandler";
 import { TypeInferenceService } from "../services/TypeInferenceService";
 import { NestedTypeCollector } from "../services/NestedTypeCollector";
@@ -22,7 +21,6 @@ export class ArtifactFactory {
     private readonly nestedTypeCollector: NestedTypeCollector;
     private readonly mockObjectBuilder: MockObjectBuilder;
     private readonly codeBuilder: TypeScriptCodeBuilder;
-    private readonly unionHandler: UnionHandler;
 
     constructor(
         private readonly schema: GraphQLSchema,
@@ -40,18 +38,13 @@ export class ArtifactFactory {
             this.nestedTypeCollector,
         );
 
-        // Initialize builders that depend on handlers
+        // Initialize MockObjectBuilder with all its dependencies
+        // (No longer needs UnionHandler - union logic is now internal)
         this.mockObjectBuilder = new MockObjectBuilder(
             this.schema,
             this.scalarHandler,
             this.selectionSetHandler,
         );
-
-        // Initialize union handler (without circular dependency)
-        this.unionHandler = new UnionHandler(this.schema);
-
-        // Wire the circular dependency between union handler and mock object builder
-        this.mockObjectBuilder.setUnionHandler(this.unionHandler);
     }
 
     /**

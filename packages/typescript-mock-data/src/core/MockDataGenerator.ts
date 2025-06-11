@@ -2,6 +2,7 @@ import type { GraphQLSchema, FragmentDefinitionNode } from "graphql";
 import { Kind } from "graphql";
 import type { Types } from "@graphql-codegen/plugin-helpers";
 import type { CodeArtifactCollection } from "../types";
+import type { TypeScriptMockDataPluginConfig } from "../config/types";
 import { PluginConfig } from "../config/PluginConfig";
 import { ArtifactFactory } from "./ArtifactFactory";
 import { MOCK_BUILDER_BOILERPLATE } from "../utils/codeTemplates";
@@ -20,7 +21,7 @@ export class MockDataGenerator {
 
     constructor(
         private readonly schema: GraphQLSchema,
-        rawConfig: any,
+        rawConfig: TypeScriptMockDataPluginConfig,
     ) {
         this.config = new PluginConfig(rawConfig);
         this.artifactFactory = new ArtifactFactory(this.schema, this.config);

@@ -4,6 +4,8 @@ import type {
     GeneratedCodeArtifact,
 } from "../types";
 import type { NestedTypeInfo } from "../services/NestedTypeCollector";
+import type { TypeInferenceService } from "../services/TypeInferenceService";
+import type { FragmentDefinitionNode } from "graphql";
 
 /**
  * TypeScript Type Definition Generator
@@ -310,8 +312,8 @@ export class TypeDefinitionGenerator {
         builderName: string,
         nestedTypeInfo: NestedTypeInfo,
         operationName: string,
-        typeInferenceService?: any,
-        fragmentRegistry?: Map<string, any>,
+        typeInferenceService?: TypeInferenceService,
+        fragmentRegistry?: Map<string, FragmentDefinitionNode>,
     ): string {
         const typeName = builderName.substring(1); // Remove 'a' prefix
 

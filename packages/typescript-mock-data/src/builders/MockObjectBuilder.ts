@@ -7,6 +7,8 @@ import type {
     SelectionSetNode,
     FieldNode,
     FragmentDefinitionNode,
+    InlineFragmentNode,
+    GraphQLType,
 } from "graphql";
 import {
     isObjectType,
@@ -21,7 +23,6 @@ import {
 import type { MockDataObject, MockDataVariants } from "../types";
 import type { ScalarHandler } from "../handlers/ScalarHandler";
 import type { SelectionSetHandler } from "../handlers/SelectionSetHandler";
-import type { UnionHandler } from "../handlers/UnionHandler";
 
 /**
  * Parameters for building mock objects from GraphQL types.
@@ -41,23 +42,11 @@ export interface BuildMockObjectParams {
  * type variants including scalars, objects, lists, and unions.
  */
 export class MockObjectBuilder {
-    private unionHandler?: UnionHandler;
-
     constructor(
         private readonly schema: GraphQLSchema,
         private readonly scalarHandler: ScalarHandler,
         private readonly selectionSetHandler: SelectionSetHandler,
     ) {}
-
-    /**
-     * Sets the union handler dependency (resolves circular dependency).
-     *
-     * @param handler - The UnionHandler instance
-     */
-    setUnionHandler(handler: UnionHandler): void {
-        this.unionHandler = handler;
-        handler.setMockObjectBuilder(this);
-    }
 
     /**
      * Builds mock data objects for a GraphQL composite type.
@@ -75,10 +64,7 @@ export class MockObjectBuilder {
         fragmentRegistry: Map<string, FragmentDefinitionNode>,
     ): MockDataVariants {
         if (isUnionType(parentType)) {
-            if (!this.unionHandler) {
-                throw new Error("UnionHandler not set on MockObjectBuilder");
-            }
-            return this.unionHandler.processUnionType({
+            return this.processUnionType({
                 unionType: parentType,
                 selectionSet,
                 operationName,
@@ -92,6 +78,93 @@ export class MockObjectBuilder {
             operationName,
             fragmentRegistry,
         });
+    }
+
+    /**
+     * Processes a union type with inline fragments.
+     *
+     * @param params - Union processing parameters
+     * @returns Mock data objects for each union variant
+     */
+    private processUnionType(params: {
+        unionType: GraphQLUnionType;
+        selectionSet: SelectionSetNode;
+        operationName: string;
+        fragmentRegistry: Map<string, FragmentDefinitionNode>;
+    }): MockDataVariants {
+        const { unionType, selectionSet, operationName, fragmentRegistry } =
+            params;
+        const variants: MockDataVariants = [];
+
+        for (const selection of selectionSet.selections) {
+            if (selection.kind !== Kind.INLINE_FRAGMENT) continue;
+
+            const variant = this.processInlineFragment({
+                inlineFragment: selection,
+                unionType,
+                operationName,
+                fragmentRegistry,
+            });
+
+            if (variant) {
+                variants.push(...variant);
+            }
+        }
+
+        return variants;
+    }
+
+    /**
+     * Processes an individual inline fragment within a union type.
+     *
+     * @param params - Inline fragment processing parameters
+     * @returns Mock data objects for the fragment, or null if processing fails
+     */
+    private processInlineFragment(params: {
+        inlineFragment: InlineFragmentNode;
+        unionType: GraphQLUnionType;
+        operationName: string;
+        fragmentRegistry: Map<string, FragmentDefinitionNode>;
+    }): MockDataVariants | null {
+        const { inlineFragment, unionType, operationName, fragmentRegistry } =
+            params;
+
+        // Get the target type for this inline fragment
+        if (!inlineFragment.typeCondition) {
+            console.warn(
+                `Inline fragment in union ${unionType.name} is missing type condition`,
+            );
+            return null;
+        }
+
+        const targetTypeName = inlineFragment.typeCondition.name.value;
+        const targetType = this.schema.getType(targetTypeName);
+
+        if (!targetType) {
+            console.warn(
+                `Type ${targetTypeName} not found in schema for union ${unionType.name}`,
+            );
+            return null;
+        }
+
+        // Verify the target type is a valid member of the union
+        if (!unionType.getTypes().includes(targetType as any)) {
+            console.warn(
+                `Type ${targetTypeName} is not a valid member of union ${unionType.name}`,
+            );
+            return null;
+        }
+
+        // Generate a variant name that includes the union member type
+        const variantName = `${operationName}As${targetTypeName}`;
+
+        // Recursively build the mock for this variant
+        return this.buildForType(
+            targetType as GraphQLCompositeType,
+            inlineFragment.selectionSet,
+            variantName,
+            fragmentRegistry,
+        );
     }
 
     /**
@@ -185,7 +258,7 @@ export class MockObjectBuilder {
             const unionType = getNamedType(fieldDef.type) as GraphQLUnionType;
 
             // Generate union variants for this field
-            const unionVariants = this.unionHandler!.processUnionType({
+            const unionVariants = this.processUnionType({
                 unionType,
                 selectionSet: unionField.selectionSet!,
                 operationName,
@@ -333,7 +406,7 @@ export class MockObjectBuilder {
      * @param graphqlType - The GraphQL type to check
      * @returns True if the type is a list type after unwrapping wrappers
      */
-    private isListTypeRecursive(graphqlType: any): boolean {
+    private isListTypeRecursive(graphqlType: GraphQLType): boolean {
         // Handle non-null wrappers - unwrap and check the inner type
         if (isNonNullType(graphqlType)) {
             return this.isListTypeRecursive(graphqlType.ofType);
