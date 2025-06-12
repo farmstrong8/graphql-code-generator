@@ -3,7 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { TodosPage } from "../pages/TodosPage";
 import { renderWithProviders } from "../test/utils";
 import { TodosPageDocument } from "@/pages/graphql/generated/TodosPageQuery";
-import { aAddTodoMutation, aTodosPageQuery, aTodosPageTodo } from "@/mocks";
+import {
+    aAddTodoMutation,
+    aTodosPageQuery,
+    aTodosPageTodo,
+    aToggleTodoTodo,
+} from "@/mocks";
 import { AddTodoDocument } from "@/pages/graphql/generated/AddTodoMutation";
 import { ToggleTodoDocument } from "@/pages/graphql/generated/ToggleTodoMutation";
 import { DeleteTodoDocument } from "@/pages/graphql/generated/DeleteTodoMutation";
@@ -70,12 +75,11 @@ const mockToggleTodo = {
     result: {
         data: {
             __typename: "Mutation",
-            toggleTodo: {
-                __typename: "Todo",
+            toggleTodo: aToggleTodoTodo({
                 id: "1",
                 title: "Buy groceries",
                 completed: true,
-            },
+            }),
         },
     },
 };
