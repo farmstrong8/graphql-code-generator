@@ -95,7 +95,7 @@ export class MockDataGenerator {
     private removeMockBuilderBoilerplate(code: string): string {
         // Remove the boilerplate by finding where it ends
         const boilerplateEndMarker =
-            "function createBuilder<T extends object>(base: T) {\n  return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);\n}";
+            "function createBuilder<T extends object>(baseObject: T) {\n    return (overrides?: DeepPartial<T>): T =>\n        mergeWith({}, baseObject, overrides, (objValue, srcValue) => {\n            if (Array.isArray(objValue) && Array.isArray(srcValue)) {\n                return srcValue;\n            }\n        });\n}";
 
         const endIndex = code.indexOf(boilerplateEndMarker);
         if (endIndex === -1) {

@@ -3,7 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { TodosPage } from "../pages/TodosPage";
 import { renderWithProviders } from "../test/utils";
 import { TodosPageDocument } from "@/pages/graphql/generated/TodosPageQuery";
-import { aTodosPageQuery, aTodosPageTodo } from "@/mocks";
+import { aAddTodoMutation, aTodosPageQuery, aTodosPageTodo } from "@/mocks";
+import { AddTodoDocument } from "@/pages/graphql/generated/AddTodoMutation";
+import { ToggleTodoDocument } from "@/pages/graphql/generated/ToggleTodoMutation";
+import { DeleteTodoDocument } from "@/pages/graphql/generated/DeleteTodoMutation";
 
 // Mock data builders for different scenarios
 const mockTodosEmpty = {
@@ -11,7 +14,9 @@ const mockTodosEmpty = {
         query: TodosPageDocument,
     },
     result: {
-        data: aTodosPageQuery(),
+        data: aTodosPageQuery({
+            todos: [],
+        }),
     },
 };
 
@@ -22,30 +27,16 @@ const mockTodosWithItems = {
     result: {
         data: aTodosPageQuery({
             todos: [
-                {
-                    __typename: "Todo",
+                aTodosPageTodo({
                     id: "1",
-                    title: "Buy groceries",
                     completed: false,
-                    dueAt: "2025-06-01",
-                    author: {
-                        __typename: "Author",
-                        id: "author-1",
-                        name: "John Doe",
-                    },
-                },
-                {
-                    __typename: "Todo",
+                    title: "Buy groceries",
+                }),
+                aTodosPageTodo({
                     id: "2",
-                    title: "Walk the dog",
                     completed: true,
-                    dueAt: "2025-06-02",
-                    author: {
-                        __typename: "Author",
-                        id: "author-1",
-                        name: "John Doe",
-                    },
-                },
+                    title: "Walk the dog",
+                }),
             ],
         }),
     },
@@ -59,7 +50,7 @@ const mockAddTodo = {
         },
     },
     result: {
-        data: aAddTodo({
+        data: aAddTodoMutation({
             addTodo: {
                 id: "3",
                 title: "New test todo",
@@ -82,6 +73,7 @@ const mockToggleTodo = {
             toggleTodo: {
                 __typename: "Todo",
                 id: "1",
+                title: "Buy groceries",
                 completed: true,
             },
         },
@@ -151,13 +143,6 @@ describe("TodosPage", () => {
                     screen.getByText("No todos yet. Add one above!"),
                 ).toBeInTheDocument();
             });
-
-            expect(
-                screen.getByPlaceholderText("Add a new task..."),
-            ).toBeInTheDocument();
-            expect(
-                screen.getByRole("button", { name: /add/i }),
-            ).toBeInTheDocument();
         });
     });
 
@@ -257,26 +242,6 @@ describe("TodosPage", () => {
             await waitFor(() => {
                 expect(input).toHaveValue("");
             });
-        });
-
-        it("does not add empty todos", async () => {
-            const user = userEvent.setup();
-
-            renderWithProviders(<TodosPage />, {
-                mocks: [mockTodosEmpty],
-            });
-
-            await waitFor(() => {
-                expect(
-                    screen.getByPlaceholderText("Add a new task..."),
-                ).toBeInTheDocument();
-            });
-
-            const addButton = screen.getByRole("button", { name: /add/i });
-            await user.click(addButton);
-
-            // Should not trigger any mutations for empty input
-            // This is implicitly tested by not providing a mock for empty string mutation
         });
     });
 

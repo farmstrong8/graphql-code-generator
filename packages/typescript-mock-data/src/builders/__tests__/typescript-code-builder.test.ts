@@ -180,7 +180,7 @@ describe("TypeScriptCodeBuilder", () => {
             expect(result.operationName).toBe("Empty");
             expect(result.operationType).toBe("query");
             // Should still contain boilerplate
-            expect(result.generatedCode).toContain("import { merge }");
+            expect(result.generatedCode).toContain("import { mergeWith }");
         });
 
         it("should handle complex nested objects", () => {

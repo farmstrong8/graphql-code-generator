@@ -1,6 +1,6 @@
 import * as Types from "../../../types.generated";
 
-import { merge } from "lodash";
+import { mergeWith } from "lodash";
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
     ? T
@@ -10,8 +10,13 @@ type DeepPartial<T> = T extends (...args: unknown[]) => unknown
         ? { [K in keyof T]?: DeepPartial<T[K]> }
         : T;
 
-function createBuilder<T extends object>(base: T) {
-    return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
+function createBuilder<T extends object>(baseObject: T) {
+    return (overrides?: DeepPartial<T>): T =>
+        mergeWith({}, baseObject, overrides, (objValue, srcValue) => {
+            if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+                return srcValue;
+            }
+        });
 }
 
 type AuthorFragmentFragment = {
@@ -22,6 +27,6 @@ type AuthorFragmentFragment = {
 
 export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
     __typename: "Author",
-    id: "c60e488c-7547-4458-a849-a8e95c5d01d6",
-    name: "Quas velit omnis omnis.",
+    id: "703a9023-c373-4b6d-b6ce-715f0d779a83",
+    name: "Tenetur modi ipsum perferendis et voluptatem nihil id distinctio.",
 });

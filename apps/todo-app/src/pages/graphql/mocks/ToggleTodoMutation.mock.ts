@@ -1,6 +1,6 @@
 import * as Types from "../../../types.generated";
 
-import { merge } from "lodash";
+import { mergeWith } from "lodash";
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
     ? T
@@ -10,8 +10,13 @@ type DeepPartial<T> = T extends (...args: unknown[]) => unknown
         ? { [K in keyof T]?: DeepPartial<T[K]> }
         : T;
 
-function createBuilder<T extends object>(base: T) {
-    return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
+function createBuilder<T extends object>(baseObject: T) {
+    return (overrides?: DeepPartial<T>): T =>
+        mergeWith({}, baseObject, overrides, (objValue, srcValue) => {
+            if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+                return srcValue;
+            }
+        });
 }
 
 type ToggleTodoTodo = {
@@ -23,9 +28,9 @@ type ToggleTodoTodo = {
 
 export const aToggleTodoTodo = createBuilder<ToggleTodoTodo>({
     __typename: "Todo",
-    id: "b8d78348-54ed-4c39-ab8d-ef3d8b20bb4a",
-    title: "Vel cum doloribus.",
-    completed: false,
+    id: "07102e36-95b8-494f-a755-8f0ad913de47",
+    title: "Maxime accusantium saepe at voluptatem accusantium corrupti distinctio fuga.",
+    completed: true,
 });
 
 type ToggleTodoMutation = {

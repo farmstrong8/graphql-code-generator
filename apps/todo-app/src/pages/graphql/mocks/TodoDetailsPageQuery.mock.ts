@@ -1,6 +1,6 @@
 import * as Types from "../../../types.generated";
 
-import { merge } from "lodash";
+import { mergeWith } from "lodash";
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
     ? T
@@ -10,8 +10,13 @@ type DeepPartial<T> = T extends (...args: unknown[]) => unknown
         ? { [K in keyof T]?: DeepPartial<T[K]> }
         : T;
 
-function createBuilder<T extends object>(base: T) {
-    return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
+function createBuilder<T extends object>(baseObject: T) {
+    return (overrides?: DeepPartial<T>): T =>
+        mergeWith({}, baseObject, overrides, (objValue, srcValue) => {
+            if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+                return srcValue;
+            }
+        });
 }
 
 type TodoDetailsPageQueryAsTodo = {
@@ -29,8 +34,8 @@ export const aTodoDetailsPageQueryAsTodo =
         __typename: "Query",
         todo: {
             __typename: "Todo",
-            id: "592b1524-199c-4367-bc8b-e9fc802db32d",
-            title: "Necessitatibus soluta mollitia dolorum tempore.",
+            id: "31c2ecc8-3777-4f6b-9b52-79cfc371d2ff",
+            title: "Eveniet quam recusandae fugit.",
             completed: true,
         },
     });
@@ -48,6 +53,7 @@ export const aTodoDetailsPageQueryAsError =
         __typename: "Query",
         todo: {
             __typename: "Error",
-            message: "Sunt est id est unde.",
+            message:
+                "Dolorem id velit asperiores in architecto tempore eveniet.",
         },
     });

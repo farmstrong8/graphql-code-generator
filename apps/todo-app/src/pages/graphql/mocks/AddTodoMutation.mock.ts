@@ -1,6 +1,6 @@
 import * as Types from "../../../types.generated";
 
-import { merge } from "lodash";
+import { mergeWith } from "lodash";
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
     ? T
@@ -10,8 +10,13 @@ type DeepPartial<T> = T extends (...args: unknown[]) => unknown
         ? { [K in keyof T]?: DeepPartial<T[K]> }
         : T;
 
-function createBuilder<T extends object>(base: T) {
-    return (overrides?: DeepPartial<T>): T => merge({}, base, overrides);
+function createBuilder<T extends object>(baseObject: T) {
+    return (overrides?: DeepPartial<T>): T =>
+        mergeWith({}, baseObject, overrides, (objValue, srcValue) => {
+            if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+                return srcValue;
+            }
+        });
 }
 
 type AddTodoTodo = {
@@ -23,8 +28,8 @@ type AddTodoTodo = {
 
 export const aAddTodoTodo = createBuilder<AddTodoTodo>({
     __typename: "Todo",
-    id: "6740b032-a216-43c7-979e-b20baff5c9db",
-    title: "Alias ullam itaque maxime.",
+    id: "a38985b4-7d80-4076-bc46-4a6f2ae6dff4",
+    title: "Officia natus vero nesciunt vero.",
     completed: true,
 });
 
