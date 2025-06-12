@@ -5,7 +5,7 @@ import type { CodeArtifactCollection } from "../types";
 import type { TypeScriptMockDataPluginConfig } from "../config/types";
 import { PluginConfig } from "../config/PluginConfig";
 import { ArtifactFactory } from "./ArtifactFactory";
-import { MOCK_BUILDER_BOILERPLATE } from "../utils/codeTemplates";
+import { MOCK_BUILDER_BOILERPLATE } from "../constants";
 
 /**
  * Main orchestrator for generating mock data from GraphQL documents.

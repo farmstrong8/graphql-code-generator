@@ -39,7 +39,7 @@ const mockTodosWithItems = {
                     id: "2",
                     title: "Walk the dog",
                     completed: true,
-                    dueAt: null,
+                    dueAt: "2025-06-02",
                     author: {
                         __typename: "Author",
                         id: "author-1",

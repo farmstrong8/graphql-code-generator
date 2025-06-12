@@ -1,5 +1,5 @@
 /**
- * TypeScript code templates used for generating mock builder functions.
+ * Constants used throughout the TypeScript mock data generation.
  */
 
 /**

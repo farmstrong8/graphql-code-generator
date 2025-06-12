@@ -1,8 +1,13 @@
 import { Trash } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Todo } from "@/types.generated";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+
+type Todo = {
+    id: string;
+    title: string;
+    completed: boolean;
+};
 
 interface TodoItemProps {
     todo: Todo;

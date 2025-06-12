@@ -20,8 +20,7 @@ import {
     isNonNullType,
     getNamedType,
 } from "graphql";
-import { isPrimitiveScalar } from "../utils/scalars";
-import { extractTypeNameFromFragmentName } from "../utils/fragmentUtils";
+import { FragmentService } from "./FragmentService";
 
 /**
  * Represents semantic type information for TypeScript generation.
@@ -55,6 +54,8 @@ export interface FieldTypeInferenceParams {
  * enabling the generation of proper types like "string" instead of literal types like '"uuid-value"'.
  */
 export class TypeInferenceService {
+    private readonly fragmentService = new FragmentService();
+
     constructor(private readonly schema: GraphQLSchema) {}
 
     /**
@@ -504,7 +505,8 @@ export class TypeInferenceService {
         fragmentRegistry?: Map<string, FragmentDefinitionNode>,
     ): Record<string, SemanticTypeInfo> | null {
         // Extract the type name from fragment name (e.g., "AuthorFragment" -> "Author")
-        const targetTypeName = extractTypeNameFromFragmentName(fragmentName);
+        const targetTypeName =
+            this.fragmentService.extractTypeNameFromFragmentName(fragmentName);
 
         if (!targetTypeName) {
             return null;

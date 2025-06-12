@@ -3,7 +3,7 @@ import type {
     MockDataVariants,
     GeneratedCodeArtifact,
 } from "../types";
-import { MOCK_BUILDER_BOILERPLATE } from "../utils/codeTemplates";
+import { MOCK_BUILDER_BOILERPLATE } from "../constants";
 import type {
     TypeInferenceService,
     SemanticTypeInfo,

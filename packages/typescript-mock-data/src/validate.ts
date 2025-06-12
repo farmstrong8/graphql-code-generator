@@ -1,7 +1,7 @@
 import type { PluginValidateFn } from "@graphql-codegen/plugin-helpers";
 import { GraphQLScalarType } from "graphql";
 import type { TypeScriptMockDataPluginConfig } from "./config/types";
-import { isValidCasualKey } from "./utils/scalars";
+import { ScalarHandler } from "./handlers/ScalarHandler";
 
 /**
  * GraphQL Code Generator validation function for TypeScript mock data plugin.
@@ -52,7 +52,7 @@ function validateScalarConfigurations(scalars: Record<string, any>): void {
     for (const [scalarName, scalarConfig] of Object.entries(scalars)) {
         if (typeof scalarConfig === "string") {
             // Validate casual.js generator name
-            if (!isValidCasualKey(scalarConfig)) {
+            if (!ScalarHandler.isValidCasualKey(scalarConfig)) {
                 throw new Error(
                     `Invalid casual.js generator "${scalarConfig}" for scalar "${scalarName}". ` +
                         `Check the casual.js documentation for valid generator names.`,
@@ -68,7 +68,7 @@ function validateScalarConfigurations(scalars: Record<string, any>): void {
                 );
             }
 
-            if (!isValidCasualKey(generator)) {
+            if (!ScalarHandler.isValidCasualKey(generator)) {
                 throw new Error(
                     `Invalid casual.js generator "${generator}" for scalar "${scalarName}". ` +
                         `Check the casual.js documentation for valid generator names.`,

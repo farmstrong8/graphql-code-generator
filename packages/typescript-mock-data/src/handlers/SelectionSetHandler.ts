@@ -16,7 +16,7 @@ import {
     isScalarType,
     getNamedType,
 } from "graphql";
-import { extractTypeNameFromFragmentName } from "../utils/fragmentUtils";
+import { FragmentService } from "../services/FragmentService";
 
 /**
  * Handles resolution and processing of GraphQL selection sets.
@@ -25,6 +25,8 @@ import { extractTypeNameFromFragmentName } from "../utils/fragmentUtils";
  * resolution, providing a clean interface for working with complex GraphQL selections.
  */
 export class SelectionSetHandler {
+    private readonly fragmentService = new FragmentService();
+
     constructor(private readonly schema: GraphQLSchema) {}
 
     /**
@@ -209,7 +211,8 @@ export class SelectionSetHandler {
         fragmentRegistry: Map<string, FragmentDefinitionNode>,
     ): FieldNode[] {
         // Extract the type name from fragment name (e.g., "AuthorFragment" -> "Author")
-        const targetTypeName = extractTypeNameFromFragmentName(fragmentName);
+        const targetTypeName =
+            this.fragmentService.extractTypeNameFromFragmentName(fragmentName);
 
         if (!targetTypeName) {
             return [];
