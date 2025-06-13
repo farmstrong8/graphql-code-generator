@@ -1,8 +1,6 @@
-name: Release
+name: RELEASE
 
 on:
-    release:
-        types: [published]
     workflow_dispatch:
         inputs:
             version:

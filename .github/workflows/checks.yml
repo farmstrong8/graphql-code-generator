@@ -1,4 +1,4 @@
-name: Checks
+name: CODE-CHECKS
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
         branches: [main]
 
 jobs:
-    test:
+    checks:
         runs-on: ubuntu-latest
 
         steps:
