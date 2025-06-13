@@ -4,6 +4,14 @@
     "description": "a graphql codegen plugin that is useful for generating mocks of your graphql schema and queries",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/farmstrong8/graphql-code-generator.git"
+    },
+    "homepage": "https://github.com/farmstrong8/graphql-code-generator#readme",
+    "bugs": {
+        "url": "https://github.com/farmstrong8/graphql-code-generator/issues"
+    },
     "scripts": {
         "typecheck": "tsc --noEmit",
         "build": "tsup src/index.ts --format esm,cjs --dts --out-dir dist",

@@ -1,4 +1,4 @@
-# @graphql-codegen/typescript-mock-data
+# graphql-codegen-typescript-operation-mocks
 
 Generate type-safe, overrideable mock data for your GraphQL operations using [GraphQL Code Generator](https://the-guild.dev/graphql/codegen), `casual`, and `lodash`.
 
@@ -20,9 +20,9 @@ This plugin is ideal for testing, Storybook development, and fixture generation.
 ## 📦 Installation
 
 ```bash
-yarn add -D @graphql-codegen/typescript-mock-data casual lodash
+yarn add -D graphql-codegen-typescript-operation-mocks casual lodash
 # or
-npm install -D @graphql-codegen/typescript-mock-data casual lodash
+npm install -D graphql-codegen-typescript-operation-mocks casual lodash
 ```
 
 ---
@@ -54,7 +54,7 @@ const config: CodegenConfig = {
                 folder: "mocks",
                 extension: ".mock.ts",
             },
-            plugins: ["@graphql-codegen/typescript-mock-data"],
+            plugins: ["typescript-operation-mocks"],
             config: {
                 scalars: {
                     Date: {
@@ -197,8 +197,7 @@ const customTodo = aAddTodoMutation({
 
 ## ❗ Validation
 
-The plugin will validate your schema at build time.  
-If your schema includes a custom scalar (e.g. `Date`) and it's not configured, you'll get:
+The plugin will validate your schema at build time. You must tell the plugin how to resolve non-primitive scalars in your schema. If your schema includes a custom scalar (e.g. `Date`) and it's not configured, you'll get:
 
 ```
 Missing mock generators for custom scalars: Date.
@@ -206,52 +205,6 @@ Please define them under the 'scalars' field in your plugin config.
 ```
 
 ---
-
-## ⚠️ Known Limitations
-
-### Fragment Collocation
-
-When using the `near-operation-file` preset with fragments in separate `.graphql` files, the plugin cannot access fragment definitions from other files during generation. This means:
-
-**❌ Won't work with collocation:**
-
-```
-src/
-├── AuthorFragment.graphql        # Fragment definition
-├── TodosPageQuery.graphql        # Uses AuthorFragment
-└── mocks/
-    ├── AuthorFragment.mock.ts    # ✅ Fragment mock works
-    └── TodosPageQuery.mock.ts    # ❌ Cannot resolve AuthorFragment
-```
-
-**✅ Works in single files:**
-
-```graphql
-# TodosPageQuery.graphql - Fragment and query in same file
-fragment AuthorFragment on Author {
-    id
-    name
-}
-
-query TodosPageQuery {
-    todos {
-        author {
-            ...AuthorFragment
-        }
-    }
-}
-```
-
-**Workaround:** Include fragment definitions in the same `.graphql` file as operations that use them, or use a single mock file approach instead of collocation.
-
----
-
-## 🧪 Best Practices
-
-- Use alongside `typescript` and `near-operation-file`
-- Do **not** combine with `typescript-operations` in the same output
-- Use `.mock.ts` files or `__mocks__/` folders for isolation
-- Check your mocks into source control if needed for visibility or snapshot testing
 
 ### 🧼 Code Formatting
 
