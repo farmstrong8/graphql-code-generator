@@ -10,7 +10,7 @@
     "scripts": {
         "typecheck": "yarn workspaces foreach -A run typecheck",
         "test": "yarn workspaces foreach -A run test",
-        "build:package": "yarn workspace graphql-codegen-typescript-operation-mocks",
+        "build:package": "yarn workspace graphql-codegen-typescript-operation-mocks build",
         "format": "prettier --write '**/*.{ts,tsx}'"
     },
     "devDependencies": {

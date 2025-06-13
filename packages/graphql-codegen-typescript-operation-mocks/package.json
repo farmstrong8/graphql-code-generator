@@ -1,6 +1,6 @@
 {
     "name": "graphql-codegen-typescript-operation-mocks",
-    "version": "0.0.1",
+    "version": "0.0.1-alpha.1",
     "description": "a graphql codegen plugin that is useful for generating mocks of your graphql schema and queries",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
