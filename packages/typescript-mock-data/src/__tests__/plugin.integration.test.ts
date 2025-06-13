@@ -300,8 +300,6 @@ query TodosPageQuery {
         const result = await plugin(schema, documents, {});
         const code = typeof result === "string" ? result : result.content;
 
-        console.log("Generated code:", code);
-
         // Should generate the fragment mock
         expect(code).toContain("export const aAuthorFragmentFragment");
         expect(code).toContain("type AuthorFragmentFragment = {");
@@ -323,7 +321,6 @@ query TodosPageQuery {
 
         if (todoTypeMatch) {
             const authorTypeInTodo = todoTypeMatch[0];
-            console.log("Author type in TodosPageQueryTodo:", authorTypeInTodo);
 
             // The author field type should include id, name, and email from the fragment
             expect(authorTypeInTodo).toContain('"__typename": "Author"');
@@ -341,7 +338,6 @@ query TodosPageQuery {
 
         if (mockMatch) {
             const authorMockInTodo = mockMatch[0];
-            console.log("Author mock in TodosPageQueryTodo:", authorMockInTodo);
 
             // The author field mock should include actual values for id, name, and email
             expect(authorMockInTodo).toContain('"__typename": "Author"');
@@ -380,8 +376,6 @@ query TodosPageWithInlineFragment {
         const result = await plugin(schema, documents, {});
         const code = typeof result === "string" ? result : result.content;
 
-        console.log("Same-file fragment generated code:", code);
-
         // Should generate the fragment mock
         expect(code).toContain("export const aAuthorInlineFragmentFragment");
         expect(code).toContain("type AuthorInlineFragmentFragment = {");
@@ -398,10 +392,6 @@ query TodosPageWithInlineFragment {
 
         if (todoTypeMatch) {
             const authorTypeInTodo = todoTypeMatch[0];
-            console.log(
-                "Author type in TodosPageWithInlineFragmentTodo:",
-                authorTypeInTodo,
-            );
 
             // The author field type should include id and name from the same-file fragment
             expect(authorTypeInTodo).toContain('"__typename": "Author"');
@@ -417,11 +407,6 @@ query TodosPageWithInlineFragment {
 
         if (mockMatch) {
             const authorMockInTodo = mockMatch[0];
-            console.log(
-                "Author mock in TodosPageWithInlineFragmentTodo:",
-                authorMockInTodo,
-            );
-
             // The author field mock should include actual values for id and name
             expect(authorMockInTodo).toContain('"__typename": "Author"');
             expect(authorMockInTodo).toMatch(/id: "[^"]+"/);

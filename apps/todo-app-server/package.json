@@ -1,10 +1,10 @@
 {
     "name": "todo-app-server",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "index.ts",
     "type": "module",
     "scripts": {
-        "typecheck": "tsc",
+        "typecheck": "tsc --noEmit",
         "dev": "tsx src/index.ts"
     },
     "author": "",

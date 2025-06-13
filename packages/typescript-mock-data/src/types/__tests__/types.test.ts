@@ -1,10 +1,9 @@
 import { describe, it, expect } from "vitest";
-import type {
-    GeneratedCodeArtifact,
-    MockDataObject,
-    MockDataVariants,
+import {
     CodeArtifactCollection,
-} from "../types";
+    GeneratedCodeArtifact,
+} from "../GeneratedCodeArtifact";
+import { MockDataObject, MockDataVariants } from "../MockDataObject";
 
 describe("Type Definitions", () => {
     describe("GeneratedCodeArtifact", () => {
