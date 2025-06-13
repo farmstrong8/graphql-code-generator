@@ -9,9 +9,6 @@ out/
 coverage/
 *.tsbuildinfo
 
-# GraphQL Codegen output
-**/*.generated.ts
-
 # Logs
 npm-debug.log*
 yarn-debug.log*
