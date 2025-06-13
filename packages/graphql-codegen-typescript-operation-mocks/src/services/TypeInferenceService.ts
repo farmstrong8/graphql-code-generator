@@ -486,8 +486,49 @@ export class TypeInferenceService {
      * @param key - Property key to check
      * @returns True if quotes are needed
      */
-    private needsQuotes(key: string): boolean {
+    needsQuotes(key: string): boolean {
         return !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) || key === "__typename";
+    }
+
+    /**
+     * Escapes special characters in strings for use in TypeScript string literals.
+     *
+     * @param str - String to escape
+     * @returns Escaped string safe for TypeScript literals
+     */
+    escapeString(str: string): string {
+        return str
+            .replace(/\\/g, "\\\\")
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, "\\n")
+            .replace(/\r/g, "\\r")
+            .replace(/\t/g, "\\t");
+    }
+
+    /**
+     * Adds operation type suffix to operation name following GraphQL code generation conventions.
+     *
+     * @param operationName - The base operation name (e.g., "GetUser")
+     * @param operationType - The GraphQL operation type
+     * @returns Operation name with appropriate suffix (e.g., "GetUserQuery")
+     */
+    getOperationNameWithSuffix(
+        operationName: string,
+        operationType?: "query" | "mutation" | "subscription" | "fragment",
+    ): string {
+        if (!operationType || operationType === "fragment") {
+            return operationName;
+        }
+
+        const suffix =
+            operationType.charAt(0).toUpperCase() + operationType.slice(1);
+
+        // Avoid duplicate suffixes
+        if (operationName.endsWith(suffix)) {
+            return operationName;
+        }
+
+        return operationName + suffix;
     }
 
     /**

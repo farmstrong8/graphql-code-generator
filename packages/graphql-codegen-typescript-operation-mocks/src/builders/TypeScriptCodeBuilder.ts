@@ -64,12 +64,16 @@ export class TypeScriptCodeBuilder {
     /**
      * Utility for generating TypeScript type definitions from mock data.
      */
-    private readonly typeDefinitionGenerator = new TypeDefinitionGenerator();
+    private readonly typeDefinitionGenerator = new TypeDefinitionGenerator(
+        this.typeInferenceService,
+    );
 
     /**
      * Utility for generating TypeScript builder functions for testing.
      */
-    private readonly builderFunctionGenerator = new BuilderFunctionGenerator();
+    private readonly builderFunctionGenerator = new BuilderFunctionGenerator(
+        this.typeInferenceService,
+    );
 
     /**
      * Utility for processing GraphQL schema-based semantic types.

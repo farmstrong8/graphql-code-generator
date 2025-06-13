@@ -31,7 +31,7 @@ import type { FragmentDefinitionNode } from "graphql";
  *
  * @example Basic Usage
  * ```typescript
- * const generator = new TypeDefinitionGenerator();
+ * const generator = new TypeDefinitionGenerator(typeInferenceService);
  *
  * const typeDefinition = generator.generateTypeDefinition(
  *   'queryUser',
@@ -55,6 +55,8 @@ import type { FragmentDefinitionNode } from "graphql";
  * ```
  */
 export class TypeDefinitionGenerator {
+    constructor(private readonly typeInferenceService: TypeInferenceService) {}
+
     /**
      * Generates a complete TypeScript type definition from mock data.
      *
@@ -123,7 +125,9 @@ export class TypeDefinitionGenerator {
         const typeBody = schemaTypeBody || this.generateTypeBody(mockValue);
 
         return `type ${typeName} = ${typeBody};`;
-    } /**
+    }
+
+    /**
      * Generates TypeScript type body from a JavaScript value.
      *
      * This method performs the core logic of converting JavaScript runtime values
@@ -171,7 +175,7 @@ export class TypeDefinitionGenerator {
         }
 
         if (typeof value === "string") {
-            return `"${this.escapeString(value)}"`;
+            return `"${this.typeInferenceService.escapeString(value)}"`;
         }
 
         if (typeof value === "number" || typeof value === "boolean") {
@@ -190,7 +194,9 @@ export class TypeDefinitionGenerator {
             const properties: string[] = [];
 
             for (const [key, val] of Object.entries(value)) {
-                const keyStr = this.needsQuotes(key) ? `"${key}"` : key;
+                const keyStr = this.typeInferenceService.needsQuotes(key)
+                    ? `"${key}"`
+                    : key;
                 const valueType = this.generateTypeBody(val);
                 properties.push(`${keyStr}: ${valueType}`);
             }
@@ -217,19 +223,21 @@ export class TypeDefinitionGenerator {
         // If we have an operation name and the mock name contains "As", use operation name + variant
         if (operationName && mockName.includes("As")) {
             const variantPart = mockName.split("As")[1];
-            const baseName = this.getOperationNameWithSuffix(
-                operationName,
-                operationType,
-            );
+            const baseName =
+                this.typeInferenceService.getOperationNameWithSuffix(
+                    operationName,
+                    operationType,
+                );
             return baseName + (variantPart ? `As${variantPart}` : "");
         }
 
         // If the mockName already has the expected operation suffix or is a variant, use it directly
         if (operationName) {
-            const expectedSuffix = this.getOperationNameWithSuffix(
-                operationName,
-                operationType,
-            );
+            const expectedSuffix =
+                this.typeInferenceService.getOperationNameWithSuffix(
+                    operationName,
+                    operationType,
+                );
 
             // If mockName is exactly the expected name or is a variant of it, use mockName
             if (
@@ -249,56 +257,6 @@ export class TypeDefinitionGenerator {
     }
 
     /**
-     * Adds operation type suffix to operation name.
-     *
-     * @param operationName - The operation name
-     * @param operationType - The operation type
-     * @returns Operation name with appropriate suffix
-     */
-    private getOperationNameWithSuffix(
-        operationName: string,
-        operationType?: "query" | "mutation" | "subscription" | "fragment",
-    ): string {
-        if (!operationType || operationType === "fragment") {
-            return operationName;
-        }
-
-        const suffix =
-            operationType.charAt(0).toUpperCase() + operationType.slice(1);
-
-        // Avoid duplicate suffixes
-        if (operationName.endsWith(suffix)) {
-            return operationName;
-        }
-
-        return operationName + suffix;
-    }
-
-    /**
-     * Escapes special characters in strings for TypeScript literals.
-     *
-     * @param str - String to escape
-     * @returns Escaped string
-     */
-    private escapeString(str: string): string {
-        return str
-            .replace(/\\/g, "\\\\")
-            .replace(/"/g, '\\"')
-            .replace(/\n/g, "\\n")
-            .replace(/\r/g, "\\r")
-            .replace(/\t/g, "\\t");
-    }
-
-    /**
-     * Determines if a property key needs quotes in TypeScript.
-     *
-     * @param key - Property key to check
-     * @returns True if quotes are needed
-     */
-    private needsQuotes(key: string): boolean {
-        // Simple check for valid JavaScript identifier
-        return !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) || key === "__typename";
-    } /**
      * Generates a type definition for a nested type.
      *
      * @param builderName - The builder name
