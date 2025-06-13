@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { buildSchema } from "graphql";
 import { TypeScriptCodeBuilder } from "../TypeScriptCodeBuilder";
 import { TypeInferenceService } from "../../services/TypeInferenceService";

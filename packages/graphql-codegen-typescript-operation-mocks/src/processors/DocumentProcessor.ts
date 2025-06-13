@@ -5,7 +5,7 @@ import type {
     FragmentDefinitionNode,
     GraphQLObjectType,
 } from "graphql";
-import { Kind, getNamedType } from "graphql";
+import { Kind } from "graphql";
 import type { GeneratedCodeArtifact, CodeArtifactCollection } from "../types";
 import type { MockObjectBuilder } from "../builders/MockObjectBuilder";
 import type { TypeScriptCodeBuilder } from "../builders/TypeScriptCodeBuilder";

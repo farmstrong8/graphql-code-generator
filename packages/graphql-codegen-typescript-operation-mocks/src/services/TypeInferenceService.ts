@@ -5,11 +5,9 @@ import type {
     GraphQLInterfaceType,
     GraphQLUnionType,
     GraphQLScalarType,
-    GraphQLFieldMap,
     FieldNode,
     SelectionSetNode,
     FragmentDefinitionNode,
-    InlineFragmentNode,
 } from "graphql";
 import {
     isObjectType,
@@ -361,15 +359,12 @@ export class TypeInferenceService {
             string,
             Record<string, SemanticTypeInfo>
         > = {};
-        const typeNames: string[] = [];
 
         // Process inline fragments
         for (const selection of selectionSet.selections) {
             if (selection.kind === "InlineFragment") {
                 const typeCondition = selection.typeCondition?.name.value;
                 if (typeCondition) {
-                    typeNames.push(`"${typeCondition}"`);
-
                     // Initialize variant fields object for this specific type
                     const variantFields: Record<string, SemanticTypeInfo> = {};
 

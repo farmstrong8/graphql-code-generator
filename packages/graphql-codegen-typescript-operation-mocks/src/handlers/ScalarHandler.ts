@@ -1,4 +1,3 @@
-import type { GraphQLSchema } from "graphql";
 import { PluginConfig } from "../config/PluginConfig";
 import type { TypeScriptMockDataPluginConfig } from "../config/types";
 import casual from "casual";

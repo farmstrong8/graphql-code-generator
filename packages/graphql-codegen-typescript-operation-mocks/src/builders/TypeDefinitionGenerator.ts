@@ -1,8 +1,3 @@
-import type {
-    MockDataObject,
-    MockDataVariants,
-    GeneratedCodeArtifact,
-} from "../types";
 import type { NestedTypeInfo } from "../services/NestedTypeCollector";
 import type { TypeInferenceService } from "../services/TypeInferenceService";
 import type { FragmentDefinitionNode } from "graphql";
