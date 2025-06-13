@@ -1,0 +1,51 @@
+name: Release
+
+on:
+    release:
+        types: [published]
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Version to release (e.g., 1.0.1)"
+                required: true
+                type: string
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "yarn"
+                  registry-url: "https://registry.npmjs.org"
+
+            - name: Install dependencies
+              run: yarn install --immutable
+
+            - name: Run type check
+              run: yarn typecheck
+
+            - name: Run tests
+              run: yarn test
+
+            - name: Build package
+              run: yarn build:package
+
+            - name: Update package version (manual dispatch)
+              if: github.event_name == 'workflow_dispatch'
+              run: |
+                  cd packages/typescript-mock-data
+                  yarn version ${{ github.event.inputs.version }}
+
+            - name: Publish to npm
+              run: |
+                  cd packages/typescript-mock-data
+                  npm publish --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
