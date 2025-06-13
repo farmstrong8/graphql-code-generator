@@ -1,28 +1,37 @@
-import type * as Types from '../../../types.generated';
+import type * as Types from "../../../types.generated";
 
-import { gql } from '@apollo/client';
-import { AuthorFragmentFragmentDoc } from './AuthorFragment';
-import * as Apollo from '@apollo/client';
+import { gql } from "@apollo/client";
+import { AuthorFragmentFragmentDoc } from "./AuthorFragment";
+import * as Apollo from "@apollo/client";
 const defaultOptions = {} as const;
-export type TodosPageQueryVariables = Types.Exact<{ [key: string]: never; }>;
+export type TodosPageQueryVariables = Types.Exact<{ [key: string]: never }>;
 
-
-export type TodosPageQuery = { __typename?: 'Query', todos: Array<{ __typename?: 'Todo', id: string, title: string, completed: boolean, dueAt?: any | null, author: { __typename?: 'Author', id: string, name: string } }> };
-
+export type TodosPageQuery = {
+    __typename?: "Query";
+    todos: Array<{
+        __typename?: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+        dueAt?: any | null;
+        author: { __typename?: "Author"; id: string; name: string };
+    }>;
+};
 
 export const TodosPageDocument = gql`
     query TodosPage {
-  todos {
-    id
-    title
-    completed
-    dueAt
-    author {
-      ...AuthorFragment
+        todos {
+            id
+            title
+            completed
+            dueAt
+            author {
+                ...AuthorFragment
+            }
+        }
     }
-  }
-}
-    ${AuthorFragmentFragmentDoc}`;
+    ${AuthorFragmentFragmentDoc}
+`;
 
 /**
  * __useTodosPageQuery__
@@ -39,24 +48,60 @@ export const TodosPageDocument = gql`
  *   },
  * });
  */
-export function useTodosPageQuery(baseOptions?: Apollo.QueryHookOptions<TodosPageQuery, TodosPageQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TodosPageQuery, TodosPageQueryVariables>(TodosPageDocument, options);
-      }
-export function useTodosPageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TodosPageQuery, TodosPageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TodosPageQuery, TodosPageQueryVariables>(TodosPageDocument, options);
-        }
-export function useTodosPageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TodosPageQuery, TodosPageQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<TodosPageQuery, TodosPageQueryVariables>(TodosPageDocument, options);
-        }
-export type TodosPageQueryHookResult = ReturnType<typeof useTodosPageQuery>;
-export type TodosPageLazyQueryHookResult = ReturnType<typeof useTodosPageLazyQuery>;
-export type TodosPageSuspenseQueryHookResult = ReturnType<typeof useTodosPageSuspenseQuery>;
-export type TodosPageQueryResult = Apollo.QueryResult<TodosPageQuery, TodosPageQueryVariables>;
-export const namedOperations = {
-  Query: {
-    TodosPage: 'TodosPage'
-  }
+export function useTodosPageQuery(
+    baseOptions?: Apollo.QueryHookOptions<
+        TodosPageQuery,
+        TodosPageQueryVariables
+    >,
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery<TodosPageQuery, TodosPageQueryVariables>(
+        TodosPageDocument,
+        options,
+    );
 }
+export function useTodosPageLazyQuery(
+    baseOptions?: Apollo.LazyQueryHookOptions<
+        TodosPageQuery,
+        TodosPageQueryVariables
+    >,
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery<TodosPageQuery, TodosPageQueryVariables>(
+        TodosPageDocument,
+        options,
+    );
+}
+export function useTodosPageSuspenseQuery(
+    baseOptions?:
+        | Apollo.SkipToken
+        | Apollo.SuspenseQueryHookOptions<
+              TodosPageQuery,
+              TodosPageQueryVariables
+          >,
+) {
+    const options =
+        baseOptions === Apollo.skipToken
+            ? baseOptions
+            : { ...defaultOptions, ...baseOptions };
+    return Apollo.useSuspenseQuery<TodosPageQuery, TodosPageQueryVariables>(
+        TodosPageDocument,
+        options,
+    );
+}
+export type TodosPageQueryHookResult = ReturnType<typeof useTodosPageQuery>;
+export type TodosPageLazyQueryHookResult = ReturnType<
+    typeof useTodosPageLazyQuery
+>;
+export type TodosPageSuspenseQueryHookResult = ReturnType<
+    typeof useTodosPageSuspenseQuery
+>;
+export type TodosPageQueryResult = Apollo.QueryResult<
+    TodosPageQuery,
+    TodosPageQueryVariables
+>;
+export const namedOperations = {
+    Query: {
+        TodosPage: "TodosPage",
+    },
+};

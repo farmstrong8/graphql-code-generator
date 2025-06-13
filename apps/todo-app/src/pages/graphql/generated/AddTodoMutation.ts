@@ -1,26 +1,35 @@
-import type * as Types from '../../../types.generated';
+import type * as Types from "../../../types.generated";
 
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import { gql } from "@apollo/client";
+import * as Apollo from "@apollo/client";
 const defaultOptions = {} as const;
 export type AddTodoMutationVariables = Types.Exact<{
-  title: Types.Scalars['String']['input'];
+    title: Types.Scalars["String"]["input"];
 }>;
 
-
-export type AddTodoMutation = { __typename?: 'Mutation', addTodo: { __typename?: 'Todo', id: string, title: string, completed: boolean } };
-
+export type AddTodoMutation = {
+    __typename?: "Mutation";
+    addTodo: {
+        __typename?: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+    };
+};
 
 export const AddTodoDocument = gql`
     mutation AddTodo($title: String!) {
-  addTodo(title: $title) {
-    id
-    title
-    completed
-  }
-}
-    `;
-export type AddTodoMutationFn = Apollo.MutationFunction<AddTodoMutation, AddTodoMutationVariables>;
+        addTodo(title: $title) {
+            id
+            title
+            completed
+        }
+    }
+`;
+export type AddTodoMutationFn = Apollo.MutationFunction<
+    AddTodoMutation,
+    AddTodoMutationVariables
+>;
 
 /**
  * __useAddTodoMutation__
@@ -39,15 +48,26 @@ export type AddTodoMutationFn = Apollo.MutationFunction<AddTodoMutation, AddTodo
  *   },
  * });
  */
-export function useAddTodoMutation(baseOptions?: Apollo.MutationHookOptions<AddTodoMutation, AddTodoMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddTodoMutation, AddTodoMutationVariables>(AddTodoDocument, options);
-      }
+export function useAddTodoMutation(
+    baseOptions?: Apollo.MutationHookOptions<
+        AddTodoMutation,
+        AddTodoMutationVariables
+    >,
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation<AddTodoMutation, AddTodoMutationVariables>(
+        AddTodoDocument,
+        options,
+    );
+}
 export type AddTodoMutationHookResult = ReturnType<typeof useAddTodoMutation>;
 export type AddTodoMutationResult = Apollo.MutationResult<AddTodoMutation>;
-export type AddTodoMutationOptions = Apollo.BaseMutationOptions<AddTodoMutation, AddTodoMutationVariables>;
+export type AddTodoMutationOptions = Apollo.BaseMutationOptions<
+    AddTodoMutation,
+    AddTodoMutationVariables
+>;
 export const namedOperations = {
-  Mutation: {
-    AddTodo: 'AddTodo'
-  }
-}
+    Mutation: {
+        AddTodo: "AddTodo",
+    },
+};

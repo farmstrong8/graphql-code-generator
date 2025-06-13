@@ -1,22 +1,26 @@
-import type * as Types from '../../../types.generated';
+import type * as Types from "../../../types.generated";
 
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import { gql } from "@apollo/client";
+import * as Apollo from "@apollo/client";
 const defaultOptions = {} as const;
 export type DeleteTodoMutationVariables = Types.Exact<{
-  deleteTodoId: Types.Scalars['ID']['input'];
+    deleteTodoId: Types.Scalars["ID"]["input"];
 }>;
 
-
-export type DeleteTodoMutation = { __typename?: 'Mutation', deleteTodo: boolean };
-
+export type DeleteTodoMutation = {
+    __typename?: "Mutation";
+    deleteTodo: boolean;
+};
 
 export const DeleteTodoDocument = gql`
     mutation DeleteTodo($deleteTodoId: ID!) {
-  deleteTodo(id: $deleteTodoId)
-}
-    `;
-export type DeleteTodoMutationFn = Apollo.MutationFunction<DeleteTodoMutation, DeleteTodoMutationVariables>;
+        deleteTodo(id: $deleteTodoId)
+    }
+`;
+export type DeleteTodoMutationFn = Apollo.MutationFunction<
+    DeleteTodoMutation,
+    DeleteTodoMutationVariables
+>;
 
 /**
  * __useDeleteTodoMutation__
@@ -35,15 +39,29 @@ export type DeleteTodoMutationFn = Apollo.MutationFunction<DeleteTodoMutation, D
  *   },
  * });
  */
-export function useDeleteTodoMutation(baseOptions?: Apollo.MutationHookOptions<DeleteTodoMutation, DeleteTodoMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteTodoMutation, DeleteTodoMutationVariables>(DeleteTodoDocument, options);
-      }
-export type DeleteTodoMutationHookResult = ReturnType<typeof useDeleteTodoMutation>;
-export type DeleteTodoMutationResult = Apollo.MutationResult<DeleteTodoMutation>;
-export type DeleteTodoMutationOptions = Apollo.BaseMutationOptions<DeleteTodoMutation, DeleteTodoMutationVariables>;
-export const namedOperations = {
-  Mutation: {
-    DeleteTodo: 'DeleteTodo'
-  }
+export function useDeleteTodoMutation(
+    baseOptions?: Apollo.MutationHookOptions<
+        DeleteTodoMutation,
+        DeleteTodoMutationVariables
+    >,
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation<DeleteTodoMutation, DeleteTodoMutationVariables>(
+        DeleteTodoDocument,
+        options,
+    );
 }
+export type DeleteTodoMutationHookResult = ReturnType<
+    typeof useDeleteTodoMutation
+>;
+export type DeleteTodoMutationResult =
+    Apollo.MutationResult<DeleteTodoMutation>;
+export type DeleteTodoMutationOptions = Apollo.BaseMutationOptions<
+    DeleteTodoMutation,
+    DeleteTodoMutationVariables
+>;
+export const namedOperations = {
+    Mutation: {
+        DeleteTodo: "DeleteTodo",
+    },
+};
