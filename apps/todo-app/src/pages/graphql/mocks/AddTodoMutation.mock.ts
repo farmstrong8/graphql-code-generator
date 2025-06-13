@@ -1,14 +1,14 @@
-import * as Types from "../../../types.generated";
+import * as Types from '../../../types.generated';
 
 import { mergeWith } from "lodash";
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
     ? T
     : T extends Array<infer U>
-      ? Array<DeepPartial<U>>
-      : T extends object
-        ? { [K in keyof T]?: DeepPartial<T[K]> }
-        : T;
+    ? Array<DeepPartial<U>>
+    : T extends object
+    ? { [K in keyof T]?: DeepPartial<T[K]> }
+    : T;
 
 function createBuilder<T extends object>(baseObject: T) {
     return (overrides?: DeepPartial<T>): T =>
@@ -19,26 +19,28 @@ function createBuilder<T extends object>(baseObject: T) {
         });
 }
 
+
+
 type AddTodoTodo = {
-    __typename: "Todo";
-    id: string;
-    title: string;
-    completed: boolean;
+  "__typename": "Todo",
+  id: string,
+  title: string,
+  completed: boolean
 };
 
 export const aAddTodoTodo = createBuilder<AddTodoTodo>({
-    __typename: "Todo",
-    id: "a38985b4-7d80-4076-bc46-4a6f2ae6dff4",
-    title: "Officia natus vero nesciunt vero.",
-    completed: true,
+  "__typename": "Todo",
+  id: "af5e1c70-0907-4ac2-a915-4ca0562577ce",
+  title: "Quam omnis consequatur dolorum optio quaerat laborum quia veritatis.",
+  completed: false
 });
 
 type AddTodoMutation = {
-    __typename: "Mutation";
-    addTodo: AddTodoTodo;
+  "__typename": "Mutation",
+  addTodo: AddTodoTodo
 };
 
 export const aAddTodoMutation = createBuilder<AddTodoMutation>({
-    __typename: "Mutation",
-    addTodo: aAddTodoTodo(),
+  "__typename": "Mutation",
+  addTodo: aAddTodoTodo()
 });

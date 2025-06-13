@@ -41,12 +41,12 @@ jobs:
             - name: Update package version (manual dispatch)
               if: github.event_name == 'workflow_dispatch'
               run: |
-                  cd packages/typescript-mock-data
+                  cd packages/graphql-codegen-typescript-operation-mocks
                   yarn version ${{ github.event.inputs.version }}
 
             - name: Publish to npm
               run: |
-                  cd packages/typescript-mock-data
+                  cd packages/graphql-codegen-typescript-operation-mocks
                   npm publish --access public
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

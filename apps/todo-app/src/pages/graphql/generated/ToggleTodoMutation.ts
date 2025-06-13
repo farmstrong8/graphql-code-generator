@@ -1,35 +1,26 @@
-import type * as Types from "../../../types.generated";
+import type * as Types from '../../../types.generated';
 
-import { gql } from "@apollo/client";
-import * as Apollo from "@apollo/client";
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type ToggleTodoMutationVariables = Types.Exact<{
-    toggleTodoId: Types.Scalars["ID"]["input"];
+  toggleTodoId: Types.Scalars['ID']['input'];
 }>;
 
-export type ToggleTodoMutation = {
-    __typename?: "Mutation";
-    toggleTodo?: {
-        __typename?: "Todo";
-        id: string;
-        title: string;
-        completed: boolean;
-    } | null;
-};
+
+export type ToggleTodoMutation = { __typename?: 'Mutation', toggleTodo?: { __typename?: 'Todo', id: string, title: string, completed: boolean } | null };
+
 
 export const ToggleTodoDocument = gql`
     mutation ToggleTodo($toggleTodoId: ID!) {
-        toggleTodo(id: $toggleTodoId) {
-            id
-            title
-            completed
-        }
-    }
-`;
-export type ToggleTodoMutationFn = Apollo.MutationFunction<
-    ToggleTodoMutation,
-    ToggleTodoMutationVariables
->;
+  toggleTodo(id: $toggleTodoId) {
+    id
+    title
+    completed
+  }
+}
+    `;
+export type ToggleTodoMutationFn = Apollo.MutationFunction<ToggleTodoMutation, ToggleTodoMutationVariables>;
 
 /**
  * __useToggleTodoMutation__
@@ -48,29 +39,15 @@ export type ToggleTodoMutationFn = Apollo.MutationFunction<
  *   },
  * });
  */
-export function useToggleTodoMutation(
-    baseOptions?: Apollo.MutationHookOptions<
-        ToggleTodoMutation,
-        ToggleTodoMutationVariables
-    >,
-) {
-    const options = { ...defaultOptions, ...baseOptions };
-    return Apollo.useMutation<ToggleTodoMutation, ToggleTodoMutationVariables>(
-        ToggleTodoDocument,
-        options,
-    );
-}
-export type ToggleTodoMutationHookResult = ReturnType<
-    typeof useToggleTodoMutation
->;
-export type ToggleTodoMutationResult =
-    Apollo.MutationResult<ToggleTodoMutation>;
-export type ToggleTodoMutationOptions = Apollo.BaseMutationOptions<
-    ToggleTodoMutation,
-    ToggleTodoMutationVariables
->;
+export function useToggleTodoMutation(baseOptions?: Apollo.MutationHookOptions<ToggleTodoMutation, ToggleTodoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ToggleTodoMutation, ToggleTodoMutationVariables>(ToggleTodoDocument, options);
+      }
+export type ToggleTodoMutationHookResult = ReturnType<typeof useToggleTodoMutation>;
+export type ToggleTodoMutationResult = Apollo.MutationResult<ToggleTodoMutation>;
+export type ToggleTodoMutationOptions = Apollo.BaseMutationOptions<ToggleTodoMutation, ToggleTodoMutationVariables>;
 export const namedOperations = {
-    Mutation: {
-        ToggleTodo: "ToggleTodo",
-    },
-};
+  Mutation: {
+    ToggleTodo: 'ToggleTodo'
+  }
+}

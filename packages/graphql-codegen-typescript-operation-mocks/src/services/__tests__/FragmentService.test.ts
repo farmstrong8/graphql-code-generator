@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { FragmentService } from "../../services/FragmentService";
+import { FragmentService } from "../FragmentService";
 
 describe("FragmentService", () => {
     const fragmentService = new FragmentService();

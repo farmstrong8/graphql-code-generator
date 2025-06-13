@@ -36,7 +36,7 @@ const config: CodegenConfig = {
         // 3. Global mock data
         "src/mocks.ts": {
             documents: ["src/**/*.{ts,tsx,graphql}", "!(src/**/generated/*)"],
-            plugins: ["typescript-mock-data"],
+            plugins: ["typescript-operation-mocks"],
             config: {
                 scalars: {
                     Date: {
@@ -56,7 +56,7 @@ const config: CodegenConfig = {
                 folder: "mocks",
                 extension: ".mock.ts",
             },
-            plugins: ["typescript-mock-data"],
+            plugins: ["typescript-operation-mocks"],
             config: {
                 scalars: {
                     Date: {
