@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildSchema, parse } from "graphql";
-import { MockDataGenerator } from "../MockDataGenerator";
+import { PluginOrchestrator } from "../../orchestrators/PluginOrchestrator";
 
 const schema = buildSchema(`
   type Query {
@@ -28,15 +28,15 @@ const schema = buildSchema(`
 `);
 
 /**
- * Tests for MockDataGenerator error handling and edge cases.
+ * Tests for PluginOrchestrator error handling and edge cases.
  *
- * This test suite validates how the generator handles:
+ * This test suite validates how the orchestrator handles:
  * - Complex nested structures with union types
  * - Missing selection sets
  * - Deeply nested scenarios
  * - Edge cases and malformed queries
  */
-describe("MockDataGenerator Error Handling", () => {
+describe("PluginOrchestrator Error Handling", () => {
     it("should handle union types without proper UnionHandler setup", () => {
         const unionSchema = buildSchema(`
             type Query {
@@ -56,7 +56,7 @@ describe("MockDataGenerator Error Handling", () => {
             }
         `);
 
-        const generator = new MockDataGenerator(unionSchema, {});
+        const orchestrator = new PluginOrchestrator(unionSchema, {});
         const document = parse(`
             query SearchQuery {
                 search {
@@ -73,7 +73,7 @@ describe("MockDataGenerator Error Handling", () => {
         `);
 
         // This should handle union types gracefully even without explicit UnionHandler setup
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
         expect(result).toContain("export const aSearchQuery");
     });
 
@@ -108,7 +108,7 @@ describe("MockDataGenerator Error Handling", () => {
             }
         `);
 
-        const generator = new MockDataGenerator(complexSchema, {});
+        const orchestrator = new PluginOrchestrator(complexSchema, {});
         const document = parse(`
             query ComplexQuery {
                 mixedData {
@@ -131,7 +131,7 @@ describe("MockDataGenerator Error Handling", () => {
             }
         `);
 
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
         expect(result).toContain("export const aComplexQuery");
         expect(result).toContain("mixedData:");
         expect(result).toContain("unionField:");
@@ -140,7 +140,7 @@ describe("MockDataGenerator Error Handling", () => {
     });
 
     it("should handle fields without selection sets for complex types", () => {
-        const generator = new MockDataGenerator(schema, {});
+        const orchestrator = new PluginOrchestrator(schema, {});
         const document = parse(`
             query TodoWithoutNestedSelection {
                 todo(id: "1") {
@@ -153,7 +153,7 @@ describe("MockDataGenerator Error Handling", () => {
 
         // This tests the scenario where a complex type field (author) is selected
         // without a selection set, which should return null
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
         expect(result).toContain("export const aTodoWithoutNestedSelection");
         expect(result).toContain("author: null");
     });
@@ -180,7 +180,7 @@ describe("MockDataGenerator Error Handling", () => {
             }
         `);
 
-        const generator = new MockDataGenerator(emptySchema, {});
+        const orchestrator = new PluginOrchestrator(emptySchema, {});
         const document = parse(`
             query EmptyContainerQuery {
                 emptyContainer {
@@ -196,7 +196,7 @@ describe("MockDataGenerator Error Handling", () => {
             }
         `);
 
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
         expect(result).toContain("export const aEmptyContainerQuery");
         expect(result).toContain("emptyContainer:");
         expect(result).toContain("items:");
@@ -239,7 +239,7 @@ describe("MockDataGenerator Error Handling", () => {
             }
         `);
 
-        const generator = new MockDataGenerator(deepSchema, {});
+        const orchestrator = new PluginOrchestrator(deepSchema, {});
         const document = parse(`
             query DeepQuery {
                 deepData {
@@ -276,7 +276,7 @@ describe("MockDataGenerator Error Handling", () => {
 
         // This tests deep nesting with union variants and should exercise
         // the complex union variant generation logic
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
         expect(result).toContain("export const aDeepQuery");
         expect(result).toContain("deepData:");
         expect(result).toContain("level1:");

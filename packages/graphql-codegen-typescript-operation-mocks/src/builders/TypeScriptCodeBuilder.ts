@@ -3,43 +3,50 @@ import type {
     MockDataVariants,
     GeneratedCodeArtifact,
 } from "../types";
-import { MOCK_BUILDER_BOILERPLATE } from "../constants";
 import type {
     TypeInferenceService,
     SemanticTypeInfo,
 } from "../services/TypeInferenceService";
 import type {
-    NestedTypeCollector,
+    NestedTypeService,
     NestedTypeInfo,
-} from "../services/NestedTypeCollector";
-import { TypeDefinitionGenerator } from "./TypeDefinitionGenerator";
-import { BuilderFunctionGenerator } from "./BuilderFunctionGenerator";
-import {
-    SemanticTypeProcessor,
-    type SchemaGenerationContext,
-} from "./SemanticTypeProcessor";
-import { NestedTypeHandler } from "./NestedTypeHandler";
+} from "../services/NestedTypeService";
+import { TypeDefinitionService } from "../services/TypeDefinitionService";
+import { BuilderCodeService } from "../services/BuilderCodeService";
+import { BoilerplateService } from "../services/BoilerplateService";
+import type { NamingService } from "../services/NamingService";
+import type {
+    GraphQLObjectType,
+    GraphQLInterfaceType,
+    SelectionSetNode,
+    FragmentDefinitionNode,
+} from "graphql";
 
-// Re-export for backward compatibility
-export type { SchemaGenerationContext };
+// Schema generation context interface
+export interface SchemaGenerationContext {
+    parentType: GraphQLObjectType | GraphQLInterfaceType;
+    selectionSet: SelectionSetNode;
+    fragmentRegistry: Map<string, FragmentDefinitionNode>;
+}
 
 /**
  * TypeScript Code Builder
  *
  * A sophisticated builder that generates TypeScript code from mock data objects.
- * This class leverages specialized utility classes to handle different aspects of code generation:
+ * This class leverages specialized service classes to handle different aspects of code generation:
  *
- * - **TypeDefinitionGenerator**: Handles generation of TypeScript type definitions
- * - **BuilderFunctionGenerator**: Manages creation of builder functions for testing
- * - **SemanticTypeProcessor**: Processes GraphQL schema-based semantic types
- * - **NestedTypeHandler**: Handles complex nested type operations
+ * - **TypeDefinitionService**: Handles generation of TypeScript type definitions
+ * - **BuilderCodeService**: Manages creation of builder functions for testing
+ * - **TypeInferenceService**: Processes GraphQL schema-based semantic types
+ * - **NestedTypeService**: Handles complex nested type operations
+ * - **NamingService**: Manages consistent naming conventions
  *
  * The class supports both simple mock data conversion and advanced GraphQL schema-aware
  * code generation with proper handling of unions, fragments, and nested types.
  *
  * @example Basic Usage
  * ```typescript
- * const builder = new TypeScriptCodeBuilder(typeInferenceService, nestedTypeCollector);
+ * const builder = new TypeScriptCodeBuilder(typeInferenceService, nestedTypeService, namingService);
  * const artifact = builder.generateCode({
  *   mockName: 'queryUser',
  *   mockValue: { id: '1', name: 'John' }
@@ -62,41 +69,33 @@ export type { SchemaGenerationContext };
  */
 export class TypeScriptCodeBuilder {
     /**
-     * Utility for generating TypeScript type definitions from mock data.
+     * Service for generating TypeScript type definitions from mock data.
      */
-    private readonly typeDefinitionGenerator = new TypeDefinitionGenerator(
-        this.typeInferenceService,
-    );
+    private readonly typeDefinitionService = new TypeDefinitionService();
 
     /**
-     * Utility for generating TypeScript builder functions for testing.
+     * Service for generating TypeScript builder functions for testing.
      */
-    private readonly builderFunctionGenerator = new BuilderFunctionGenerator(
-        this.typeInferenceService,
-    );
+    private readonly builderCodeService = new BuilderCodeService();
 
     /**
-     * Utility for processing GraphQL schema-based semantic types.
+     * Service for generating TypeScript boilerplate code.
      */
-    private readonly semanticTypeProcessor = new SemanticTypeProcessor(
-        this.typeInferenceService,
-    );
-
-    /**
-     * Utility for handling complex nested type operations.
-     */
-    private readonly nestedTypeHandler = new NestedTypeHandler();
+    private readonly boilerplateService = new BoilerplateService();
 
     /**
      * Creates a new TypeScript Code Builder instance.
      *
      * @param typeInferenceService - Service for analyzing GraphQL types and generating TypeScript
-     * @param nestedTypeCollector - Service for collecting and organizing nested type information
+     * @param nestedTypeService - Service for collecting and organizing nested type information
+     * @param namingService - Service for handling naming conventions and name generation
      */
     constructor(
         private readonly typeInferenceService: TypeInferenceService,
-        private readonly nestedTypeCollector: NestedTypeCollector,
+        private readonly nestedTypeService: NestedTypeService,
+        private readonly namingService: NamingService,
     ) {}
+
     /**
      * Generates a complete code artifact from multiple mock data objects.
      *
@@ -137,47 +136,59 @@ export class TypeScriptCodeBuilder {
         mockDataObjects: MockDataVariants,
         schemaContext?: SchemaGenerationContext,
     ): GeneratedCodeArtifact {
-        // Start with the imports and boilerplate
-        const codeBlocks: string[] = [MOCK_BUILDER_BOILERPLATE];
+        // Start with generated code blocks (boilerplate handled by orchestrator)
+        const codeBlocks: string[] = [];
 
         // Collect nested types that should have their own builders
-        const nestedTypes: Map<string, any> = new Map();
+        const nestedTypes: Map<string, string> = new Map();
         if (schemaContext) {
-            const nestedTypeInfos =
-                this.nestedTypeCollector.collectFromSelectionSet({
-                    parentType: schemaContext.parentType,
-                    selectionSet: schemaContext.selectionSet,
-                    operationName,
-                    fragmentRegistry: schemaContext.fragmentRegistry,
-                });
+            const nestedTypeInfos = this.nestedTypeService.analyzeSelectionSet({
+                parentType: schemaContext.parentType,
+                selectionSet: schemaContext.selectionSet,
+                operationName,
+                fragmentRegistry: schemaContext.fragmentRegistry,
+            });
 
             // Generate builders for nested types first
             for (const nestedTypeInfo of nestedTypeInfos) {
+                const nestedTypeName = this.nestedTypeService.generateTypeName(
+                    operationName,
+                    nestedTypeInfo.path,
+                    nestedTypeInfo.typeName,
+                );
                 const nestedBuilderName =
-                    this.nestedTypeHandler.generateNestedBuilderName(
+                    this.nestedTypeService.generateBuilderName(
                         operationName,
+                        nestedTypeInfo.path,
                         nestedTypeInfo.typeName,
                     );
-                const nestedMockValue =
-                    this.nestedTypeHandler.extractNestedMockValue(
-                        mockDataObjects,
-                        nestedTypeInfo,
-                    );
+                const nestedMockValue = this.nestedTypeService.extractMockValue(
+                    mockDataObjects,
+                    nestedTypeInfo,
+                );
 
                 if (nestedMockValue) {
-                    const nestedTypeDefinition =
-                        this.typeDefinitionGenerator.generateNestedTypeDefinition(
-                            nestedBuilderName,
-                            nestedTypeInfo,
-                            operationName,
-                            this.typeInferenceService,
+                    // Use TypeInferenceService to generate semantic types for nested types
+                    const nestedSemanticTypeInfo =
+                        this.typeInferenceService.analyzeGraphQLType(
+                            nestedTypeInfo.graphqlType,
+                            nestedTypeInfo.selectionSet,
                             schemaContext.fragmentRegistry,
                         );
+                    const nestedTypeString =
+                        this.typeInferenceService.generateTypeString(
+                            nestedSemanticTypeInfo,
+                        );
+                    const nestedTypeDefinition = `type ${nestedTypeName} = ${nestedTypeString};`;
+
                     const nestedBuilderFunction =
-                        this.builderFunctionGenerator.generateNestedBuilderFunction(
+                        this.builderCodeService.generateBuilderFunction(
                             nestedBuilderName,
+                            nestedTypeName,
                             nestedMockValue,
-                            nestedTypeInfo.typeName,
+                            {
+                                nestedBuilders: nestedTypes,
+                            },
                         );
 
                     codeBlocks.push("");
@@ -193,29 +204,47 @@ export class TypeScriptCodeBuilder {
 
         // Add each mock data object
         for (const mockData of mockDataObjects) {
-            const schemaTypeBody = schemaContext
-                ? this.semanticTypeProcessor.generateSemanticTypeBodyWithNestedTypes(
-                      schemaContext,
-                      nestedTypes,
-                      mockData.mockValue,
-                  )
-                : undefined;
+            // Generate proper type name with operation suffix
+            const typeName = this.namingService.generateTypeName(
+                mockData.mockName,
+                operationType,
+            );
 
-            const typeDefinition =
-                this.typeDefinitionGenerator.generateTypeDefinition(
-                    mockData.mockName,
-                    mockData.mockValue,
-                    schemaTypeBody,
-                    operationName,
-                    operationType,
-                );
+            // Generate the type definition using schema context if available
+            let typeDefinition: string;
+            if (schemaContext) {
+                // Use TypeInferenceService to generate semantic types from schema
+                const semanticTypeInfo =
+                    this.typeInferenceService.analyzeGraphQLType(
+                        schemaContext.parentType,
+                        schemaContext.selectionSet,
+                        schemaContext.fragmentRegistry,
+                    );
+                const typeString =
+                    this.typeInferenceService.generateTypeString(
+                        semanticTypeInfo,
+                    );
+                typeDefinition = `type ${typeName} = ${typeString};`;
+            } else {
+                // Fallback to generating from mock value
+                typeDefinition =
+                    this.typeDefinitionService.generateNamedTypeDefinition(
+                        typeName,
+                        mockData.mockValue,
+                    );
+            }
+
             const builderFunction =
-                this.builderFunctionGenerator.generateBuilderFunction(
-                    mockData.mockName,
+                this.builderCodeService.generateBuilderFunction(
+                    this.namingService.generateBuilderName(
+                        mockData.mockName,
+                        operationType,
+                    ),
+                    typeName,
                     mockData.mockValue,
-                    operationName,
-                    operationType,
-                    nestedTypes,
+                    {
+                        nestedBuilders: nestedTypes,
+                    },
                 );
 
             codeBlocks.push("");
@@ -261,61 +290,35 @@ export class TypeScriptCodeBuilder {
      */
     generateCode(mockData: MockDataObject): GeneratedCodeArtifact {
         const { mockName, mockValue } = mockData;
-        const operationType = this.inferOperationType(mockName);
+        const operationType = this.namingService.inferOperationType(mockName);
+
+        // Generate proper type name with operation suffix
+        const typeName = this.namingService.generateTypeName(
+            mockName,
+            operationType,
+        );
 
         // Generate the type definition
         const typeDefinition =
-            this.typeDefinitionGenerator.generateTypeDefinition(
-                mockName,
+            this.typeDefinitionService.generateNamedTypeDefinition(
+                typeName,
                 mockValue,
-                undefined,
-                undefined,
-                operationType,
             );
 
         // Generate the builder function
-        const builderFunction =
-            this.builderFunctionGenerator.generateBuilderFunction(
-                mockName,
-                mockValue,
-                undefined,
-                operationType,
-            );
+        const builderFunction = this.builderCodeService.generateBuilderFunction(
+            this.namingService.generateBuilderName(mockName, operationType),
+            typeName,
+            mockValue,
+        );
 
-        // Combine all parts
-        const generatedCode = [
-            MOCK_BUILDER_BOILERPLATE,
-            "",
-            typeDefinition,
-            "",
-            builderFunction,
-        ].join("\n");
+        // Combine all parts (boilerplate handled by orchestrator)
+        const generatedCode = [typeDefinition, "", builderFunction].join("\n");
 
         return {
             operationName: mockName,
             operationType,
             generatedCode,
         };
-    }
-
-    /**
-     * Infers the operation type from the mock name based on naming conventions.
-     *
-     * @param mockName - The name of the mock data object
-     * @returns Inferred operation type (query, mutation, subscription, or fragment)
-     */
-    private inferOperationType(
-        mockName: string,
-    ): "query" | "mutation" | "subscription" | "fragment" {
-        // Simple inference based on name prefix
-        if (mockName.startsWith("query")) {
-            return "query";
-        } else if (mockName.startsWith("mutation")) {
-            return "mutation";
-        } else if (mockName.startsWith("subscription")) {
-            return "subscription";
-        } else {
-            return "fragment";
-        }
     }
 }

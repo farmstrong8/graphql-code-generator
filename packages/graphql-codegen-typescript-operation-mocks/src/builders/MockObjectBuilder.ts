@@ -19,10 +19,13 @@ import {
     isNonNullType,
     getNamedType,
     Kind,
+    isCompositeType,
 } from "graphql";
 import type { MockDataObject, MockDataVariants } from "../types";
 import type { ScalarHandler } from "../handlers/ScalarHandler";
 import type { SelectionSetHandler } from "../handlers/SelectionSetHandler";
+import type { UnionMockService } from "../services/UnionMockService";
+import type { FieldMockService } from "../services/FieldMockService";
 
 /**
  * Parameters for building mock objects from GraphQL types.
@@ -31,21 +34,23 @@ export interface BuildMockObjectParams {
     parentType: GraphQLObjectType | GraphQLInterfaceType;
     selectionSet: SelectionSetNode;
     operationName: string;
+    operationType?: "query" | "mutation" | "subscription" | "fragment";
     fragmentRegistry: Map<string, FragmentDefinitionNode>;
 }
 
 /**
  * Builds JavaScript mock objects from GraphQL selection sets.
  *
- * This builder is responsible for creating mock data objects that match
- * the structure defined by GraphQL selection sets, handling all GraphQL
- * type variants including scalars, objects, lists, and unions.
+ * This builder coordinates between services to create mock data objects
+ * that match the structure defined by GraphQL selection sets.
  */
 export class MockObjectBuilder {
     constructor(
         private readonly schema: GraphQLSchema,
         private readonly scalarHandler: ScalarHandler,
         private readonly selectionSetHandler: SelectionSetHandler,
+        private readonly unionMockService?: UnionMockService,
+        private readonly fieldMockService?: FieldMockService,
     ) {}
 
     /**
@@ -55,6 +60,7 @@ export class MockObjectBuilder {
      * @param selectionSet - The selection set to mock
      * @param operationName - Name hint for the generated mock
      * @param fragmentRegistry - Available fragments
+     * @param operationType - The operation type for proper naming
      * @returns Array of mock data objects
      */
     buildForType(
@@ -62,120 +68,67 @@ export class MockObjectBuilder {
         selectionSet: SelectionSetNode,
         operationName: string,
         fragmentRegistry: Map<string, FragmentDefinitionNode>,
+        operationType?: "query" | "mutation" | "subscription" | "fragment",
     ): MockDataVariants {
         if (isUnionType(parentType)) {
-            return this.processUnionType({
-                unionType: parentType,
+            return this.processUnionType(
+                parentType,
                 selectionSet,
                 operationName,
                 fragmentRegistry,
-            });
+                operationType,
+            );
         }
 
         return this.buildObjectMock({
             parentType: parentType as GraphQLObjectType | GraphQLInterfaceType,
             selectionSet,
             operationName,
+            operationType,
             fragmentRegistry,
         });
     }
 
     /**
-     * Processes a union type with inline fragments.
-     *
-     * @param params - Union processing parameters
-     * @returns Mock data objects for each union variant
+     * Processes a union type using the UnionMockService.
      */
-    private processUnionType(params: {
-        unionType: GraphQLUnionType;
-        selectionSet: SelectionSetNode;
-        operationName: string;
-        fragmentRegistry: Map<string, FragmentDefinitionNode>;
-    }): MockDataVariants {
-        const { unionType, selectionSet, operationName, fragmentRegistry } =
-            params;
-        const variants: MockDataVariants = [];
-
-        for (const selection of selectionSet.selections) {
-            if (selection.kind !== Kind.INLINE_FRAGMENT) continue;
-
-            const variant = this.processInlineFragment({
-                inlineFragment: selection,
+    private processUnionType(
+        unionType: GraphQLUnionType,
+        selectionSet: SelectionSetNode,
+        operationName: string,
+        fragmentRegistry: Map<string, FragmentDefinitionNode>,
+        operationType?: "query" | "mutation" | "subscription" | "fragment",
+    ): MockDataVariants {
+        if (this.unionMockService) {
+            return this.unionMockService.processUnionType({
                 unionType,
+                selectionSet,
                 operationName,
+                operationType: operationType || "query", // Default to query if not provided
                 fragmentRegistry,
             });
-
-            if (variant) {
-                variants.push(...variant);
-            }
         }
 
-        return variants;
-    }
-
-    /**
-     * Processes an individual inline fragment within a union type.
-     *
-     * @param params - Inline fragment processing parameters
-     * @returns Mock data objects for the fragment, or null if processing fails
-     */
-    private processInlineFragment(params: {
-        inlineFragment: InlineFragmentNode;
-        unionType: GraphQLUnionType;
-        operationName: string;
-        fragmentRegistry: Map<string, FragmentDefinitionNode>;
-    }): MockDataVariants | null {
-        const { inlineFragment, unionType, operationName, fragmentRegistry } =
-            params;
-
-        // Get the target type for this inline fragment
-        if (!inlineFragment.typeCondition) {
-            console.warn(
-                `Inline fragment in union ${unionType.name} is missing type condition`,
-            );
-            return null;
-        }
-
-        const targetTypeName = inlineFragment.typeCondition.name.value;
-        const targetType = this.schema.getType(targetTypeName);
-
-        if (!targetType) {
-            console.warn(
-                `Type ${targetTypeName} not found in schema for union ${unionType.name}`,
-            );
-            return null;
-        }
-
-        // Verify the target type is a valid member of the union
-        if (!unionType.getTypes().includes(targetType as any)) {
-            console.warn(
-                `Type ${targetTypeName} is not a valid member of union ${unionType.name}`,
-            );
-            return null;
-        }
-
-        // Generate a variant name that includes the union member type
-        const variantName = `${operationName}As${targetTypeName}`;
-
-        // Recursively build the mock for this variant
-        return this.buildForType(
-            targetType as GraphQLCompositeType,
-            inlineFragment.selectionSet,
-            variantName,
+        // Fallback: process inline fragments manually
+        return this.processUnionTypeFallback(
+            unionType,
+            selectionSet,
+            operationName,
             fragmentRegistry,
         );
     }
 
     /**
      * Builds a mock object for an object or interface type.
-     *
-     * @param params - Building parameters
-     * @returns Array containing the mock data object
      */
     private buildObjectMock(params: BuildMockObjectParams): MockDataVariants {
-        const { parentType, selectionSet, operationName, fragmentRegistry } =
-            params;
+        const {
+            parentType,
+            selectionSet,
+            operationName,
+            operationType,
+            fragmentRegistry,
+        } = params;
 
         // Resolve the selection set with fragments
         const resolvedSelectionSet =
@@ -184,27 +137,30 @@ export class MockObjectBuilder {
                 fragmentRegistry,
             );
 
-        // Check if any fields return union types - if so, we need to generate variants
-        const unionFields = this.findUnionFields(
-            parentType,
-            resolvedSelectionSet,
-        );
+        // Check for union fields using the service
+        const unionFields = this.unionMockService
+            ? this.unionMockService.findUnionFields(
+                  parentType,
+                  resolvedSelectionSet,
+              )
+            : this.findUnionFieldsFallback(parentType, resolvedSelectionSet);
 
         if (unionFields.length > 0) {
             return this.buildObjectMockWithUnionVariants({
                 parentType,
                 selectionSet: resolvedSelectionSet,
                 operationName,
+                operationType,
                 fragmentRegistry,
                 unionFields,
             });
         }
 
-        // Standard object mock generation
         return this.buildSingleObjectMock({
             parentType,
             selectionSet: resolvedSelectionSet,
             operationName,
+            operationType,
             fragmentRegistry,
         });
     }
@@ -240,6 +196,7 @@ export class MockObjectBuilder {
         parentType: GraphQLObjectType | GraphQLInterfaceType;
         selectionSet: SelectionSetNode;
         operationName: string;
+        operationType?: "query" | "mutation" | "subscription" | "fragment";
         fragmentRegistry: Map<string, FragmentDefinitionNode>;
         unionFields: FieldNode[];
     }): MockDataVariants {
@@ -247,6 +204,7 @@ export class MockObjectBuilder {
             parentType,
             selectionSet,
             operationName,
+            operationType,
             fragmentRegistry,
             unionFields,
         } = params;
@@ -258,12 +216,13 @@ export class MockObjectBuilder {
             const unionType = getNamedType(fieldDef.type) as GraphQLUnionType;
 
             // Generate union variants for this field
-            const unionVariants = this.processUnionType({
+            const unionVariants = this.processUnionType(
                 unionType,
-                selectionSet: unionField.selectionSet!,
+                unionField.selectionSet!,
                 operationName,
                 fragmentRegistry,
-            });
+                operationType,
+            );
 
             // Create a parent mock for each union variant
             for (const unionVariant of unionVariants) {
@@ -311,10 +270,16 @@ export class MockObjectBuilder {
         parentType: GraphQLObjectType | GraphQLInterfaceType;
         selectionSet: SelectionSetNode;
         operationName: string;
+        operationType?: "query" | "mutation" | "subscription" | "fragment";
         fragmentRegistry: Map<string, FragmentDefinitionNode>;
     }): MockDataVariants {
-        const { parentType, selectionSet, operationName, fragmentRegistry } =
-            params;
+        const {
+            parentType,
+            selectionSet,
+            operationName,
+            operationType,
+            fragmentRegistry,
+        } = params;
 
         const mockValue: Record<string, unknown> = {
             __typename: parentType.name,
@@ -345,15 +310,162 @@ export class MockObjectBuilder {
     }
 
     /**
-     * Generates a mock value for a specific field.
-     *
-     * @param parentType - The parent GraphQL type containing this field
-     * @param fieldSelection - The field selection node
-     * @param operationName - Base name for nested operations
-     * @param fragmentRegistry - Available fragments
-     * @returns The generated mock value for the field
+     * Generates field values using the FieldMockService.
      */
     private generateFieldValue(
+        parentType: GraphQLObjectType | GraphQLInterfaceType,
+        fieldSelection: FieldNode,
+        operationName: string,
+        fragmentRegistry: Map<string, FragmentDefinitionNode>,
+    ): unknown {
+        if (this.fieldMockService) {
+            return this.fieldMockService.generateFieldValue(
+                parentType,
+                fieldSelection,
+                operationName,
+                fragmentRegistry,
+                {
+                    nestedObjectBuilder: (
+                        nestedType,
+                        nestedSelectionSet,
+                        nestedOperationName,
+                        nestedFragmentRegistry,
+                    ) => {
+                        return this.buildForType(
+                            nestedType,
+                            nestedSelectionSet,
+                            nestedOperationName,
+                            nestedFragmentRegistry,
+                        );
+                    },
+                },
+            );
+        }
+
+        // Fallback: generate field value manually
+        return this.generateFieldValueFallback(
+            parentType,
+            fieldSelection,
+            operationName,
+            fragmentRegistry,
+        );
+    }
+
+    /**
+     * Recursively checks if a GraphQL type (with potential wrappers) is a list type.
+     * This handles NonNull wrappers around List types, e.g., [Todo!]! -> true
+     *
+     * @param graphqlType - The GraphQL type to check
+     * @returns True if the type is a list type after unwrapping wrappers
+     */
+    private isListTypeRecursive(graphqlType: GraphQLType): boolean {
+        // Handle non-null wrappers - unwrap and check the inner type
+        if (isNonNullType(graphqlType)) {
+            return this.isListTypeRecursive(graphqlType.ofType);
+        }
+
+        // Check if this is actually a list type
+        return isListType(graphqlType);
+    }
+
+    /**
+     * Fallback method for processing union types when UnionMockService is not available
+     */
+    private processUnionTypeFallback(
+        unionType: GraphQLUnionType,
+        selectionSet: SelectionSetNode,
+        operationName: string,
+        fragmentRegistry: Map<string, FragmentDefinitionNode>,
+    ): MockDataVariants {
+        const variants: MockDataVariants = [];
+
+        for (const selection of selectionSet.selections) {
+            if (selection.kind !== Kind.INLINE_FRAGMENT) continue;
+
+            const variant = this.processInlineFragmentFallback(
+                selection,
+                unionType,
+                operationName,
+                fragmentRegistry,
+            );
+
+            if (variant) {
+                variants.push(...variant);
+            }
+        }
+
+        return variants;
+    }
+
+    /**
+     * Fallback method for processing inline fragments
+     */
+    private processInlineFragmentFallback(
+        inlineFragment: InlineFragmentNode,
+        unionType: GraphQLUnionType,
+        operationName: string,
+        fragmentRegistry: Map<string, FragmentDefinitionNode>,
+    ): MockDataVariants | null {
+        // Get the target type for this inline fragment
+        if (!inlineFragment.typeCondition) {
+            return null;
+        }
+
+        const targetTypeName = inlineFragment.typeCondition.name.value;
+        const targetType = this.schema.getType(targetTypeName);
+
+        if (!targetType || !isCompositeType(targetType)) {
+            return null;
+        }
+
+        // Verify the target type is a valid member of the union
+        if (
+            !isObjectType(targetType) ||
+            !unionType.getTypes().includes(targetType)
+        ) {
+            return null;
+        }
+
+        // Generate a variant name that includes the union member type
+        const variantName = `${operationName}As${targetTypeName}`;
+
+        // Recursively build the mock for this variant
+        return this.buildForType(
+            targetType,
+            inlineFragment.selectionSet,
+            variantName,
+            fragmentRegistry,
+        );
+    }
+
+    /**
+     * Fallback method for finding union fields when UnionMockService is not available
+     */
+    private findUnionFieldsFallback(
+        parentType: GraphQLObjectType | GraphQLInterfaceType,
+        selectionSet: SelectionSetNode,
+    ): FieldNode[] {
+        const unionFields: FieldNode[] = [];
+
+        for (const selection of selectionSet.selections) {
+            if (selection.kind !== Kind.FIELD) continue;
+
+            const fieldDef = parentType.getFields()[selection.name.value];
+            if (!fieldDef) continue;
+
+            const namedType = getNamedType(fieldDef.type);
+            if (isUnionType(namedType) && selection.selectionSet) {
+                unionFields.push(selection);
+            }
+        }
+
+        return unionFields;
+    }
+
+    /**
+     * Fallback method for generating field values when FieldMockService is not available
+     */
+    private generateFieldValueFallback(
         parentType: GraphQLObjectType | GraphQLInterfaceType,
         fieldSelection: FieldNode,
         operationName: string,
@@ -397,22 +509,5 @@ export class MockObjectBuilder {
 
         const value = getValue();
         return isList ? [value] : value;
-    }
-
-    /**
-     * Recursively checks if a GraphQL type (with potential wrappers) is a list type.
-     * This handles NonNull wrappers around List types, e.g., [Todo!]! -> true
-     *
-     * @param graphqlType - The GraphQL type to check
-     * @returns True if the type is a list type after unwrapping wrappers
-     */
-    private isListTypeRecursive(graphqlType: GraphQLType): boolean {
-        // Handle non-null wrappers - unwrap and check the inner type
-        if (isNonNullType(graphqlType)) {
-            return this.isListTypeRecursive(graphqlType.ofType);
-        }
-
-        // Check if this is actually a list type
-        return isListType(graphqlType);
     }
 }

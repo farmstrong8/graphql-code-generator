@@ -1,6 +1,5 @@
 /**
- * Configuration for generating mock values for a specific scalar type.
- * Can be either a simple generator name string or a detailed configuration object.
+ * Configuration for scalar value generation.
  */
 export type ScalarGeneratorConfig =
     | string
@@ -10,8 +9,19 @@ export type ScalarGeneratorConfig =
       };
 
 /**
+ * Configuration for naming behavior.
+ */
+export interface NamingOptions {
+    /** Whether to add operation suffixes (Query, Mutation, Subscription, Fragment) to type names */
+    addOperationSuffix?: boolean;
+}
+
+/**
  * Main plugin configuration interface.
  */
 export type TypeScriptMockDataPluginConfig = {
+    /** Scalar type mappings for mock value generation */
     scalars?: Record<string, ScalarGeneratorConfig>;
+    /** Naming behavior configuration */
+    naming?: NamingOptions;
 };

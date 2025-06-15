@@ -1,5 +1,5 @@
 import type { PluginFunction } from "@graphql-codegen/plugin-helpers";
-import { MockDataGenerator } from "./core/MockDataGenerator";
+import { PluginOrchestrator } from "./orchestrators/PluginOrchestrator";
 import type { TypeScriptMockDataPluginConfig } from "./config/types";
 
 /**
@@ -13,6 +13,6 @@ export const plugin: PluginFunction<TypeScriptMockDataPluginConfig> = (
     documents,
     config,
 ): string => {
-    const generator = new MockDataGenerator(schema, config);
-    return generator.generateFromDocuments(documents);
+    const orchestrator = new PluginOrchestrator(schema, config);
+    return orchestrator.generateFromDocuments(documents);
 };

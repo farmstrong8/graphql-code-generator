@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildSchema, parse } from "graphql";
-import { MockDataGenerator } from "../MockDataGenerator";
+import { PluginOrchestrator } from "../../orchestrators/PluginOrchestrator";
 
 const schema = buildSchema(`
   type Query {
@@ -43,16 +43,16 @@ const schema = buildSchema(`
 `);
 
 /**
- * Tests for the core MockDataGenerator functionality.
+ * Tests for the core PluginOrchestrator functionality.
  *
  * This test suite validates the main code generation capabilities including:
  * - Basic query/mutation/fragment generation
  * - Schema integration and type inference
  * - Mock data object creation and builder pattern generation
  */
-describe("MockDataGenerator", () => {
+describe("PluginOrchestrator", () => {
     it("should generate mock for simple query", () => {
-        const generator = new MockDataGenerator(schema, {});
+        const orchestrator = new PluginOrchestrator(schema, {});
         const document = parse(`
       query GetTodos {
         todos {
@@ -63,19 +63,19 @@ describe("MockDataGenerator", () => {
       }
     `);
 
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
 
         expect(result).toContain("export const aGetTodos");
         expect(result).toContain("createBuilder<GetTodosQuery>");
-        expect(result).toContain("todos: [aGetTodosTodo()]"); // References nested builder
-        expect(result).toContain("export const aGetTodosTodo"); // Separate builder for nested type
+        expect(result).toContain("todos: [aGetTodosTodos()]"); // References nested builder
+        expect(result).toContain("export const aGetTodosTodos"); // Separate builder for nested type
         expect(result).toContain("id:");
         expect(result).toContain("title:");
         expect(result).toContain("completed:");
     });
 
     it("should generate mock for mutation", () => {
-        const generator = new MockDataGenerator(schema, {});
+        const orchestrator = new PluginOrchestrator(schema, {});
         const document = parse(`
       mutation AddTodo($input: AddTodoInput!) {
         addTodo(input: $input) {
@@ -86,15 +86,15 @@ describe("MockDataGenerator", () => {
       }
     `);
 
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
 
         expect(result).toContain("export const aAddTodo");
         expect(result).toContain("createBuilder<AddTodoMutation>");
-        expect(result).toContain("addTodo: aAddTodoTodo()");
+        expect(result).toContain("addTodo: aAddTodoAddTodo()");
     });
 
     it("should handle fragments in same document", () => {
-        const generator = new MockDataGenerator(schema, {});
+        const orchestrator = new PluginOrchestrator(schema, {});
         const document = parse(`
       fragment TodoFields on Todo {
         id
@@ -109,7 +109,7 @@ describe("MockDataGenerator", () => {
       }
     `);
 
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
 
         expect(result).toContain("export const aGetTodosWithFragment");
         expect(result).toContain("export const aTodoFields");
@@ -119,7 +119,7 @@ describe("MockDataGenerator", () => {
     });
 
     it("should handle inline fragments", () => {
-        const generator = new MockDataGenerator(schema, {});
+        const orchestrator = new PluginOrchestrator(schema, {});
         const document = parse(`
       query SearchQuery {
         search {
@@ -135,7 +135,7 @@ describe("MockDataGenerator", () => {
       }
     `);
 
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
 
         // Should generate variants for each inline fragment
         expect(result).toContain("export const aSearchQuery");
@@ -144,7 +144,7 @@ describe("MockDataGenerator", () => {
     });
 
     it("should handle custom scalars with config", () => {
-        const generator = new MockDataGenerator(schema, {
+        const orchestrator = new PluginOrchestrator(schema, {
             scalars: {
                 Date: {
                     generator: "date",
@@ -162,7 +162,7 @@ describe("MockDataGenerator", () => {
       }
     `);
 
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
 
         // Plugin generates actual values, not code strings
         expect(result).toContain("dueAt:");
@@ -170,7 +170,7 @@ describe("MockDataGenerator", () => {
     });
 
     it("should handle nested objects", () => {
-        const generator = new MockDataGenerator(schema, {});
+        const orchestrator = new PluginOrchestrator(schema, {});
         const document = parse(`
       query GetTodoWithAuthor {
         todo(id: "1") {
@@ -185,7 +185,7 @@ describe("MockDataGenerator", () => {
       }
     `);
 
-        const result = generator.generateFromDocuments([{ document }]);
+        const result = orchestrator.generateFromDocuments([{ document }]);
 
         expect(result).toContain("author: {");
         expect(result).toContain('"__typename": "Author"');
@@ -194,15 +194,15 @@ describe("MockDataGenerator", () => {
     });
 
     it("should return empty string for empty documents", () => {
-        const generator = new MockDataGenerator(schema, {});
+        const orchestrator = new PluginOrchestrator(schema, {});
 
-        const result = generator.generateFromDocuments([]);
+        const result = orchestrator.generateFromDocuments([]);
 
         expect(result).toBe("");
     });
 
     it("should include boilerplate only once", () => {
-        const generator = new MockDataGenerator(schema, {});
+        const orchestrator = new PluginOrchestrator(schema, {});
         const document1 = parse(`
       query Query1 {
         todos {
@@ -218,7 +218,7 @@ describe("MockDataGenerator", () => {
       }
     `);
 
-        const result = generator.generateFromDocuments([
+        const result = orchestrator.generateFromDocuments([
             { document: document1 },
             { document: document2 },
         ]);

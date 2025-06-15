@@ -4,8 +4,11 @@ import type {
     OperationDefinitionNode,
     FragmentDefinitionNode,
     GraphQLObjectType,
+    GraphQLInterfaceType,
+    GraphQLUnionType,
+    GraphQLCompositeType,
 } from "graphql";
-import { Kind } from "graphql";
+import { Kind, isCompositeType } from "graphql";
 import type { GeneratedCodeArtifact, CodeArtifactCollection } from "../types";
 import type { MockObjectBuilder } from "../builders/MockObjectBuilder";
 import type { TypeScriptCodeBuilder } from "../builders/TypeScriptCodeBuilder";
@@ -107,6 +110,7 @@ export class DocumentProcessor {
             operation.selectionSet,
             operationName,
             fragmentRegistry,
+            operationType,
         );
 
         // Generate TypeScript code
@@ -138,16 +142,17 @@ export class DocumentProcessor {
 
         // Get the target type for the fragment
         const targetType = this.schema.getType(typeName);
-        if (!targetType) {
+        if (!targetType || !isCompositeType(targetType)) {
             return null;
         }
 
         // Build mock data objects
         const mockDataObjects = this.mockObjectBuilder.buildForType(
-            targetType as any, // GraphQL composite type
+            targetType,
             fragment.selectionSet,
-            `${fragmentName}Fragment`,
+            fragmentName,
             fragmentRegistry,
+            "fragment",
         );
 
         // Generate TypeScript code
@@ -156,7 +161,9 @@ export class DocumentProcessor {
             "fragment",
             mockDataObjects,
             {
-                parentType: targetType as any,
+                parentType: targetType as
+                    | GraphQLObjectType
+                    | GraphQLInterfaceType,
                 selectionSet: fragment.selectionSet,
                 fragmentRegistry,
             },

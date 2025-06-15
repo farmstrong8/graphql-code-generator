@@ -1,6 +1,7 @@
 import type {
     TypeScriptMockDataPluginConfig,
     ScalarGeneratorConfig,
+    NamingOptions,
 } from "./types";
 
 /**
@@ -21,6 +22,15 @@ export class PluginConfig {
      */
     getRawConfig(): TypeScriptMockDataPluginConfig {
         return this.rawConfig;
+    }
+
+    /**
+     * Gets the naming configuration options.
+     *
+     * @returns Naming configuration options
+     */
+    getNamingConfig(): NamingOptions {
+        return this.rawConfig.naming || {};
     }
 
     /**
