@@ -232,7 +232,7 @@ export class TypeInferenceService {
             isNullable: false,
         };
 
-        // Process each selection in the selection set
+        // Process each selection in the selection set (fragments should already be resolved)
         for (const selection of selectionSet.selections) {
             if (selection.kind === "Field") {
                 const fieldName = selection.name.value;
@@ -454,7 +454,7 @@ export class TypeInferenceService {
                     const valueType = this.generateTypeString(value);
                     properties.push(`${keyStr}: ${valueType}`);
                 }
-                variantTypes.push(`{\n  ${properties.join(",\n  ")}\n}`);
+                variantTypes.push(`{\n    ${properties.join(";\n    ")};\n  }`);
             }
             baseType = variantTypes.join(" | ");
         } else if (typeInfo.objectFields) {
@@ -465,7 +465,7 @@ export class TypeInferenceService {
                 const valueType = this.generateTypeString(value);
                 properties.push(`${keyStr}: ${valueType}`);
             }
-            baseType = `{\n  ${properties.join(",\n  ")}\n}`;
+            baseType = `{\n    ${properties.join(";\n    ")};\n}`;
         }
 
         if (typeInfo.isArray) {
@@ -482,7 +482,7 @@ export class TypeInferenceService {
      * @returns True if quotes are needed
      */
     needsQuotes(key: string): boolean {
-        return !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) || key === "__typename";
+        return !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
     }
 
     /**

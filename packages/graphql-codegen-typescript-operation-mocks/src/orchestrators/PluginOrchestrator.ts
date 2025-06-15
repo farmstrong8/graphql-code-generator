@@ -5,6 +5,7 @@ import type { CodeArtifactCollection } from "../types";
 import type { TypeScriptMockDataPluginConfig } from "../config/types";
 import { PluginConfig } from "../config/PluginConfig";
 import { ServiceContainer } from "./ServiceContainer";
+import { DocumentNode, SelectionSetNode } from "graphql";
 
 /**
  * Main orchestrator for the GraphQL TypeScript Mock Data Plugin.
@@ -31,35 +32,48 @@ export class PluginOrchestrator {
     }
 
     /**
-     * Orchestrates the generation of mock artifacts from GraphQL documents.
+     * Generates TypeScript mock code from GraphQL documents.
      *
-     * This is the main entry point for the plugin, coordinating:
-     * - Global fragment registry building
-     * - Document processing delegation
-     * - Artifact collection and combination
-     *
-     * @param documents - Array of GraphQL documents to process
-     * @returns Complete TypeScript code string with mock builders
+     * @param documents - Array of GraphQL document files to process
+     * @returns Combined TypeScript code string
      */
     generateFromDocuments(documents: Types.DocumentFile[]): string {
-        const allArtifacts: CodeArtifactCollection = [];
-
-        // Build a global fragment registry from all documents first
-        // This enables cross-document fragment resolution
+        // Build global fragment registry from all documents
         const globalFragmentRegistry =
             this.buildGlobalFragmentRegistry(documents);
 
-        // Process each document using the configured processor
+        // Check if we have documents with fragment spreads
+        const hasDocumentsWithFragmentSpreads = documents.some(
+            (doc) =>
+                doc.document && this.documentHasFragmentSpreads(doc.document),
+        );
+
+        // For near-operation-file preset: if we have fragment spreads but no fragments,
+        // we should still generate mocks with synthetic fragment fields rather than skip
+        // Only skip if this appears to be a duplicate pass with identical results
+        if (
+            hasDocumentsWithFragmentSpreads &&
+            globalFragmentRegistry.size === 0 &&
+            documents.length > 1 // Only skip for multi-document passes (global generation)
+        ) {
+            // Return empty string to skip this pass (likely a second pass with incomplete registry)
+            return "";
+        }
+
+        const documentProcessor =
+            this.serviceContainer.createDocumentProcessor();
+        const allArtifacts: CodeArtifactCollection = [];
+
+        // Process each document
         for (const document of documents) {
             if (!document.document) continue;
 
-            const documentProcessor =
-                this.serviceContainer.createDocumentProcessor();
-            const documentArtifacts = documentProcessor.processDocument(
+            const artifacts = documentProcessor.processDocument(
                 document.document,
                 globalFragmentRegistry,
             );
-            allArtifacts.push(...documentArtifacts);
+
+            allArtifacts.push(...artifacts);
         }
 
         return this.combineArtifacts(allArtifacts);
@@ -150,5 +164,47 @@ export class PluginOrchestrator {
      */
     getServiceContainer(): ServiceContainer {
         return this.serviceContainer;
+    }
+
+    private documentHasFragmentSpreads(document: DocumentNode): boolean {
+        // Check if any operation or fragment in the document uses fragment spreads
+        for (const definition of document.definitions) {
+            if (
+                definition.kind === "OperationDefinition" ||
+                definition.kind === "FragmentDefinition"
+            ) {
+                if (
+                    this.selectionSetHasFragmentSpreads(definition.selectionSet)
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private selectionSetHasFragmentSpreads(
+        selectionSet: SelectionSetNode,
+    ): boolean {
+        for (const selection of selectionSet.selections) {
+            if (selection.kind === "FragmentSpread") {
+                return true;
+            }
+            if (selection.kind === "Field" && selection.selectionSet) {
+                if (
+                    this.selectionSetHasFragmentSpreads(selection.selectionSet)
+                ) {
+                    return true;
+                }
+            }
+            if (selection.kind === "InlineFragment" && selection.selectionSet) {
+                if (
+                    this.selectionSetHasFragmentSpreads(selection.selectionSet)
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

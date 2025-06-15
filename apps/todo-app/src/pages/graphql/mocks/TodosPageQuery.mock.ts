@@ -1,5 +1,3 @@
-import * as Types from "../../../types.generated";
-
 import { mergeWith } from "lodash";
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
@@ -19,7 +17,21 @@ function createBuilder<T extends object>(baseObject: T) {
         });
 }
 
-type TodosPageTodo = {
+type TodosPageTodosAuthor = {
+    __typename: "Author";
+    email: string;
+    id: string;
+    name: string;
+};
+
+export const aTodosPageTodosAuthor = createBuilder<TodosPageTodosAuthor>({
+    __typename: "Author",
+    email: "Beatae sapiente adipisci ut magni aut atque sed et.",
+    id: "c5cbb266-83a8-4fe7-ab47-9fe57d190bdb",
+    name: "Placeat sit aspernatur accusamus autem est omnis facilis quasi.",
+});
+
+type TodosPageTodos = {
     __typename: "Todo";
     id: string;
     title: string;
@@ -33,26 +45,33 @@ type TodosPageTodo = {
     };
 };
 
-export const aTodosPageTodo = createBuilder<TodosPageTodo>({
+export const aTodosPageTodos = createBuilder<TodosPageTodos>({
     __typename: "Todo",
-    id: "519f2274-1eb3-414e-900d-55c5d356814c",
-    title: "Ad est repellat cupiditate repellat accusamus omnis et.",
-    completed: false,
-    dueAt: "1980-12-27",
-    author: {
-        __typename: "Author",
-        email: "Qui ut excepturi est illo vel ullam repellendus illo.",
-        id: "40c36edd-af3b-4cee-a57c-c24ecd499f79",
-        name: "Rerum vitae magnam dolor.",
-    },
+    id: "21c89823-3133-4d67-99db-82a3afd7bfaa",
+    title: "Eius molestias veniam veritatis est fuga est.",
+    completed: true,
+    dueAt: "2009-10-18",
+    author: aTodosPageTodosAuthor(),
 });
 
 type TodosPageQuery = {
     __typename: "Query";
-    todos: Array<TodosPageTodo>;
+    todos: Array<{
+        __typename: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+        dueAt: string;
+        author: {
+            __typename: "Author";
+            email: string;
+            id: string;
+            name: string;
+        };
+    }>;
 };
 
 export const aTodosPageQuery = createBuilder<TodosPageQuery>({
     __typename: "Query",
-    todos: [aTodosPageTodo()],
+    todos: [aTodosPageTodos()],
 });

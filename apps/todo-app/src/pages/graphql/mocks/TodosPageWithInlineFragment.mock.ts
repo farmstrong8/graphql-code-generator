@@ -19,20 +19,32 @@ function createBuilder<T extends object>(baseObject: T) {
         });
 }
 
-type AuthorInlineFragmentFragment = {
+type AuthorInlineFragment = {
     __typename: "Author";
     id: string;
     name: string;
 };
 
-export const aAuthorInlineFragmentFragment =
-    createBuilder<AuthorInlineFragmentFragment>({
+export const aAuthorInlineFragment = createBuilder<AuthorInlineFragment>({
+    __typename: "Author",
+    id: "b4697feb-ddce-4e47-82cd-b77b7787b3c1",
+    name: "Omnis facere voluptatibus id.",
+});
+
+type TodosPageWithInlineFragmentTodosAuthor = {
+    __typename: "Author";
+    id: string;
+    name: string;
+};
+
+export const aTodosPageWithInlineFragmentTodosAuthor =
+    createBuilder<TodosPageWithInlineFragmentTodosAuthor>({
         __typename: "Author",
-        id: "7fdcf007-851b-47ea-acd6-03dae410a8dc",
-        name: "Sed vel velit aliquam ut est.",
+        id: "215e30d1-e0d3-455a-bdf8-3c39a08e89a7",
+        name: "Optio cumque dolores laborum porro ab id deleniti quis quia.",
     });
 
-type TodosPageWithInlineFragmentTodo = {
+type TodosPageWithInlineFragmentTodos = {
     __typename: "Todo";
     id: string;
     title: string;
@@ -45,27 +57,34 @@ type TodosPageWithInlineFragmentTodo = {
     };
 };
 
-export const aTodosPageWithInlineFragmentTodo =
-    createBuilder<TodosPageWithInlineFragmentTodo>({
+export const aTodosPageWithInlineFragmentTodos =
+    createBuilder<TodosPageWithInlineFragmentTodos>({
         __typename: "Todo",
-        id: "f3521dfd-afd8-474b-ac97-386378e04799",
-        title: "Ullam veniam aperiam iure et qui eveniet ratione.",
+        id: "c0d1db04-98d7-4288-a8c0-e423e3a80fb6",
+        title: "Iusto ad hic blanditiis ut.",
         completed: true,
-        dueAt: "2007-04-19",
-        author: {
-            __typename: "Author",
-            id: "7aebe855-7558-4bff-9463-ea1551c95683",
-            name: "Nihil magnam est eius voluptatem sapiente in.",
-        },
+        dueAt: "1975-01-26",
+        author: aTodosPageWithInlineFragmentTodosAuthor(),
     });
 
 type TodosPageWithInlineFragmentQuery = {
     __typename: "Query";
-    todos: Array<TodosPageWithInlineFragmentTodo>;
+    todos: Array<{
+        __typename: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+        dueAt: string;
+        author: {
+            __typename: "Author";
+            id: string;
+            name: string;
+        };
+    }>;
 };
 
 export const aTodosPageWithInlineFragmentQuery =
     createBuilder<TodosPageWithInlineFragmentQuery>({
         __typename: "Query",
-        todos: [aTodosPageWithInlineFragmentTodo()],
+        todos: [aTodosPageWithInlineFragmentTodos()],
     });

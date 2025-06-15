@@ -19,26 +19,31 @@ function createBuilder<T extends object>(baseObject: T) {
         });
 }
 
-type ToggleTodoTodo = {
+type ToggleTodoToggleTodo = {
     __typename: "Todo";
     id: string;
     title: string;
     completed: boolean;
 };
 
-export const aToggleTodoTodo = createBuilder<ToggleTodoTodo>({
+export const aToggleTodoToggleTodo = createBuilder<ToggleTodoToggleTodo>({
     __typename: "Todo",
-    id: "ee83c04d-a91d-47de-89c0-fe2100be7357",
-    title: "Ea tempora quos voluptas facilis sed dolorem ut.",
+    id: "7dd2815f-ea80-4c83-a534-9af804f4cf74",
+    title: "Iure omnis sit eos cumque facilis soluta et in.",
     completed: true,
 });
 
 type ToggleTodoMutation = {
     __typename: "Mutation";
-    toggleTodo: ToggleTodoTodo;
+    toggleTodo: {
+        __typename: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+    };
 };
 
 export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
     __typename: "Mutation",
-    toggleTodo: aToggleTodoTodo(),
+    toggleTodo: aToggleTodoToggleTodo(),
 });

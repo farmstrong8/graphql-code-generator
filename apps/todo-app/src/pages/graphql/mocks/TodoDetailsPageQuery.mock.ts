@@ -19,41 +19,50 @@ function createBuilder<T extends object>(baseObject: T) {
         });
 }
 
+type TodoDetailsPageQueryAsTodoTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+};
+
+export const aTodoDetailsPageQueryAsTodoTodo =
+    createBuilder<TodoDetailsPageQueryAsTodoTodo>({
+        __typename: "Todo",
+        id: "36a11624-6827-422f-8f95-6e641013fb5d",
+        title: "Id mollitia pariatur distinctio excepturi.",
+        completed: true,
+    });
+
 type TodoDetailsPageQueryAsTodo = {
     __typename: "Query";
-    todo: {
-        id: string;
-        title: string;
-        completed: boolean;
-        __typename: "Todo";
-    };
+    todo: TodoDetailsPageQueryAsTodoTodo;
 };
 
 export const aTodoDetailsPageQueryAsTodo =
     createBuilder<TodoDetailsPageQueryAsTodo>({
         __typename: "Query",
-        todo: {
-            __typename: "Todo",
-            id: "6c44bbcf-888c-4121-87c8-863073502610",
-            title: "Quis odio quae.",
-            completed: false,
-        },
+        todo: aTodoDetailsPageQueryAsTodoTodo(),
+    });
+
+type TodoDetailsPageQueryAsErrorError = {
+    __typename: "Error";
+    message: string;
+};
+
+export const aTodoDetailsPageQueryAsErrorError =
+    createBuilder<TodoDetailsPageQueryAsErrorError>({
+        __typename: "Error",
+        message: "Quia quia reiciendis itaque.",
     });
 
 type TodoDetailsPageQueryAsError = {
     __typename: "Query";
-    todo: {
-        message: string;
-        __typename: "Error";
-    };
+    todo: TodoDetailsPageQueryAsErrorError;
 };
 
 export const aTodoDetailsPageQueryAsError =
     createBuilder<TodoDetailsPageQueryAsError>({
         __typename: "Query",
-        todo: {
-            __typename: "Error",
-            message:
-                "Tempora explicabo earum numquam eveniet placeat et animi.",
-        },
+        todo: aTodoDetailsPageQueryAsErrorError(),
     });

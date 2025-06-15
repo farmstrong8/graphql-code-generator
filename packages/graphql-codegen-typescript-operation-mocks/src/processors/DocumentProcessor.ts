@@ -40,15 +40,20 @@ export class DocumentProcessor {
     ): CodeArtifactCollection {
         const artifacts: CodeArtifactCollection = [];
 
-        // Use global fragment registry if provided, otherwise extract fragments from current document
-        let fragmentRegistry: Map<string, FragmentDefinitionNode>;
+        // Always merge global and local fragments to ensure all fragments are available
+        const localFragments = this.extractFragments(document);
+        const fragmentRegistry = new Map<string, FragmentDefinitionNode>();
+
+        // First, add global fragments if provided
         if (globalFragmentRegistry) {
-            fragmentRegistry = globalFragmentRegistry;
-        } else {
-            const fragments = this.extractFragments(document);
-            fragmentRegistry = new Map(
-                fragments.map((fragment) => [fragment.name.value, fragment]),
-            );
+            for (const [name, fragment] of globalFragmentRegistry) {
+                fragmentRegistry.set(name, fragment);
+            }
+        }
+
+        // Then, add local fragments (this will override global ones if there are conflicts)
+        for (const fragment of localFragments) {
+            fragmentRegistry.set(fragment.name.value, fragment);
         }
 
         // Process fragments first to ensure they're available for operations

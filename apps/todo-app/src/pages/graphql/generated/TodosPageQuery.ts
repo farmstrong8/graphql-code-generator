@@ -1,7 +1,7 @@
 import type * as Types from "../../../types.generated";
 
 import { gql } from "@apollo/client";
-import { AuthorFragmentFragmentDoc } from "./AuthorFragment";
+import { AuthorFragmentDoc } from "./AuthorFragment";
 import * as Apollo from "@apollo/client";
 const defaultOptions = {} as const;
 export type TodosPageQueryVariables = Types.Exact<{ [key: string]: never }>;
@@ -26,11 +26,11 @@ export const TodosPageDocument = gql`
             completed
             dueAt
             author {
-                ...AuthorFragment
+                ...Author
             }
         }
     }
-    ${AuthorFragmentFragmentDoc}
+    ${AuthorFragmentDoc}
 `;
 
 /**

@@ -5418,22 +5418,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"graphql-codegen-typescript-operation-mocks@npm:*":
-  version: 0.0.1
-  resolution: "graphql-codegen-typescript-operation-mocks@npm:0.0.1"
-  dependencies:
-    casual: "npm:^1.6.2"
-    lodash: "npm:^4.17.21"
-    path: "npm:^0.12.7"
-  peerDependencies:
-    "@types/lodash": ^4.0.0
-    graphql: ^16.0.0
-    lodash: ^4.0.0
-  checksum: 10c0/db2053dadc269b900ce9724983eddb9e40f7c111b434f1c517530309dd818e804bad728ea0342b47882e1305c0b23247612dea9c532df5ed8752ed0ea232c7fb
-  languageName: node
-  linkType: hard
-
-"graphql-codegen-typescript-operation-mocks@workspace:packages/graphql-codegen-typescript-operation-mocks":
+"graphql-codegen-typescript-operation-mocks@workspace:*, graphql-codegen-typescript-operation-mocks@workspace:packages/graphql-codegen-typescript-operation-mocks":
   version: 0.0.0-use.local
   resolution: "graphql-codegen-typescript-operation-mocks@workspace:packages/graphql-codegen-typescript-operation-mocks"
   dependencies:
@@ -8465,7 +8450,7 @@ __metadata:
     eslint-plugin-react-refresh: "npm:^0.4.19"
     globals: "npm:^16.0.0"
     graphql: "npm:^16.11.0"
-    graphql-codegen-typescript-operation-mocks: "npm:*"
+    graphql-codegen-typescript-operation-mocks: "workspace:*"
     jsdom: "npm:^26.1.0"
     lucide-react: "npm:^0.511.0"
     react: "npm:^19.1.0"

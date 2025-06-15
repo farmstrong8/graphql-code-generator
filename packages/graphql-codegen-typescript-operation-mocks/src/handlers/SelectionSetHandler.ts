@@ -92,7 +92,7 @@ export class SelectionSetHandler {
      *
      * @param fragmentSpread - The fragment spread selection
      * @param fragmentRegistry - Available fragment definitions
-     * @returns The fragment's selection set, or null if not found
+     * @returns The fragment's selection set, or synthetic fields if fragment not found
      */
     private resolveFragmentSpread(
         fragmentSpread: FragmentSpreadNode,
@@ -102,6 +102,19 @@ export class SelectionSetHandler {
         const fragmentDef = fragmentRegistry.get(fragmentName);
 
         if (!fragmentDef) {
+            // Create synthetic fragment fields for near-operation-file mode
+            const syntheticFields = this.createSyntheticFragmentFields(
+                fragmentName,
+                fragmentRegistry,
+            );
+
+            if (syntheticFields.length > 0) {
+                return {
+                    kind: Kind.SELECTION_SET,
+                    selections: syntheticFields,
+                };
+            }
+
             return null;
         }
 

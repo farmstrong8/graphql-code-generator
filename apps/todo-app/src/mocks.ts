@@ -17,40 +17,45 @@ function createBuilder<T extends object>(baseObject: T) {
         });
 }
 
-type AddTodoTodo = {
+type AddTodoAddTodo = {
     __typename: "Todo";
     id: string;
     title: string;
     completed: boolean;
 };
 
-export const aAddTodoTodo = createBuilder<AddTodoTodo>({
+export const aAddTodoAddTodo = createBuilder<AddTodoAddTodo>({
     __typename: "Todo",
-    id: "d5634322-2e7c-4ef4-b372-53ed03358dee",
-    title: "Et dolore ut dolorum.",
+    id: "21390e1f-b443-4584-b51a-382f199e19c6",
+    title: "Velit consequuntur repellat.",
     completed: true,
 });
 
 type AddTodoMutation = {
     __typename: "Mutation";
-    addTodo: AddTodoTodo;
+    addTodo: {
+        __typename: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+    };
 };
 
 export const aAddTodoMutation = createBuilder<AddTodoMutation>({
     __typename: "Mutation",
-    addTodo: aAddTodoTodo(),
+    addTodo: aAddTodoAddTodo(),
 });
 
-type AuthorFragmentFragment = {
+type AuthorFragment = {
     __typename: "Author";
     id: string;
     name: string;
 };
 
-export const aAuthorFragmentFragment = createBuilder<AuthorFragmentFragment>({
+export const aAuthorFragment = createBuilder<AuthorFragment>({
     __typename: "Author",
-    id: "5ac60ec5-60da-4cc8-a6c1-7f58ed316384",
-    name: "Et est aut perspiciatis et et impedit.",
+    id: "3a7a72be-366e-44b2-bb6d-682ab27522ee",
+    name: "Earum sed autem aut nam qui sed cumque.",
 });
 
 type DeleteTodoMutation = {
@@ -60,97 +65,70 @@ type DeleteTodoMutation = {
 
 export const aDeleteTodoMutation = createBuilder<DeleteTodoMutation>({
     __typename: "Mutation",
-    deleteTodo: true,
+    deleteTodo: false,
 });
+
+type TodoDetailsPageQueryAsTodoTodo = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+};
+
+export const aTodoDetailsPageQueryAsTodoTodo =
+    createBuilder<TodoDetailsPageQueryAsTodoTodo>({
+        __typename: "Todo",
+        id: "2a6e9ea2-34d3-4022-b2ed-f0a16da4bc60",
+        title: "Dolores quasi et vel nihil quo.",
+        completed: true,
+    });
 
 type TodoDetailsPageQueryAsTodo = {
     __typename: "Query";
-    todo: {
-        id: string;
-        title: string;
-        completed: boolean;
-        __typename: "Todo";
-    };
+    todo: TodoDetailsPageQueryAsTodoTodo;
 };
 
 export const aTodoDetailsPageQueryAsTodo =
     createBuilder<TodoDetailsPageQueryAsTodo>({
         __typename: "Query",
-        todo: {
-            __typename: "Todo",
-            id: "d3d92c71-3d76-47f4-b4e1-21aaefa24263",
-            title: "Repudiandae quae quaerat suscipit blanditiis.",
-            completed: false,
-        },
+        todo: aTodoDetailsPageQueryAsTodoTodo(),
+    });
+
+type TodoDetailsPageQueryAsErrorError = {
+    __typename: "Error";
+    message: string;
+};
+
+export const aTodoDetailsPageQueryAsErrorError =
+    createBuilder<TodoDetailsPageQueryAsErrorError>({
+        __typename: "Error",
+        message: "Quia temporibus aut et a quia aperiam aliquam.",
     });
 
 type TodoDetailsPageQueryAsError = {
     __typename: "Query";
-    todo: {
-        message: string;
-        __typename: "Error";
-    };
+    todo: TodoDetailsPageQueryAsErrorError;
 };
 
 export const aTodoDetailsPageQueryAsError =
     createBuilder<TodoDetailsPageQueryAsError>({
         __typename: "Query",
-        todo: {
-            __typename: "Error",
-            message: "Et nisi sint quos esse suscipit repellat.",
-        },
+        todo: aTodoDetailsPageQueryAsErrorError(),
     });
 
-type TodosPageTodo = {
-    __typename: "Todo";
-    id: string;
-    title: string;
-    completed: boolean;
-    dueAt: string;
-    author: {
-        __typename: "Author";
-        id: string;
-        name: string;
-    };
-};
-
-export const aTodosPageTodo = createBuilder<TodosPageTodo>({
-    __typename: "Todo",
-    id: "a886ecc4-d490-4840-bc78-7b4213363299",
-    title: "Cum magnam fugit officia voluptatem modi velit magnam nisi.",
-    completed: true,
-    dueAt: "1981-04-06",
-    author: {
-        __typename: "Author",
-        id: "2bdfc1b3-6aa0-4b6a-b8cd-032004ae385b",
-        name: "Facere facilis culpa pariatur aperiam delectus perspiciatis.",
-    },
-});
-
-type TodosPageQuery = {
-    __typename: "Query";
-    todos: Array<TodosPageTodo>;
-};
-
-export const aTodosPageQuery = createBuilder<TodosPageQuery>({
-    __typename: "Query",
-    todos: [aTodosPageTodo()],
-});
-
-type AuthorInlineFragmentFragment = {
+type TodosPageTodosAuthor = {
     __typename: "Author";
     id: string;
     name: string;
 };
 
-export const aAuthorInlineFragmentFragment =
-    createBuilder<AuthorInlineFragmentFragment>({
-        __typename: "Author",
-        id: "46beee3d-000a-4e03-8a56-2b85981c237f",
-        name: "Suscipit aliquid soluta iusto.",
-    });
+export const aTodosPageTodosAuthor = createBuilder<TodosPageTodosAuthor>({
+    __typename: "Author",
+    id: "876ba734-83db-4631-9730-678086da0b57",
+    name: "Expedita ipsam nihil voluptate.",
+});
 
-type TodosPageWithInlineFragmentTodo = {
+type TodosPageTodos = {
     __typename: "Todo";
     id: string;
     title: string;
@@ -163,51 +141,131 @@ type TodosPageWithInlineFragmentTodo = {
     };
 };
 
-export const aTodosPageWithInlineFragmentTodo =
-    createBuilder<TodosPageWithInlineFragmentTodo>({
-        __typename: "Todo",
-        id: "a70d6335-8d2b-4933-8622-e682d5cef841",
-        title: "Beatae eos vitae cum ex quasi.",
-        completed: true,
-        dueAt: "1975-10-20",
+export const aTodosPageTodos = createBuilder<TodosPageTodos>({
+    __typename: "Todo",
+    id: "a8536566-0501-46ed-8d0f-a8bd0b813c90",
+    title: "Earum ad inventore nobis illum enim non laboriosam voluptatibus error.",
+    completed: true,
+    dueAt: "1973-11-23",
+    author: aTodosPageTodosAuthor(),
+});
+
+type TodosPageQuery = {
+    __typename: "Query";
+    todos: Array<{
+        __typename: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+        dueAt: string;
         author: {
-            __typename: "Author",
-            id: "b4eb7761-8e82-4e0f-a755-890d531558e3",
-            name: "Error natus nesciunt sequi eos commodi facere quos expedita.",
-        },
+            __typename: "Author";
+            id: string;
+            name: string;
+        };
+    }>;
+};
+
+export const aTodosPageQuery = createBuilder<TodosPageQuery>({
+    __typename: "Query",
+    todos: [aTodosPageTodos()],
+});
+
+type AuthorInlineFragment = {
+    __typename: "Author";
+    id: string;
+    name: string;
+};
+
+export const aAuthorInlineFragment = createBuilder<AuthorInlineFragment>({
+    __typename: "Author",
+    id: "97c09988-6965-4e36-a673-f22b32501ea6",
+    name: "Et numquam sit sint sed.",
+});
+
+type TodosPageWithInlineFragmentTodosAuthor = {
+    __typename: "Author";
+    id: string;
+    name: string;
+};
+
+export const aTodosPageWithInlineFragmentTodosAuthor =
+    createBuilder<TodosPageWithInlineFragmentTodosAuthor>({
+        __typename: "Author",
+        id: "bf334fa6-f62c-41f5-92b6-ab350773a86e",
+        name: "Culpa delectus inventore sit qui.",
+    });
+
+type TodosPageWithInlineFragmentTodos = {
+    __typename: "Todo";
+    id: string;
+    title: string;
+    completed: boolean;
+    dueAt: string;
+    author: {
+        __typename: "Author";
+        id: string;
+        name: string;
+    };
+};
+
+export const aTodosPageWithInlineFragmentTodos =
+    createBuilder<TodosPageWithInlineFragmentTodos>({
+        __typename: "Todo",
+        id: "30286b93-54d0-4375-b434-0e9c0ce95837",
+        title: "Dolore earum dolorum quod.",
+        completed: false,
+        dueAt: "1978-12-31",
+        author: aTodosPageWithInlineFragmentTodosAuthor(),
     });
 
 type TodosPageWithInlineFragmentQuery = {
     __typename: "Query";
-    todos: Array<TodosPageWithInlineFragmentTodo>;
+    todos: Array<{
+        __typename: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+        dueAt: string;
+        author: {
+            __typename: "Author";
+            id: string;
+            name: string;
+        };
+    }>;
 };
 
 export const aTodosPageWithInlineFragmentQuery =
     createBuilder<TodosPageWithInlineFragmentQuery>({
         __typename: "Query",
-        todos: [aTodosPageWithInlineFragmentTodo()],
+        todos: [aTodosPageWithInlineFragmentTodos()],
     });
 
-type ToggleTodoTodo = {
+type ToggleTodoToggleTodo = {
     __typename: "Todo";
     id: string;
     title: string;
     completed: boolean;
 };
 
-export const aToggleTodoTodo = createBuilder<ToggleTodoTodo>({
+export const aToggleTodoToggleTodo = createBuilder<ToggleTodoToggleTodo>({
     __typename: "Todo",
-    id: "d15d0872-c14e-406f-8c90-69b8e8c9358d",
-    title: "Sed facilis earum quo consequatur est officia voluptates.",
+    id: "5b6c741e-fef7-468b-b5c3-7cc905b977a5",
+    title: "Animi fugit sit laboriosam.",
     completed: false,
 });
 
 type ToggleTodoMutation = {
     __typename: "Mutation";
-    toggleTodo: ToggleTodoTodo;
+    toggleTodo: {
+        __typename: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+    };
 };
 
 export const aToggleTodoMutation = createBuilder<ToggleTodoMutation>({
     __typename: "Mutation",
-    toggleTodo: aToggleTodoTodo(),
+    toggleTodo: aToggleTodoToggleTodo(),
 });

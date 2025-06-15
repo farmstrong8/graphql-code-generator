@@ -36,39 +36,34 @@ export class ServiceContainer {
         private readonly schema: GraphQLSchema,
         private readonly config: PluginConfig,
     ) {
-        // Initialize handlers first
-        this.scalarHandler = new ScalarHandler(this.config);
-        this.selectionSetHandler = new SelectionSetHandler(this.schema);
+        // Initialize core handlers
+        this.scalarHandler = new ScalarHandler(config);
+        this.selectionSetHandler = new SelectionSetHandler(schema);
 
-        // Initialize services that depend on handlers
-        this.typeInferenceService = new TypeInferenceService(this.schema);
-        this.nestedTypeService = new NestedTypeService(this.schema);
-
-        // Initialize naming service with configuration from plugin config
-        this.namingService = new NamingService(
-            this.config.getRawConfig().naming,
-        );
-
-        this.unionMockService = new UnionMockService(
-            this.schema,
-            this.namingService,
-        );
+        // Initialize services
+        this.typeInferenceService = new TypeInferenceService(schema);
+        this.nestedTypeService = new NestedTypeService(schema);
+        this.unionMockService = new UnionMockService(schema);
         this.fieldMockService = new FieldMockService(this.scalarHandler);
         this.boilerplateService = new BoilerplateService();
+        this.namingService = new NamingService(config.getNamingConfig());
 
-        // Initialize builders with their dependencies including new services
+        // Initialize builders with all required dependencies
         this.mockObjectBuilder = new MockObjectBuilder(
-            this.schema,
+            schema,
             this.scalarHandler,
             this.selectionSetHandler,
             this.unionMockService,
             this.fieldMockService,
         );
 
+        // TypeScriptCodeBuilder now needs scalarHandler and schema for cascading architecture
         this.codeBuilder = new TypeScriptCodeBuilder(
             this.typeInferenceService,
             this.nestedTypeService,
             this.namingService,
+            this.scalarHandler, // Add scalarHandler dependency
+            schema, // Add schema dependency
         );
     }
 

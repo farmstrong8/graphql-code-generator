@@ -5,7 +5,7 @@ query TodosPage {
         completed
         dueAt
         author {
-            ...AuthorFragment
+            ...Author
         }
     }
 }

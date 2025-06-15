@@ -19,26 +19,31 @@ function createBuilder<T extends object>(baseObject: T) {
         });
 }
 
-type AddTodoTodo = {
+type AddTodoAddTodo = {
     __typename: "Todo";
     id: string;
     title: string;
     completed: boolean;
 };
 
-export const aAddTodoTodo = createBuilder<AddTodoTodo>({
+export const aAddTodoAddTodo = createBuilder<AddTodoAddTodo>({
     __typename: "Todo",
-    id: "af5e1c70-0907-4ac2-a915-4ca0562577ce",
-    title: "Quam omnis consequatur dolorum optio quaerat laborum quia veritatis.",
+    id: "fa84edee-2052-4c66-8d6c-cc6bb096a571",
+    title: "Expedita rerum error dolore quam et eaque ipsam id tempora.",
     completed: false,
 });
 
 type AddTodoMutation = {
     __typename: "Mutation";
-    addTodo: AddTodoTodo;
+    addTodo: {
+        __typename: "Todo";
+        id: string;
+        title: string;
+        completed: boolean;
+    };
 };
 
 export const aAddTodoMutation = createBuilder<AddTodoMutation>({
     __typename: "Mutation",
-    addTodo: aAddTodoTodo(),
+    addTodo: aAddTodoAddTodo(),
 });

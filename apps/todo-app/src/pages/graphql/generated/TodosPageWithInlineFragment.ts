@@ -3,7 +3,7 @@ import type * as Types from "../../../types.generated";
 import { gql } from "@apollo/client";
 import * as Apollo from "@apollo/client";
 const defaultOptions = {} as const;
-export type AuthorInlineFragmentFragment = {
+export type AuthorInlineFragment = {
     __typename?: "Author";
     id: string;
     name: string;
@@ -25,8 +25,8 @@ export type TodosPageWithInlineFragmentQuery = {
     }>;
 };
 
-export const AuthorInlineFragmentFragmentDoc = gql`
-    fragment AuthorInlineFragment on Author {
+export const AuthorInlineFragmentDoc = gql`
+    fragment AuthorInline on Author {
         id
         name
     }
@@ -39,11 +39,11 @@ export const TodosPageWithInlineFragmentDocument = gql`
             completed
             dueAt
             author {
-                ...AuthorInlineFragment
+                ...AuthorInline
             }
         }
     }
-    ${AuthorInlineFragmentFragmentDoc}
+    ${AuthorInlineFragmentDoc}
 `;
 
 /**
@@ -120,6 +120,6 @@ export const namedOperations = {
         TodosPageWithInlineFragment: "TodosPageWithInlineFragment",
     },
     Fragment: {
-        AuthorInlineFragment: "AuthorInlineFragment",
+        AuthorInline: "AuthorInline",
     },
 };

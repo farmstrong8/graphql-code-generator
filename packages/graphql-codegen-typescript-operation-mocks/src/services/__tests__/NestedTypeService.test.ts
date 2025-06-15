@@ -3,6 +3,8 @@ import { TypeScriptCodeBuilder } from "../../builders/TypeScriptCodeBuilder";
 import { TypeInferenceService } from "../TypeInferenceService";
 import { NestedTypeService } from "../NestedTypeService";
 import { NamingService } from "../NamingService";
+import { ScalarHandler } from "../../handlers/ScalarHandler";
+import { PluginConfig } from "../../config/PluginConfig";
 import { buildSchema, parse } from "graphql";
 
 describe("Nested Type Extraction", () => {
@@ -43,10 +45,14 @@ describe("Nested Type Extraction", () => {
         const typeInferenceService = new TypeInferenceService(schema);
         const nestedTypeService = new NestedTypeService(schema);
         const namingService = new NamingService();
+        const config = new PluginConfig({});
+        const scalarHandler = new ScalarHandler(config);
         const codeBuilder = new TypeScriptCodeBuilder(
             typeInferenceService,
             nestedTypeService,
             namingService,
+            scalarHandler,
+            schema,
         );
 
         const mockDataObjects = [
@@ -86,9 +92,9 @@ describe("Nested Type Extraction", () => {
 
         expect(result.generatedCode).toContain("type TodosPageQueryTodos = {");
         expect(result.generatedCode).toContain('"__typename": "Todo",');
-        expect(result.generatedCode).toContain('id: "test-id",');
-        expect(result.generatedCode).toContain('title: "Test Todo",');
-        expect(result.generatedCode).toContain("completed: false,");
+        expect(result.generatedCode).toContain("id: string,");
+        expect(result.generatedCode).toContain("title: string,");
+        expect(result.generatedCode).toContain("completed: boolean,");
         expect(result.generatedCode).toContain("type TodosPageQueryQuery = {");
         expect(result.generatedCode).toContain('"__typename": "Query",');
         expect(result.generatedCode).toContain("todos: Array<{");

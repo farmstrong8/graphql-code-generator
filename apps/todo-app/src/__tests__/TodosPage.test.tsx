@@ -6,8 +6,8 @@ import { TodosPageDocument } from "@/pages/graphql/generated/TodosPageQuery";
 import {
     aAddTodoMutation,
     aTodosPageQuery,
-    aTodosPageTodo,
-    aToggleTodoTodo,
+    aTodosPageTodos,
+    aToggleTodoToggleTodo,
 } from "@/mocks";
 import { AddTodoDocument } from "@/pages/graphql/generated/AddTodoMutation";
 import { ToggleTodoDocument } from "@/pages/graphql/generated/ToggleTodoMutation";
@@ -32,12 +32,12 @@ const mockTodosWithItems = {
     result: {
         data: aTodosPageQuery({
             todos: [
-                aTodosPageTodo({
+                aTodosPageTodos({
                     id: "1",
                     completed: false,
                     title: "Buy groceries",
                 }),
-                aTodosPageTodo({
+                aTodosPageTodos({
                     id: "2",
                     completed: true,
                     title: "Walk the dog",
@@ -75,7 +75,7 @@ const mockToggleTodo = {
     result: {
         data: {
             __typename: "Mutation",
-            toggleTodo: aToggleTodoTodo({
+            toggleTodo: aToggleTodoToggleTodo({
                 id: "1",
                 title: "Buy groceries",
                 completed: true,

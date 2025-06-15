@@ -20,7 +20,14 @@ import type {
     GraphQLInterfaceType,
     SelectionSetNode,
     FragmentDefinitionNode,
+    GraphQLSchema,
 } from "graphql";
+import { isObjectType, isInterfaceType } from "graphql";
+import {
+    SchemaFirstCodeService,
+    type SchemaCodeArtifact,
+} from "../services/SchemaFirstCodeService";
+import type { ScalarHandler } from "../handlers/ScalarHandler";
 
 // Schema generation context interface
 export interface SchemaGenerationContext {
@@ -68,33 +75,25 @@ export interface SchemaGenerationContext {
  * ```
  */
 export class TypeScriptCodeBuilder {
-    /**
-     * Service for generating TypeScript type definitions from mock data.
-     */
+    private readonly schemaFirstCodeService: SchemaFirstCodeService;
     private readonly typeDefinitionService = new TypeDefinitionService();
-
-    /**
-     * Service for generating TypeScript builder functions for testing.
-     */
     private readonly builderCodeService = new BuilderCodeService();
-
-    /**
-     * Service for generating TypeScript boilerplate code.
-     */
     private readonly boilerplateService = new BoilerplateService();
 
-    /**
-     * Creates a new TypeScript Code Builder instance.
-     *
-     * @param typeInferenceService - Service for analyzing GraphQL types and generating TypeScript
-     * @param nestedTypeService - Service for collecting and organizing nested type information
-     * @param namingService - Service for handling naming conventions and name generation
-     */
     constructor(
         private readonly typeInferenceService: TypeInferenceService,
         private readonly nestedTypeService: NestedTypeService,
         private readonly namingService: NamingService,
-    ) {}
+        private readonly scalarHandler: ScalarHandler,
+        private readonly schema: GraphQLSchema,
+    ) {
+        // Initialize the schema-first service for cascading architecture
+        this.schemaFirstCodeService = new SchemaFirstCodeService(
+            schema,
+            scalarHandler,
+            namingService,
+        );
+    }
 
     /**
      * Generates a complete code artifact from multiple mock data objects.
@@ -136,128 +135,99 @@ export class TypeScriptCodeBuilder {
         mockDataObjects: MockDataVariants,
         schemaContext?: SchemaGenerationContext,
     ): GeneratedCodeArtifact {
-        // Start with generated code blocks (boilerplate handled by orchestrator)
-        const codeBlocks: string[] = [];
-
-        // Collect nested types that should have their own builders
-        const nestedTypes: Map<string, string> = new Map();
+        // NEW CASCADING ARCHITECTURE: Use schema as single source of truth
         if (schemaContext) {
-            const nestedTypeInfos = this.nestedTypeService.analyzeSelectionSet({
-                parentType: schemaContext.parentType,
-                selectionSet: schemaContext.selectionSet,
+            return this.buildFromSchemaContext(
                 operationName,
-                fragmentRegistry: schemaContext.fragmentRegistry,
-            });
-
-            // Generate builders for nested types first
-            for (const nestedTypeInfo of nestedTypeInfos) {
-                const nestedTypeName = this.nestedTypeService.generateTypeName(
-                    operationName,
-                    nestedTypeInfo.path,
-                    nestedTypeInfo.typeName,
-                );
-                const nestedBuilderName =
-                    this.nestedTypeService.generateBuilderName(
-                        operationName,
-                        nestedTypeInfo.path,
-                        nestedTypeInfo.typeName,
-                    );
-                const nestedMockValue = this.nestedTypeService.extractMockValue(
-                    mockDataObjects,
-                    nestedTypeInfo,
-                );
-
-                if (nestedMockValue) {
-                    // Use TypeInferenceService to generate semantic types for nested types
-                    const nestedSemanticTypeInfo =
-                        this.typeInferenceService.analyzeGraphQLType(
-                            nestedTypeInfo.graphqlType,
-                            nestedTypeInfo.selectionSet,
-                            schemaContext.fragmentRegistry,
-                        );
-                    const nestedTypeString =
-                        this.typeInferenceService.generateTypeString(
-                            nestedSemanticTypeInfo,
-                        );
-                    const nestedTypeDefinition = `type ${nestedTypeName} = ${nestedTypeString};`;
-
-                    const nestedBuilderFunction =
-                        this.builderCodeService.generateBuilderFunction(
-                            nestedBuilderName,
-                            nestedTypeName,
-                            nestedMockValue,
-                            {
-                                nestedBuilders: nestedTypes,
-                            },
-                        );
-
-                    codeBlocks.push("");
-                    codeBlocks.push(nestedTypeDefinition);
-                    codeBlocks.push("");
-                    codeBlocks.push(nestedBuilderFunction);
-
-                    // Store for reference replacement in main builders
-                    nestedTypes.set(nestedTypeInfo.typeName, nestedBuilderName);
-                }
-            }
-        }
-
-        // Add each mock data object
-        for (const mockData of mockDataObjects) {
-            // Generate proper type name with operation suffix
-            const typeName = this.namingService.generateTypeName(
-                mockData.mockName,
                 operationType,
+                schemaContext,
             );
-
-            // Generate the type definition using schema context if available
-            let typeDefinition: string;
-            if (schemaContext) {
-                // Use TypeInferenceService to generate semantic types from schema
-                const semanticTypeInfo =
-                    this.typeInferenceService.analyzeGraphQLType(
-                        schemaContext.parentType,
-                        schemaContext.selectionSet,
-                        schemaContext.fragmentRegistry,
-                    );
-                const typeString =
-                    this.typeInferenceService.generateTypeString(
-                        semanticTypeInfo,
-                    );
-                typeDefinition = `type ${typeName} = ${typeString};`;
-            } else {
-                // Fallback to generating from mock value
-                typeDefinition =
-                    this.typeDefinitionService.generateNamedTypeDefinition(
-                        typeName,
-                        mockData.mockValue,
-                    );
-            }
-
-            const builderFunction =
-                this.builderCodeService.generateBuilderFunction(
-                    this.namingService.generateBuilderName(
-                        mockData.mockName,
-                        operationType,
-                    ),
-                    typeName,
-                    mockData.mockValue,
-                    {
-                        nestedBuilders: nestedTypes,
-                    },
-                );
-
-            codeBlocks.push("");
-            codeBlocks.push(typeDefinition);
-            codeBlocks.push("");
-            codeBlocks.push(builderFunction);
         }
+
+        // Fallback to mock-based generation for backward compatibility
+        return this.buildFromMockData(
+            operationName,
+            operationType,
+            mockDataObjects,
+        );
+    }
+
+    /**
+     * NEW: Schema-first approach - everything cascades from schema analysis
+     */
+    private buildFromSchemaContext(
+        operationName: string,
+        operationType: "query" | "mutation" | "subscription" | "fragment",
+        schemaContext: SchemaGenerationContext,
+    ): GeneratedCodeArtifact {
+        const { parentType, selectionSet, fragmentRegistry } = schemaContext;
+
+        // Generate complete code artifact using schema-first service
+        const artifact = this.schemaFirstCodeService.generateFromSchema({
+            parentType,
+            selectionSet,
+            operationName,
+            operationType,
+            fragmentRegistry,
+        });
+
+        // Combine code WITHOUT duplicate boilerplate (boilerplate handled by orchestrator)
+        const allCode = this.combineSchemaArtifacts(artifact);
 
         return {
             operationName,
             operationType,
-            generatedCode: codeBlocks.join("\n"),
+            generatedCode: allCode,
         };
+    }
+
+    /**
+     * Legacy approach - kept for backward compatibility
+     */
+    private buildFromMockData(
+        operationName: string,
+        operationType: "query" | "mutation" | "subscription" | "fragment",
+        mockDataObjects: MockDataVariants,
+    ): GeneratedCodeArtifact {
+        const boilerplate =
+            this.boilerplateService.generateStandardBoilerplate();
+        const typesAndBuilders = this.generateTypesAndBuilders(
+            operationName,
+            operationType,
+            mockDataObjects,
+        );
+
+        const generatedCode = [boilerplate, typesAndBuilders].join("\n\n");
+
+        return {
+            operationName,
+            operationType,
+            generatedCode,
+        };
+    }
+
+    /**
+     * Combines schema artifacts into final code (no boilerplate - handled by orchestrator)
+     */
+    private combineSchemaArtifacts(artifact: SchemaCodeArtifact): string {
+        const parts: string[] = [];
+
+        // Add nested artifacts first (dependencies)
+        for (const nested of artifact.nestedArtifacts) {
+            parts.push(nested.typeDefinition);
+            parts.push("");
+            parts.push(nested.builderCode);
+            parts.push("");
+        }
+
+        // Add main artifact only if it has content (skip for union-only cases)
+        if (artifact.typeDefinition.trim() && artifact.builderCode.trim()) {
+            parts.push(artifact.typeDefinition);
+            parts.push("");
+            parts.push(artifact.builderCode);
+        }
+
+        return parts.join("\n").trim();
     }
 
     /**
@@ -320,5 +290,46 @@ export class TypeScriptCodeBuilder {
             operationType,
             generatedCode,
         };
+    }
+
+    /**
+     * Legacy method - generates types and builders from mock data
+     */
+    private generateTypesAndBuilders(
+        operationName: string,
+        operationType: "query" | "mutation" | "subscription" | "fragment",
+        mockDataObjects: MockDataVariants,
+    ): string {
+        const codeBlocks: string[] = [];
+
+        // Add each mock data object using legacy approach
+        for (const mockData of mockDataObjects) {
+            const typeName = this.namingService.generateTypeName(
+                mockData.mockName,
+                operationType,
+            );
+
+            const typeDefinition =
+                this.typeDefinitionService.generateNamedTypeDefinition(
+                    typeName,
+                    mockData.mockValue,
+                );
+
+            const builderFunction =
+                this.builderCodeService.generateBuilderFunction(
+                    this.namingService.generateBuilderName(
+                        mockData.mockName,
+                        operationType,
+                    ),
+                    typeName,
+                    mockData.mockValue,
+                );
+
+            codeBlocks.push(typeDefinition);
+            codeBlocks.push("");
+            codeBlocks.push(builderFunction);
+        }
+
+        return codeBlocks.join("\n");
     }
 }

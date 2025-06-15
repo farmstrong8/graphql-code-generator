@@ -148,11 +148,11 @@ export class NestedTypeService {
     }
 
     /**
-     * Extracts a mock value for a specific nested type from mock data.
+     * Extracts the mock value for a specific nested type from the generated mock data.
      *
-     * @param mockDataObjects - Mock data to search
-     * @param nestedTypeInfo - Type information to find
-     * @returns Mock value for the nested type, if found
+     * @param mockDataObjects - Array of mock data variants
+     * @param nestedTypeInfo - Information about the nested type to extract
+     * @returns The mock value for this nested type, or null if not found
      */
     extractMockValue(
         mockDataObjects: MockDataVariants,
@@ -173,9 +173,13 @@ export class NestedTypeService {
     /**
      * Finds a value at a specific path in the mock data.
      *
+     * CRITICAL: For nested types that represent array elements, this method
+     * should return the individual object, not the array. The builder system
+     * expects object values, not arrays.
+     *
      * @param value - Value to search in
      * @param path - Dot-separated path (e.g., "todo.author.address")
-     * @returns Found object, if any
+     * @returns Found object (individual element for array paths), if any
      */
     private findValueByPath(value: unknown, path: string): unknown {
         if (!path || value === null || value === undefined) {
@@ -191,7 +195,9 @@ export class NestedTypeService {
             }
 
             if (Array.isArray(current)) {
-                // For arrays, take the first item
+                // ✅ CRITICAL FIX: For arrays, take the first item
+                // This ensures that nested type builders get individual objects,
+                // not arrays. The array structure is handled at a higher level.
                 current = current[0];
             }
 
@@ -200,6 +206,12 @@ export class NestedTypeService {
             } else {
                 return null;
             }
+        }
+
+        // ✅ FINAL CHECK: If the final result is an array and we're creating
+        // a builder for nested elements, return the first element
+        if (Array.isArray(current) && current.length > 0) {
+            return current[0];
         }
 
         return current;
