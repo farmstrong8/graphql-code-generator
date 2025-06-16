@@ -28,9 +28,9 @@ type TodosPageTodosAuthor = {
 
 export const aTodosPageTodosAuthor = createBuilder<TodosPageTodosAuthor>({
     __typename: "Author",
-    email: "Quos similique minima tempore.",
-    id: "bb64f4f9-c30f-444e-82f7-8eea57adbed8",
-    name: "Non ad deserunt aut culpa consequatur et natus.",
+    email: "Debitis unde ex dolores dolorem alias aut.",
+    id: "170db195-e06a-40c2-b96b-6346b330d2d4",
+    name: "Deleniti omnis voluptas doloribus natus non sapiente.",
 });
 
 type TodosPageTodos = {
@@ -38,21 +38,18 @@ type TodosPageTodos = {
     id: string;
     title: string;
     completed: boolean;
-    dueAt: string;
-    author: {
-        __typename: "Author";
-        email: string;
-        id: string;
-        name: string;
-    };
+    dueAt?: string;
+    status: "CANCELLED" | "COMPLETED" | "DRAFT" | "IN_PROGRESS";
+    author: { __typename: "Author"; email: string; id: string; name: string };
 };
 
 export const aTodosPageTodos = createBuilder<TodosPageTodos>({
     __typename: "Todo",
-    id: "06535a33-9cd4-45f2-bac3-bdf791150f48",
-    title: "Et aliquam voluptatem labore et doloremque placeat ratione voluptatibus occaecati.",
-    completed: false,
-    dueAt: "1988-03-17",
+    id: "8d924ea9-f541-46bb-916b-3e5f927e6056",
+    title: "Veritatis ducimus maxime eum quia voluptatem perferendis aliquam.",
+    completed: true,
+    dueAt: "1972-09-18",
+    status: "CANCELLED",
     author: aTodosPageTodosAuthor(),
 });
 
@@ -63,7 +60,8 @@ type TodosPageQuery = {
         id: string;
         title: string;
         completed: boolean;
-        dueAt: string;
+        dueAt?: string;
+        status: "CANCELLED" | "COMPLETED" | "DRAFT" | "IN_PROGRESS";
         author: {
             __typename: "Author";
             email: string;

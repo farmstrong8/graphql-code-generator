@@ -29,8 +29,8 @@ type TodoDetailsPageQueryAsTodoTodo = {
 export const aTodoDetailsPageQueryAsTodoTodo =
     createBuilder<TodoDetailsPageQueryAsTodoTodo>({
         __typename: "Todo",
-        id: "975ba306-bbd0-463f-8853-d4b1208bb67f",
-        title: "Ipsam perspiciatis ut.",
+        id: "635759f6-2910-45c8-b2ed-6717cab6315d",
+        title: "Est suscipit nostrum cumque ad.",
         completed: true,
     });
 
@@ -53,7 +53,7 @@ type TodoDetailsPageQueryAsErrorError = {
 export const aTodoDetailsPageQueryAsErrorError =
     createBuilder<TodoDetailsPageQueryAsErrorError>({
         __typename: "Error",
-        message: "Unde aliquid quis saepe deserunt.",
+        message: "Aut ipsum aspernatur pariatur dolore.",
     });
 
 type TodoDetailsPageQueryAsError = {

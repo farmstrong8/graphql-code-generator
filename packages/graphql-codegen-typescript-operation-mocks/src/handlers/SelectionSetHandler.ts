@@ -26,6 +26,7 @@ import { FragmentService } from "../services/FragmentService";
  */
 export class SelectionSetHandler {
     private readonly fragmentService = new FragmentService();
+    private readonly visitedFragments = new Set<string>();
 
     constructor(private readonly schema: GraphQLSchema) {}
 
@@ -99,6 +100,16 @@ export class SelectionSetHandler {
         fragmentRegistry: Map<string, FragmentDefinitionNode>,
     ): SelectionSetNode | null {
         const fragmentName = fragmentSpread.name.value;
+
+        // Check for circular reference
+        if (this.visitedFragments.has(fragmentName)) {
+            // Return empty selection set to break the cycle
+            return {
+                kind: Kind.SELECTION_SET,
+                selections: [],
+            };
+        }
+
         const fragmentDef = fragmentRegistry.get(fragmentName);
 
         if (!fragmentDef) {
@@ -118,11 +129,19 @@ export class SelectionSetHandler {
             return null;
         }
 
-        // Recursively resolve the fragment's selection set
-        return this.resolveSelectionSet(
-            fragmentDef.selectionSet,
-            fragmentRegistry,
-        );
+        // Mark fragment as visited to prevent circular references
+        this.visitedFragments.add(fragmentName);
+
+        try {
+            // Recursively resolve the fragment's selection set
+            return this.resolveSelectionSet(
+                fragmentDef.selectionSet,
+                fragmentRegistry,
+            );
+        } finally {
+            // Remove from visited set when done
+            this.visitedFragments.delete(fragmentName);
+        }
     }
 
     /**

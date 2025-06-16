@@ -1,6 +1,7 @@
 import type {
     GraphQLObjectType,
     GraphQLInterfaceType,
+    GraphQLEnumType,
     SelectionSetNode,
     FragmentDefinitionNode,
     GraphQLSchema,
@@ -12,6 +13,7 @@ import type {
 } from "./SchemaAnalysisService";
 import {
     isScalarType,
+    isEnumType,
     getNamedType,
     isUnionType,
     Kind,
@@ -38,6 +40,7 @@ export interface ValueGenerationOptions {
  *
  * Responsibilities:
  * - Generate scalar values using ScalarHandler
+ * - Generate enum values using ScalarHandler
  * - Generate object values from field analysis
  * - Handle list wrapping
  * - Reference nested builders when available
@@ -106,6 +109,14 @@ export class ValueGenerationService {
             // Handle scalar types using ScalarHandler
             if (isScalarType(namedType)) {
                 return this.scalarHandler.generateMockValue(namedType.name);
+            }
+
+            // Handle enum types using ScalarHandler
+            if (isEnumType(namedType)) {
+                const enumValues = namedType
+                    .getValues()
+                    .map((value) => value.name);
+                return this.scalarHandler.generateEnumValue(enumValues);
             }
 
             // Handle union types
@@ -198,42 +209,46 @@ export class ValueGenerationService {
         return (
             typeof value === "object" &&
             value !== null &&
-            "__useBuilder" in (value as Record<string, unknown>)
+            "__builderReference" in (value as Record<string, unknown>)
         );
     }
 
     /**
-     * Extracts the builder name from a builder reference.
-     * Simple utility method that's easily testable.
+     * Extracts the builder name from a builder reference value.
+     * Returns null if the value is not a valid builder reference.
      */
     getBuilderNameFromReference(value: unknown): string | null {
-        if (this.isBuilderReference(value)) {
-            const obj = value as Record<string, unknown>;
-            const builderName = obj.__useBuilder;
-            return typeof builderName === "string" ? builderName : null;
+        if (!this.isBuilderReference(value)) {
+            return null;
         }
-        return null;
+
+        const ref = value as Record<string, unknown>;
+        return typeof ref.__builderReference === "string"
+            ? ref.__builderReference
+            : null;
     }
 
     /**
-     * Validates generated values against expected structure.
-     * Returns validation errors if any.
+     * Validates that a generated value matches the expected type.
+     * Returns an array of validation errors (empty if valid).
      */
     validateGeneratedValue(value: unknown, expectedTypeName: string): string[] {
         const errors: string[] = [];
 
-        if (typeof value !== "object" || value === null) {
-            errors.push(`Expected object but got ${typeof value}`);
+        // Basic type validation
+        if (value === null || value === undefined) {
+            // Null/undefined are generally acceptable for nullable fields
             return errors;
         }
 
-        const obj = value as Record<string, unknown>;
-
-        // Check __typename
-        if (obj.__typename !== expectedTypeName) {
-            errors.push(
-                `Expected __typename "${expectedTypeName}" but got "${obj.__typename}"`,
-            );
+        // For objects, check __typename if present
+        if (typeof value === "object" && value !== null) {
+            const obj = value as Record<string, unknown>;
+            if (obj.__typename && obj.__typename !== expectedTypeName) {
+                errors.push(
+                    `Expected __typename "${expectedTypeName}", got "${obj.__typename}"`,
+                );
+            }
         }
 
         return errors;

@@ -530,8 +530,8 @@ describe("MockObjectBuilder", () => {
                 new Map(),
             );
 
-            expect(spy).toHaveBeenCalledWith("ID");
-            expect(spy).toHaveBeenCalledWith("String");
+            expect(spy).toHaveBeenCalledWith("ID", "TestScalarIntegration");
+            expect(spy).toHaveBeenCalledWith("String", "TestScalarIntegration");
 
             spy.mockRestore();
         });

@@ -3,6 +3,7 @@ import type {
     GraphQLObjectType,
     GraphQLInterfaceType,
     GraphQLCompositeType,
+    GraphQLEnumType,
     FieldNode,
     FragmentDefinitionNode,
     SelectionSetNode,
@@ -13,6 +14,7 @@ import {
     isObjectType,
     isInterfaceType,
     isUnionType,
+    isEnumType,
     isListType,
     isNonNullType,
     getNamedType,
@@ -33,6 +35,8 @@ export interface FieldMockOptions {
     ) => MockDataVariants;
     /** Whether to wrap values in arrays for list types */
     wrapInArray?: boolean;
+    /** Optional context for deterministic generation (e.g., builder name) */
+    context?: string;
 }
 
 /**
@@ -40,6 +44,7 @@ export interface FieldMockOptions {
  *
  * This service handles:
  * - Scalar field value generation
+ * - Enum field value generation
  * - Nested object field handling
  * - List type wrapping
  * - Type validation and analysis
@@ -77,7 +82,17 @@ export class FieldMockService {
 
         const getValue = (): unknown => {
             if (isScalarType(namedType)) {
-                return this.scalarHandler.generateMockValue(namedType.name);
+                return this.scalarHandler.generateMockValue(
+                    namedType.name,
+                    options.context,
+                );
+            }
+
+            if (isEnumType(namedType)) {
+                const enumValues = namedType
+                    .getValues()
+                    .map((value) => value.name);
+                return this.scalarHandler.generateEnumValue(enumValues);
             }
 
             if (
@@ -151,6 +166,7 @@ export class FieldMockService {
                 namedType: null,
                 isList: false,
                 isScalar: false,
+                isEnum: false,
                 isObject: false,
                 isUnion: false,
                 isNullable: true,
@@ -167,6 +183,7 @@ export class FieldMockService {
             namedType,
             isList: this.isListTypeRecursive(fieldType),
             isScalar: isScalarType(namedType),
+            isEnum: isEnumType(namedType),
             isObject: isObjectType(namedType) || isInterfaceType(namedType),
             isUnion: isUnionType(namedType),
             isNullable,
@@ -205,6 +222,8 @@ export interface FieldAnalysis {
     isList: boolean;
     /** Whether the named type is a scalar */
     isScalar: boolean;
+    /** Whether the named type is an enum */
+    isEnum: boolean;
     /** Whether the named type is an object or interface */
     isObject: boolean;
     /** Whether the named type is a union */

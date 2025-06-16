@@ -19,14 +19,10 @@ function createBuilder<T extends object>(baseObject: T) {
         });
 }
 
-type AuthorFragment = {
-    __typename: "Author";
-    id: string;
-    name: string;
-};
+type AuthorFragment = { __typename: "Author"; id: string; name: string };
 
 export const aAuthorFragment = createBuilder<AuthorFragment>({
     __typename: "Author",
-    id: "9f62dac1-cd50-4806-a3ff-ec8828c442b7",
-    name: "Omnis qui dolorem itaque.",
+    id: "3065ff0d-28b5-431a-9ee0-2eab53617036",
+    name: "Doloremque omnis dolor dolorem itaque qui.",
 });

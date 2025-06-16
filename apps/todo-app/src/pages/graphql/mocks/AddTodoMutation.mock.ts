@@ -28,9 +28,9 @@ type AddTodoAddTodo = {
 
 export const aAddTodoAddTodo = createBuilder<AddTodoAddTodo>({
     __typename: "Todo",
-    id: "029d3d18-6398-4df5-9cfb-26580cdbc9ff",
-    title: "Molestiae doloribus possimus expedita illum autem sunt earum debitis.",
-    completed: false,
+    id: "a352baca-5a16-4538-a144-bb502b157cbe",
+    title: "Est sunt aspernatur nemo et rerum.",
+    completed: true,
 });
 
 type AddTodoMutation = {

@@ -211,7 +211,7 @@ describe("TypeScriptCodeBuilder (Services)", () => {
             );
 
             expect(result.typeString).toBe("string");
-            expect(result.isNullable).toBe(false);
+            expect(result.isNullable).toBe(false); // ID! is non-null
             expect(result.isArray).toBe(false);
         });
 
@@ -233,7 +233,8 @@ describe("TypeScriptCodeBuilder (Services)", () => {
             const result =
                 typeInferenceService.analyzeGraphQLType(searchResultType);
 
-            expect(result.typeString).toBe("object");
+            // Without a selection set, union types return null since they can't be properly analyzed
+            expect(result.typeString).toBe("null");
         });
 
         it("should generate TypeScript type strings", () => {

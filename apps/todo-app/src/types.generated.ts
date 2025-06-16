@@ -78,11 +78,19 @@ export type Todo = {
     createdAt: Scalars["Date"]["output"];
     dueAt?: Maybe<Scalars["Date"]["output"]>;
     id: Scalars["ID"]["output"];
+    status: TodoStatus;
     tags: Array<Scalars["String"]["output"]>;
     title: Scalars["String"]["output"];
 };
 
 export type TodoResult = Error | Todo;
+
+export enum TodoStatus {
+    Cancelled = "CANCELLED",
+    Completed = "COMPLETED",
+    Draft = "DRAFT",
+    InProgress = "IN_PROGRESS",
+}
 
 export interface PossibleTypesResultData {
     possibleTypes: {

@@ -1,5 +1,6 @@
 import type { TypeScriptMockDataPluginConfig } from "../config/types";
 import casual from "casual";
+import { createHash, randomUUID } from "crypto";
 
 /**
  * Micro-service responsible for generating mock values for GraphQL scalar types.
@@ -13,15 +14,17 @@ export class ScalarMockService {
      *
      * @param scalarName - The name of the GraphQL scalar type
      * @param config - Plugin configuration with scalar mappings
+     * @param context - Optional context for deterministic generation (e.g., builder name)
      * @returns A realistic mock value for the scalar type
      */
     generateMockValue(
         scalarName: string,
         config: TypeScriptMockDataPluginConfig,
+        context?: string,
     ): unknown {
         // Handle primitive GraphQL scalars first
         if (this.isPrimitiveScalar(scalarName)) {
-            return this.generatePrimitiveScalarMock(scalarName);
+            return this.generatePrimitiveScalarMock(scalarName, context);
         }
 
         // Look up custom scalar configuration
@@ -69,6 +72,21 @@ export class ScalarMockService {
     }
 
     /**
+     * Generates a mock value for a GraphQL enum type.
+     * Always returns the first enum value for consistency.
+     *
+     * @param enumValues - Array of enum values
+     * @returns The first enum value
+     */
+    generateEnumValue(enumValues: readonly string[]): string {
+        if (enumValues.length === 0) {
+            throw new Error("Enum type has no values");
+        }
+        // Always return the first enum value for consistency
+        return enumValues[0];
+    }
+
+    /**
      * Checks if a scalar type is a primitive GraphQL scalar.
      *
      * @param scalarName - The scalar type name to check
@@ -87,14 +105,24 @@ export class ScalarMockService {
 
     /**
      * Generates mock values for primitive GraphQL scalar types.
+     * Uses deterministic values for Boolean and ID types to ensure test stability.
      *
      * @param scalarName - The primitive scalar type name
+     * @param context - Optional context for deterministic generation
      * @returns A mock value appropriate for the scalar type
      */
-    private generatePrimitiveScalarMock(scalarName: string): unknown {
+    private generatePrimitiveScalarMock(
+        scalarName: string,
+        context?: string,
+    ): unknown {
         switch (scalarName) {
             case "ID":
-                return casual.uuid;
+                // Generate deterministic ID based on context (builder name)
+                if (context) {
+                    return this.generateDeterministicId(context);
+                }
+                // Generate a random UUID when no context is provided
+                return randomUUID();
             case "String":
                 return casual.sentence;
             case "Int":
@@ -102,10 +130,32 @@ export class ScalarMockService {
             case "Float":
                 return casual.double();
             case "Boolean":
-                return casual.boolean;
+                // Always return true for consistency and test stability
+                return true;
             default:
                 return `${scalarName.toLowerCase()}-mock`;
         }
+    }
+
+    /**
+     * Generates a deterministic UUID-like ID based on the input context.
+     * This ensures consistent IDs for the same builder names across runs.
+     *
+     * @param context - The context string (e.g., builder name) to hash
+     * @returns A deterministic UUID-like string
+     */
+    private generateDeterministicId(context: string): string {
+        // Create a hash of the context
+        const hash = createHash("sha256").update(context).digest("hex");
+
+        // Format as UUID: 8-4-4-4-12 characters
+        return [
+            hash.substring(0, 8),
+            hash.substring(8, 12),
+            hash.substring(12, 16),
+            hash.substring(16, 20),
+            hash.substring(20, 32),
+        ].join("-");
     }
 
     /**

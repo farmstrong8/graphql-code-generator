@@ -5,6 +5,7 @@ import type {
     GraphQLInterfaceType,
     GraphQLUnionType,
     GraphQLScalarType,
+    GraphQLEnumType,
     FieldNode,
     SelectionSetNode,
     FragmentDefinitionNode,
@@ -14,6 +15,7 @@ import {
     isInterfaceType,
     isUnionType,
     isScalarType,
+    isEnumType,
     isListType,
     isNonNullType,
     getNamedType,
@@ -126,6 +128,11 @@ export class TypeInferenceService {
             return this.inferScalarType(namedType);
         }
 
+        // Handle enum types
+        if (isEnumType(namedType)) {
+            return this.inferEnumType(namedType);
+        }
+
         // Handle object types
         if (isObjectType(namedType) || isInterfaceType(namedType)) {
             return this.inferObjectType(
@@ -205,6 +212,26 @@ export class TypeInferenceService {
     }
 
     /**
+     * Infers semantic type for GraphQL enum types.
+     * Generates a union type of all enum values for precise typing.
+     *
+     * @param enumType - The GraphQL enum type
+     * @returns Semantic type information for the enum
+     */
+    private inferEnumType(enumType: GraphQLEnumType): SemanticTypeInfo {
+        const enumValues = enumType
+            .getValues()
+            .map((value) => `"${value.name}"`);
+        const typeString = enumValues.join(" | ");
+
+        return {
+            typeString,
+            isArray: false,
+            isNullable: true,
+        };
+    }
+
+    /**
      * Infers semantic type for GraphQL object types.
      *
      * @param objectType - The GraphQL object type
@@ -232,7 +259,7 @@ export class TypeInferenceService {
             isNullable: false,
         };
 
-        // Process each selection in the selection set (fragments should already be resolved)
+        // Process each selection in the selection set
         for (const selection of selectionSet.selections) {
             if (selection.kind === "Field") {
                 const fieldName = selection.name.value;
@@ -246,80 +273,27 @@ export class TypeInferenceService {
                     );
                 }
             } else if (selection.kind === "InlineFragment") {
-                // Handle inline fragments for union types
+                // Handle inline fragments by merging their fields
                 if (selection.selectionSet) {
-                    // Get the type condition (e.g., "Todo", "Error")
-                    const typeCondition = selection.typeCondition?.name.value;
-                    if (typeCondition) {
-                        // Find the type in the schema
-                        const fragmentType = this.schema.getType(typeCondition);
-                        if (
-                            fragmentType &&
-                            (isObjectType(fragmentType) ||
-                                isInterfaceType(fragmentType))
-                        ) {
-                            // Process the fragment's selection set
-                            for (const fragmentSelection of selection
-                                .selectionSet.selections) {
-                                if (fragmentSelection.kind === "Field") {
-                                    const fieldName =
-                                        fragmentSelection.name.value;
-                                    const fieldDef =
-                                        fragmentType.getFields()[fieldName];
-
-                                    if (fieldDef) {
-                                        objectFields[fieldName] =
-                                            this.analyzeGraphQLType(
-                                                fieldDef.type,
-                                                fragmentSelection.selectionSet,
-                                                fragmentRegistry,
-                                            );
-                                    }
-                                }
-                            }
-                        }
+                    const inlineFields = this.inferObjectType(
+                        objectType,
+                        selection.selectionSet,
+                        fragmentRegistry,
+                    );
+                    if (inlineFields.objectFields) {
+                        Object.assign(objectFields, inlineFields.objectFields);
                     }
                 }
             } else if (selection.kind === "FragmentSpread") {
-                // Handle fragment spreads (e.g., ...AuthorFragment)
+                // Handle fragment spreads
                 const fragmentName = selection.name.value;
-                const fragmentDef = fragmentRegistry?.get(fragmentName);
-
-                if (fragmentDef && fragmentDef.selectionSet) {
-                    // Fragment definition available - use it
-                    const typeCondition = fragmentDef.typeCondition.name.value;
-                    const fragmentType = this.schema.getType(typeCondition);
-
-                    if (
-                        fragmentType &&
-                        (isObjectType(fragmentType) ||
-                            isInterfaceType(fragmentType))
-                    ) {
-                        // Recursively process the fragment's selection set
-                        const fragmentFields = this.inferObjectType(
-                            fragmentType,
-                            fragmentDef.selectionSet,
-                            fragmentRegistry,
-                        );
-
-                        // Merge fragment fields into current object fields
-                        Object.assign(
-                            objectFields,
-                            fragmentFields.objectFields,
-                        );
-                    }
-                } else {
-                    // Fragment definition not available (near-operation-file mode)
-                    // Fall back to schema-based analysis
-                    const fragmentFields = this.inferFragmentFieldsFromSchema(
-                        fragmentName,
-                        objectType,
-                        fragmentRegistry,
-                    );
-
-                    if (fragmentFields) {
-                        Object.assign(objectFields, fragmentFields);
-                    }
+                const fragmentFields = this.inferFragmentFieldsFromSchema(
+                    fragmentName,
+                    objectType,
+                    fragmentRegistry,
+                );
+                if (fragmentFields) {
+                    Object.assign(objectFields, fragmentFields);
                 }
             }
         }
@@ -336,7 +310,7 @@ export class TypeInferenceService {
      * Infers semantic type for GraphQL union types.
      *
      * @param unionType - The GraphQL union type
-     * @param selectionSet - Selection set containing inline fragments
+     * @param selectionSet - The selection set with inline fragments
      * @param fragmentRegistry - Available fragment definitions
      * @returns Semantic type information for the union
      */
@@ -346,84 +320,52 @@ export class TypeInferenceService {
         fragmentRegistry?: Map<string, FragmentDefinitionNode>,
     ): SemanticTypeInfo {
         if (!selectionSet) {
-            // If no selection set, treat as generic object
-            return {
-                typeString: "object",
-                isArray: false,
-                isNullable: true,
-            };
+            return { typeString: "null", isArray: false, isNullable: true };
         }
 
-        // Collect individual union variants instead of merging all fields
         const unionVariants: Record<
             string,
             Record<string, SemanticTypeInfo>
         > = {};
 
-        // Process inline fragments
+        // Process inline fragments to build union variants
         for (const selection of selectionSet.selections) {
-            if (selection.kind === "InlineFragment") {
-                const typeCondition = selection.typeCondition?.name.value;
-                if (typeCondition) {
-                    // Initialize variant fields object for this specific type
-                    const variantFields: Record<string, SemanticTypeInfo> = {};
+            if (
+                selection.kind === "InlineFragment" &&
+                selection.typeCondition
+            ) {
+                const typeName = selection.typeCondition.name.value;
+                const targetType = this.schema.getType(typeName);
 
-                    // Find the type in the schema
-                    const fragmentType = this.schema.getType(typeCondition);
-                    if (
-                        fragmentType &&
-                        (isObjectType(fragmentType) ||
-                            isInterfaceType(fragmentType))
-                    ) {
-                        // Process the fragment's selection set
-                        if (selection.selectionSet) {
-                            for (const fragmentSelection of selection
-                                .selectionSet.selections) {
-                                if (fragmentSelection.kind === "Field") {
-                                    const fieldName =
-                                        fragmentSelection.name.value;
-                                    const fieldDef =
-                                        fragmentType.getFields()[fieldName];
+                if (
+                    targetType &&
+                    (isObjectType(targetType) || isInterfaceType(targetType))
+                ) {
+                    const variantType = this.inferObjectType(
+                        targetType,
+                        selection.selectionSet,
+                        fragmentRegistry,
+                    );
 
-                                    if (fieldDef) {
-                                        variantFields[fieldName] =
-                                            this.analyzeGraphQLType(
-                                                fieldDef.type,
-                                                fragmentSelection.selectionSet,
-                                                fragmentRegistry,
-                                            );
-                                    }
-                                }
-                            }
-                        }
+                    if (variantType.objectFields) {
+                        unionVariants[typeName] = variantType.objectFields;
                     }
-
-                    // Add __typename field for this specific variant
-                    variantFields["__typename"] = {
-                        typeString: `"${typeCondition}"`,
-                        isArray: false,
-                        isNullable: false,
-                    };
-
-                    // Store this variant's fields
-                    unionVariants[typeCondition] = variantFields;
                 }
             }
         }
 
-        // Return union type information that preserves individual variants
         return {
             typeString: "union",
             isArray: false,
             isNullable: true,
-            unionVariants: unionVariants,
+            unionVariants,
         };
     }
 
     /**
-     * Creates a semantic type representing an unknown/fallback type.
+     * Creates a fallback type for unknown or unsupported GraphQL types.
      *
-     * @returns Semantic type information for unknown types
+     * @returns A semantic type representing an unknown type
      */
     private createUnknownType(): SemanticTypeInfo {
         return {
@@ -434,43 +376,57 @@ export class TypeInferenceService {
     }
 
     /**
-     * Converts semantic type information to a TypeScript type string.
+     * Generates a TypeScript type string from semantic type information.
      *
      * @param typeInfo - The semantic type information
-     * @returns TypeScript type string
+     * @returns A TypeScript type string
      */
     generateTypeString(typeInfo: SemanticTypeInfo): string {
         let baseType = typeInfo.typeString;
 
-        if (typeInfo.unionVariants) {
-            // Generate union type from individual variants
-            const variantTypes: string[] = [];
-            for (const [typeName, fields] of Object.entries(
-                typeInfo.unionVariants,
-            )) {
-                const properties: string[] = [];
-                for (const [key, value] of Object.entries(fields)) {
+        // Handle object types with fields
+        if (typeInfo.typeString === "object" && typeInfo.objectFields) {
+            const fieldStrings = Object.entries(typeInfo.objectFields).map(
+                ([key, fieldType]) => {
                     const keyStr = this.needsQuotes(key) ? `"${key}"` : key;
-                    const valueType = this.generateTypeString(value);
-                    properties.push(`${keyStr}: ${valueType}`);
-                }
-                variantTypes.push(`{\n    ${properties.join(";\n    ")};\n  }`);
-            }
-            baseType = variantTypes.join(" | ");
-        } else if (typeInfo.objectFields) {
-            // Generate object type
-            const properties: string[] = [];
-            for (const [key, value] of Object.entries(typeInfo.objectFields)) {
-                const keyStr = this.needsQuotes(key) ? `"${key}"` : key;
-                const valueType = this.generateTypeString(value);
-                properties.push(`${keyStr}: ${valueType}`);
-            }
-            baseType = `{\n    ${properties.join(";\n    ")};\n}`;
+                    const nullableSuffix = fieldType.isNullable ? "?" : "";
+                    const fieldTypeStr = this.generateTypeString(fieldType);
+                    return `${keyStr}${nullableSuffix}: ${fieldTypeStr}`;
+                },
+            );
+            baseType = `{ ${fieldStrings.join("; ")} }`;
         }
 
+        // Handle union types
+        if (typeInfo.typeString === "union" && typeInfo.unionVariants) {
+            const variantStrings = Object.entries(typeInfo.unionVariants).map(
+                ([typeName, fields]) => {
+                    const fieldStrings = Object.entries(fields).map(
+                        ([key, fieldType]) => {
+                            const keyStr = this.needsQuotes(key)
+                                ? `"${key}"`
+                                : key;
+                            const nullableSuffix = fieldType.isNullable
+                                ? "?"
+                                : "";
+                            const fieldTypeStr =
+                                this.generateTypeString(fieldType);
+                            return `${keyStr}${nullableSuffix}: ${fieldTypeStr}`;
+                        },
+                    );
+                    return `{ ${fieldStrings.join("; ")} }`;
+                },
+            );
+            baseType = variantStrings.join(" | ");
+        }
+
+        // Handle arrays
         if (typeInfo.isArray) {
             baseType = `Array<${baseType}>`;
         }
+
+        // Don't add "| null" to type definitions since we always generate concrete mock values
+        // Nullability is handled at the field level with optional properties (field?: Type)
 
         return baseType;
     }
@@ -478,18 +434,18 @@ export class TypeInferenceService {
     /**
      * Determines if a property key needs quotes in TypeScript.
      *
-     * @param key - Property key to check
-     * @returns True if quotes are needed
+     * @param key - The property key to check
+     * @returns True if the key needs quotes
      */
     needsQuotes(key: string): boolean {
         return !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
     }
 
     /**
-     * Escapes special characters in strings for use in TypeScript string literals.
+     * Escapes a string for use in TypeScript code.
      *
-     * @param str - String to escape
-     * @returns Escaped string safe for TypeScript literals
+     * @param str - The string to escape
+     * @returns The escaped string
      */
     escapeString(str: string): string {
         return str
@@ -501,55 +457,62 @@ export class TypeInferenceService {
     }
 
     /**
-     * Adds operation type suffix to operation name following GraphQL code generation conventions.
+     * Generates an operation name with appropriate suffix based on operation type.
      *
-     * @param operationName - The base operation name (e.g., "GetUser")
-     * @param operationType - The GraphQL operation type
-     * @returns Operation name with appropriate suffix (e.g., "GetUserQuery")
+     * @param operationName - The base operation name
+     * @param operationType - The type of GraphQL operation
+     * @returns The operation name with suffix
      */
     getOperationNameWithSuffix(
         operationName: string,
         operationType?: "query" | "mutation" | "subscription" | "fragment",
     ): string {
-        if (!operationType || operationType === "fragment") {
+        if (!operationType) {
             return operationName;
         }
 
-        const suffix =
-            operationType.charAt(0).toUpperCase() + operationType.slice(1);
+        const suffixMap = {
+            query: "Query",
+            mutation: "Mutation",
+            subscription: "Subscription",
+            fragment: "Fragment",
+        };
 
-        // Avoid duplicate suffixes
-        if (operationName.endsWith(suffix)) {
-            return operationName;
-        }
+        const suffix = suffixMap[operationType];
+        const normalizedName = operationName.replace(
+            /Query$|Mutation$|Subscription$|Fragment$/i,
+            "",
+        );
 
-        return operationName + suffix;
+        return `${normalizedName}${suffix}`;
     }
 
     /**
-     * Infers fragment fields from schema when fragment definition is not available.
-     * This is a fallback for near-operation-file mode where fragments are defined in separate files.
+     * Infers field types from a fragment definition using schema information.
      *
-     * @param fragmentName - The name of the fragment (e.g., "AuthorFragment")
-     * @param parentType - The type that contains the field using this fragment
-     * @param fragmentRegistry - Available fragment definitions (may be incomplete)
-     * @returns Object fields that the fragment likely contains, or null if cannot be inferred
+     * @param fragmentName - The name of the fragment
+     * @param parentType - The parent type the fragment applies to
+     * @param fragmentRegistry - Available fragment definitions
+     * @returns Field type information or null if fragment not found
      */
     private inferFragmentFieldsFromSchema(
         fragmentName: string,
         parentType: GraphQLObjectType | GraphQLInterfaceType,
         fragmentRegistry?: Map<string, FragmentDefinitionNode>,
     ): Record<string, SemanticTypeInfo> | null {
-        // Extract the type name from fragment name (e.g., "AuthorFragment" -> "Author")
-        const targetTypeName =
-            this.fragmentService.extractTypeNameFromFragmentName(fragmentName);
-
-        if (!targetTypeName) {
-            return null;
+        if (!fragmentRegistry) {
+            return this.generateCommonFragmentFields(parentType);
         }
 
-        // Get the target type from schema
+        const fragment = fragmentRegistry.get(fragmentName);
+        if (!fragment) {
+            return this.generateCommonFragmentFields(parentType);
+        }
+
+        // Get the target type for the fragment
+        const targetTypeName = fragment.typeCondition.name.value;
         const targetType = this.schema.getType(targetTypeName);
+
         if (
             !targetType ||
             (!isObjectType(targetType) && !isInterfaceType(targetType))
@@ -557,46 +520,41 @@ export class TypeInferenceService {
             return null;
         }
 
-        // Generate common fields that fragments typically include
-        const commonFragmentFields =
-            this.generateCommonFragmentFields(targetType);
+        // Infer types for the fragment's selection set
+        const fragmentTypeInfo = this.inferObjectType(
+            targetType,
+            fragment.selectionSet,
+            fragmentRegistry,
+        );
 
-        return commonFragmentFields;
+        return fragmentTypeInfo.objectFields || null;
     }
 
     /**
-     * Generates a basic set of fields for fragment fallback.
-     * When fragment definitions are not available, this provides a minimal
-     * but reasonable set of fields based on the target type's schema.
+     * Generates common fragment fields when fragment definition is not available.
      *
-     * @param targetType - The GraphQL type to generate fields for
-     * @returns Object fields with semantic type information
+     * @param targetType - The target type for the fragment
+     * @returns Common field type information
      */
     private generateCommonFragmentFields(
         targetType: GraphQLObjectType | GraphQLInterfaceType,
     ): Record<string, SemanticTypeInfo> {
         const fields: Record<string, SemanticTypeInfo> = {};
-        const schemaFields = targetType.getFields();
 
-        // Always include __typename for fragments
+        // Always include __typename
         fields["__typename"] = {
             typeString: `"${targetType.name}"`,
             isArray: false,
             isNullable: false,
         };
 
-        // Include scalar fields from the type, up to a reasonable limit
-        let fieldCount = 0;
-        const maxFields = 3;
-
-        for (const [fieldName, fieldDef] of Object.entries(schemaFields)) {
-            if (fieldCount >= maxFields) break;
-
-            const namedType = getNamedType(fieldDef.type);
-            if (isScalarType(namedType)) {
-                fields[fieldName] = this.analyzeGraphQLType(fieldDef.type);
-                fieldCount++;
-            }
+        // Add common fields like id if they exist
+        const typeFields = targetType.getFields();
+        if (typeFields.id) {
+            fields.id = this.analyzeGraphQLType(typeFields.id.type);
+        }
+        if (typeFields.name) {
+            fields.name = this.analyzeGraphQLType(typeFields.name.type);
         }
 
         return fields;

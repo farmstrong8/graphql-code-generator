@@ -4,6 +4,7 @@ query TodosPage {
         title
         completed
         dueAt
+        status
         author {
             ...Author
         }

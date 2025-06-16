@@ -340,6 +340,7 @@ export class MockObjectBuilder {
                         nestedFragmentRegistry,
                     );
                 },
+                context: operationName,
             },
         );
     }

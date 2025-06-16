@@ -5,6 +5,14 @@ import { randomUUID } from "crypto";
 
 // Schema definition
 const typeDefs = `#graphql
+
+  enum TodoStatus {
+    DRAFT
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+  }
+
   scalar Date
 
   type Author {
@@ -21,6 +29,7 @@ const typeDefs = `#graphql
     dueAt: Date
     author: Author!
     tags: [String!]!
+    status: TodoStatus!
   }
 
   type Error {

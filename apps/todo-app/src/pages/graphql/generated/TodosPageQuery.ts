@@ -14,6 +14,7 @@ export type TodosPageQuery = {
         title: string;
         completed: boolean;
         dueAt?: any | null;
+        status: Types.TodoStatus;
         author: { __typename?: "Author"; id: string; name: string };
     }>;
 };
@@ -25,6 +26,7 @@ export const TodosPageDocument = gql`
             title
             completed
             dueAt
+            status
             author {
                 ...Author
             }

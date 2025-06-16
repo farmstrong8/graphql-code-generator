@@ -78,7 +78,7 @@ describe("FieldMockService", () => {
                 new Map(),
             );
 
-            expect(spy).toHaveBeenCalledWith("String");
+            expect(spy).toHaveBeenCalledWith("String", undefined);
             expect(result).toBe("mocked-string");
 
             spy.mockRestore();

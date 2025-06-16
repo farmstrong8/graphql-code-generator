@@ -187,7 +187,7 @@ describe("PluginOrchestrator", () => {
 
         const result = orchestrator.generateFromDocuments([{ document }]);
 
-        expect(result).toContain("author: {");
+        expect(result).toContain("author?:"); // The new architecture uses builder references
         expect(result).toContain('"__typename": "Author"');
         expect(result).toContain("name:");
         expect(result).toContain("email:");

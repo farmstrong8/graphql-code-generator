@@ -6,7 +6,26 @@ describe("ScalarMockService", () => {
     const service = new ScalarMockService();
 
     describe("primitive scalars", () => {
-        it("should generate UUID for ID scalar", () => {
+        it("should generate deterministic ID for ID scalar with context", () => {
+            const result1 = service.generateMockValue("ID", {}, "TestBuilder");
+            const result2 = service.generateMockValue("ID", {}, "TestBuilder");
+            const result3 = service.generateMockValue(
+                "ID",
+                {},
+                "DifferentBuilder",
+            );
+
+            expect(typeof result1).toBe("string");
+            expect(result1).toMatch(
+                /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+            );
+            // Same context should produce same ID
+            expect(result1).toBe(result2);
+            // Different context should produce different ID
+            expect(result1).not.toBe(result3);
+        });
+
+        it("should generate random UUID for ID scalar without context", () => {
             const result = service.generateMockValue("ID", {});
             expect(typeof result).toBe("string");
             expect(result).toMatch(
@@ -31,9 +50,34 @@ describe("ScalarMockService", () => {
             expect(typeof result).toBe("number");
         });
 
-        it("should generate boolean for Boolean scalar", () => {
-            const result = service.generateMockValue("Boolean", {});
-            expect(typeof result).toBe("boolean");
+        it("should always generate true for Boolean scalar", () => {
+            const result1 = service.generateMockValue("Boolean", {});
+            const result2 = service.generateMockValue("Boolean", {});
+            const result3 = service.generateMockValue("Boolean", {});
+
+            expect(result1).toBe(true);
+            expect(result2).toBe(true);
+            expect(result3).toBe(true);
+        });
+    });
+
+    describe("enum values", () => {
+        it("should generate first enum value", () => {
+            const enumValues = ["ACTIVE", "INACTIVE", "PENDING"];
+            const result = service.generateEnumValue(enumValues);
+            expect(result).toBe("ACTIVE");
+        });
+
+        it("should handle single enum value", () => {
+            const enumValues = ["ONLY_VALUE"];
+            const result = service.generateEnumValue(enumValues);
+            expect(result).toBe("ONLY_VALUE");
+        });
+
+        it("should throw error for empty enum values", () => {
+            expect(() => service.generateEnumValue([])).toThrow(
+                "Enum type has no values",
+            );
         });
     });
 
