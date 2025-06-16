@@ -22,6 +22,13 @@ export interface UnionProcessingParams {
     operationName: string;
     operationType: "query" | "mutation" | "subscription" | "fragment";
     fragmentRegistry: Map<string, FragmentDefinitionNode>;
+    /** Callback to build complete mock objects for inline fragments */
+    mockObjectBuilder?: (
+        targetType: GraphQLObjectType,
+        selectionSet: SelectionSetNode,
+        variantName: string,
+        fragmentRegistry: Map<string, FragmentDefinitionNode>,
+    ) => MockDataVariants;
 }
 
 /**
@@ -33,6 +40,13 @@ export interface InlineFragmentParams {
     operationName: string;
     operationType: "query" | "mutation" | "subscription" | "fragment";
     fragmentRegistry: Map<string, FragmentDefinitionNode>;
+    /** Callback to build complete mock objects for the inline fragment */
+    mockObjectBuilder?: (
+        targetType: GraphQLObjectType,
+        selectionSet: SelectionSetNode,
+        variantName: string,
+        fragmentRegistry: Map<string, FragmentDefinitionNode>,
+    ) => MockDataVariants;
 }
 
 /**
@@ -63,6 +77,7 @@ export class UnionMockService {
             operationName,
             operationType,
             fragmentRegistry,
+            mockObjectBuilder,
         } = params;
         const variants: MockDataVariants = [];
 
@@ -75,6 +90,7 @@ export class UnionMockService {
                 operationName,
                 operationType,
                 fragmentRegistry,
+                mockObjectBuilder,
             });
 
             if (variant) {
@@ -94,8 +110,14 @@ export class UnionMockService {
     processInlineFragment(
         params: InlineFragmentParams,
     ): MockDataVariants | null {
-        const { inlineFragment, unionType, operationName, operationType } =
-            params;
+        const {
+            inlineFragment,
+            unionType,
+            operationName,
+            operationType,
+            fragmentRegistry,
+            mockObjectBuilder,
+        } = params;
 
         // Validate type condition exists
         if (!inlineFragment.typeCondition) {
@@ -106,7 +128,7 @@ export class UnionMockService {
         const targetType = this.schema.getType(targetTypeName);
 
         // Validate target type exists in schema
-        if (!targetType) {
+        if (!targetType || !isObjectType(targetType)) {
             return null;
         }
 
@@ -122,8 +144,17 @@ export class UnionMockService {
             targetTypeName,
         );
 
-        // Return processing parameters for the variant
-        // The actual mock building will be delegated to ObjectMockService
+        // If we have a mock object builder callback, use it to build complete mock objects
+        if (mockObjectBuilder) {
+            return mockObjectBuilder(
+                targetType,
+                inlineFragment.selectionSet,
+                variantName,
+                fragmentRegistry,
+            );
+        }
+
+        // Fallback: return incomplete mock object (for backward compatibility)
         return [
             {
                 mockName: variantName,

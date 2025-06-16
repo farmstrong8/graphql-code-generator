@@ -26,8 +26,8 @@ type AddTodoAddTodo = {
 
 export const aAddTodoAddTodo = createBuilder<AddTodoAddTodo>({
     __typename: "Todo",
-    id: "21390e1f-b443-4584-b51a-382f199e19c6",
-    title: "Velit consequuntur repellat.",
+    id: "ae6db12b-7d07-4d85-ae2f-697dbe0ca95a",
+    title: "Ipsam saepe ut pariatur officiis.",
     completed: true,
 });
 
@@ -54,8 +54,8 @@ type AuthorFragment = {
 
 export const aAuthorFragment = createBuilder<AuthorFragment>({
     __typename: "Author",
-    id: "3a7a72be-366e-44b2-bb6d-682ab27522ee",
-    name: "Earum sed autem aut nam qui sed cumque.",
+    id: "b206da8e-8d0a-4f64-9d64-b1d5ec3d48ef",
+    name: "Voluptas fugiat et quam cumque id iure.",
 });
 
 type DeleteTodoMutation = {
@@ -78,8 +78,8 @@ type TodoDetailsPageQueryAsTodoTodo = {
 export const aTodoDetailsPageQueryAsTodoTodo =
     createBuilder<TodoDetailsPageQueryAsTodoTodo>({
         __typename: "Todo",
-        id: "2a6e9ea2-34d3-4022-b2ed-f0a16da4bc60",
-        title: "Dolores quasi et vel nihil quo.",
+        id: "f72eaaca-6642-488d-872c-d84f2edd39d5",
+        title: "Voluptas aliquam rerum nobis facilis et et consectetur.",
         completed: true,
     });
 
@@ -102,7 +102,7 @@ type TodoDetailsPageQueryAsErrorError = {
 export const aTodoDetailsPageQueryAsErrorError =
     createBuilder<TodoDetailsPageQueryAsErrorError>({
         __typename: "Error",
-        message: "Quia temporibus aut et a quia aperiam aliquam.",
+        message: "Ducimus quia officiis quo distinctio consequatur.",
     });
 
 type TodoDetailsPageQueryAsError = {
@@ -124,8 +124,8 @@ type TodosPageTodosAuthor = {
 
 export const aTodosPageTodosAuthor = createBuilder<TodosPageTodosAuthor>({
     __typename: "Author",
-    id: "876ba734-83db-4631-9730-678086da0b57",
-    name: "Expedita ipsam nihil voluptate.",
+    id: "ae313fd9-b188-41aa-b7d3-977cc367fa5e",
+    name: "Quia et et ea recusandae consequatur et rerum dicta ab.",
 });
 
 type TodosPageTodos = {
@@ -143,10 +143,10 @@ type TodosPageTodos = {
 
 export const aTodosPageTodos = createBuilder<TodosPageTodos>({
     __typename: "Todo",
-    id: "a8536566-0501-46ed-8d0f-a8bd0b813c90",
-    title: "Earum ad inventore nobis illum enim non laboriosam voluptatibus error.",
+    id: "7cf596c6-ddbe-4c2d-9b7e-b70668ab7bbf",
+    title: "Nemo consequatur quidem consequatur voluptatem sed eius.",
     completed: true,
-    dueAt: "1973-11-23",
+    dueAt: "1999-01-23",
     author: aTodosPageTodosAuthor(),
 });
 
@@ -179,8 +179,8 @@ type AuthorInlineFragment = {
 
 export const aAuthorInlineFragment = createBuilder<AuthorInlineFragment>({
     __typename: "Author",
-    id: "97c09988-6965-4e36-a673-f22b32501ea6",
-    name: "Et numquam sit sint sed.",
+    id: "59f08ae1-4974-4c39-9086-819052d666e8",
+    name: "Exercitationem nesciunt voluptas optio.",
 });
 
 type TodosPageWithInlineFragmentTodosAuthor = {
@@ -192,8 +192,8 @@ type TodosPageWithInlineFragmentTodosAuthor = {
 export const aTodosPageWithInlineFragmentTodosAuthor =
     createBuilder<TodosPageWithInlineFragmentTodosAuthor>({
         __typename: "Author",
-        id: "bf334fa6-f62c-41f5-92b6-ab350773a86e",
-        name: "Culpa delectus inventore sit qui.",
+        id: "7bdb1335-369d-400a-aed8-e9dab58fa1e8",
+        name: "Ea et qui necessitatibus voluptas qui.",
     });
 
 type TodosPageWithInlineFragmentTodos = {
@@ -212,10 +212,10 @@ type TodosPageWithInlineFragmentTodos = {
 export const aTodosPageWithInlineFragmentTodos =
     createBuilder<TodosPageWithInlineFragmentTodos>({
         __typename: "Todo",
-        id: "30286b93-54d0-4375-b434-0e9c0ce95837",
-        title: "Dolore earum dolorum quod.",
+        id: "733ef63f-9c71-49c8-bf5d-9ea02f0f65f8",
+        title: "Aut debitis reiciendis.",
         completed: false,
-        dueAt: "1978-12-31",
+        dueAt: "1981-09-19",
         author: aTodosPageWithInlineFragmentTodosAuthor(),
     });
 
@@ -250,9 +250,9 @@ type ToggleTodoToggleTodo = {
 
 export const aToggleTodoToggleTodo = createBuilder<ToggleTodoToggleTodo>({
     __typename: "Todo",
-    id: "5b6c741e-fef7-468b-b5c3-7cc905b977a5",
-    title: "Animi fugit sit laboriosam.",
-    completed: false,
+    id: "be32f8de-772f-46fe-a6b9-830103ea34fa",
+    title: "Sit voluptas quis animi sit perspiciatis ipsum voluptatibus.",
+    completed: true,
 });
 
 type ToggleTodoMutation = {

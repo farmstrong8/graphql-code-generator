@@ -1,3 +1,6 @@
+import type { AtomicService, ServiceValidationResult } from "./AtomicService";
+import { createValidResult, createInvalidResult } from "./AtomicService";
+
 /**
  * Configuration options for naming behavior.
  */
@@ -15,7 +18,8 @@ export interface NamingConfig {
  * - Operation type inference from names
  * - Naming convention validation and consistency
  */
-export class NamingService {
+export class NamingService implements AtomicService {
+    readonly serviceName = "NamingService";
     private readonly config: NamingConfig;
 
     constructor(config: NamingConfig = {}) {
@@ -195,6 +199,64 @@ export class NamingService {
      */
     getConfig(): NamingConfig {
         return { ...this.config };
+    }
+
+    /**
+     * Validates that the service is properly configured and ready to use.
+     * @returns Validation result with any errors found
+     */
+    validate(): ServiceValidationResult {
+        const errors: string[] = [];
+        const warnings: string[] = [];
+
+        // Validate configuration
+        if (
+            typeof this.config.addOperationSuffix !== "boolean" &&
+            this.config.addOperationSuffix !== undefined
+        ) {
+            errors.push("addOperationSuffix must be a boolean value");
+        }
+
+        // Test core functionality
+        try {
+            // Test builder name generation
+            const testBuilderName = this.generateBuilderName(
+                "TestOperation",
+                "query",
+            );
+            if (!testBuilderName.startsWith("a")) {
+                errors.push("Builder name generation is not working correctly");
+            }
+
+            // Test type name generation
+            const testTypeName = this.generateTypeName(
+                "TestOperation",
+                "query",
+            );
+            if (!testTypeName || testTypeName.length === 0) {
+                errors.push("Type name generation is not working correctly");
+            }
+
+            // Test operation type inference
+            const inferredType = this.inferOperationType("GetUser");
+            if (
+                !["query", "mutation", "subscription", "fragment"].includes(
+                    inferredType,
+                )
+            ) {
+                errors.push(
+                    "Operation type inference is not working correctly",
+                );
+            }
+        } catch (error) {
+            errors.push(
+                `Service validation failed with error: ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
+
+        return errors.length > 0
+            ? createInvalidResult(errors, warnings)
+            : createValidResult();
     }
 
     /**

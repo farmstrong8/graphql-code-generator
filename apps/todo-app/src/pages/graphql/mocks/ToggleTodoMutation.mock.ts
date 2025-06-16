@@ -28,8 +28,8 @@ type ToggleTodoToggleTodo = {
 
 export const aToggleTodoToggleTodo = createBuilder<ToggleTodoToggleTodo>({
     __typename: "Todo",
-    id: "7dd2815f-ea80-4c83-a534-9af804f4cf74",
-    title: "Iure omnis sit eos cumque facilis soluta et in.",
+    id: "88689d03-df57-439e-8b90-9d03570701da",
+    title: "Alias vel ipsam.",
     completed: true,
 });
 

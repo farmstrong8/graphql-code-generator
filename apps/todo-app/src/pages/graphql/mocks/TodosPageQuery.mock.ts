@@ -1,3 +1,5 @@
+import * as Types from "../../../types.generated";
+
 import { mergeWith } from "lodash";
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
@@ -26,9 +28,9 @@ type TodosPageTodosAuthor = {
 
 export const aTodosPageTodosAuthor = createBuilder<TodosPageTodosAuthor>({
     __typename: "Author",
-    email: "Beatae sapiente adipisci ut magni aut atque sed et.",
-    id: "c5cbb266-83a8-4fe7-ab47-9fe57d190bdb",
-    name: "Placeat sit aspernatur accusamus autem est omnis facilis quasi.",
+    email: "Quos similique minima tempore.",
+    id: "bb64f4f9-c30f-444e-82f7-8eea57adbed8",
+    name: "Non ad deserunt aut culpa consequatur et natus.",
 });
 
 type TodosPageTodos = {
@@ -47,10 +49,10 @@ type TodosPageTodos = {
 
 export const aTodosPageTodos = createBuilder<TodosPageTodos>({
     __typename: "Todo",
-    id: "21c89823-3133-4d67-99db-82a3afd7bfaa",
-    title: "Eius molestias veniam veritatis est fuga est.",
-    completed: true,
-    dueAt: "2009-10-18",
+    id: "06535a33-9cd4-45f2-bac3-bdf791150f48",
+    title: "Et aliquam voluptatem labore et doloremque placeat ratione voluptatibus occaecati.",
+    completed: false,
+    dueAt: "1988-03-17",
     author: aTodosPageTodosAuthor(),
 });
 

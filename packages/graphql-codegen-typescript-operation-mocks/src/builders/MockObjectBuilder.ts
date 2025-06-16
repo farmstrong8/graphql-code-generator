@@ -49,8 +49,8 @@ export class MockObjectBuilder {
         private readonly schema: GraphQLSchema,
         private readonly scalarHandler: ScalarHandler,
         private readonly selectionSetHandler: SelectionSetHandler,
-        private readonly unionMockService?: UnionMockService,
-        private readonly fieldMockService?: FieldMockService,
+        private readonly unionMockService: UnionMockService,
+        private readonly fieldMockService: FieldMockService,
     ) {}
 
     /**
@@ -99,23 +99,28 @@ export class MockObjectBuilder {
         fragmentRegistry: Map<string, FragmentDefinitionNode>,
         operationType?: "query" | "mutation" | "subscription" | "fragment",
     ): MockDataVariants {
-        if (this.unionMockService) {
-            return this.unionMockService.processUnionType({
-                unionType,
-                selectionSet,
-                operationName,
-                operationType: operationType || "query", // Default to query if not provided
-                fragmentRegistry,
-            });
-        }
-
-        // Fallback: process inline fragments manually
-        return this.processUnionTypeFallback(
+        return this.unionMockService.processUnionType({
             unionType,
             selectionSet,
             operationName,
+            operationType: operationType || "query", // Default to query if not provided
             fragmentRegistry,
-        );
+            mockObjectBuilder: (
+                targetType,
+                inlineSelectionSet,
+                variantName,
+                fragmentReg,
+            ) => {
+                // Delegate back to this MockObjectBuilder to build complete mock objects
+                return this.buildForType(
+                    targetType,
+                    inlineSelectionSet,
+                    variantName,
+                    fragmentReg,
+                    operationType,
+                );
+            },
+        });
     }
 
     /**
@@ -138,12 +143,10 @@ export class MockObjectBuilder {
             );
 
         // Check for union fields using the service
-        const unionFields = this.unionMockService
-            ? this.unionMockService.findUnionFields(
-                  parentType,
-                  resolvedSelectionSet,
-              )
-            : this.findUnionFieldsFallback(parentType, resolvedSelectionSet);
+        const unionFields = this.unionMockService.findUnionFields(
+            parentType,
+            resolvedSelectionSet,
+        );
 
         if (unionFields.length > 0) {
             return this.buildObjectMockWithUnionVariants({
@@ -318,36 +321,26 @@ export class MockObjectBuilder {
         operationName: string,
         fragmentRegistry: Map<string, FragmentDefinitionNode>,
     ): unknown {
-        if (this.fieldMockService) {
-            return this.fieldMockService.generateFieldValue(
-                parentType,
-                fieldSelection,
-                operationName,
-                fragmentRegistry,
-                {
-                    nestedObjectBuilder: (
-                        nestedType,
-                        nestedSelectionSet,
-                        nestedOperationName,
-                        nestedFragmentRegistry,
-                    ) => {
-                        return this.buildForType(
-                            nestedType,
-                            nestedSelectionSet,
-                            nestedOperationName,
-                            nestedFragmentRegistry,
-                        );
-                    },
-                },
-            );
-        }
-
-        // Fallback: generate field value manually
-        return this.generateFieldValueFallback(
+        return this.fieldMockService.generateFieldValue(
             parentType,
             fieldSelection,
             operationName,
             fragmentRegistry,
+            {
+                nestedObjectBuilder: (
+                    nestedType,
+                    nestedSelectionSet,
+                    nestedOperationName,
+                    nestedFragmentRegistry,
+                ) => {
+                    return this.buildForType(
+                        nestedType,
+                        nestedSelectionSet,
+                        nestedOperationName,
+                        nestedFragmentRegistry,
+                    );
+                },
+            },
         );
     }
 
@@ -366,148 +359,5 @@ export class MockObjectBuilder {
 
         // Check if this is actually a list type
         return isListType(graphqlType);
-    }
-
-    /**
-     * Fallback method for processing union types when UnionMockService is not available
-     */
-    private processUnionTypeFallback(
-        unionType: GraphQLUnionType,
-        selectionSet: SelectionSetNode,
-        operationName: string,
-        fragmentRegistry: Map<string, FragmentDefinitionNode>,
-    ): MockDataVariants {
-        const variants: MockDataVariants = [];
-
-        for (const selection of selectionSet.selections) {
-            if (selection.kind !== Kind.INLINE_FRAGMENT) continue;
-
-            const variant = this.processInlineFragmentFallback(
-                selection,
-                unionType,
-                operationName,
-                fragmentRegistry,
-            );
-
-            if (variant) {
-                variants.push(...variant);
-            }
-        }
-
-        return variants;
-    }
-
-    /**
-     * Fallback method for processing inline fragments
-     */
-    private processInlineFragmentFallback(
-        inlineFragment: InlineFragmentNode,
-        unionType: GraphQLUnionType,
-        operationName: string,
-        fragmentRegistry: Map<string, FragmentDefinitionNode>,
-    ): MockDataVariants | null {
-        // Get the target type for this inline fragment
-        if (!inlineFragment.typeCondition) {
-            return null;
-        }
-
-        const targetTypeName = inlineFragment.typeCondition.name.value;
-        const targetType = this.schema.getType(targetTypeName);
-
-        if (!targetType || !isCompositeType(targetType)) {
-            return null;
-        }
-
-        // Verify the target type is a valid member of the union
-        if (
-            !isObjectType(targetType) ||
-            !unionType.getTypes().includes(targetType)
-        ) {
-            return null;
-        }
-
-        // Generate a variant name that includes the union member type
-        const variantName = `${operationName}As${targetTypeName}`;
-
-        // Recursively build the mock for this variant
-        return this.buildForType(
-            targetType,
-            inlineFragment.selectionSet,
-            variantName,
-            fragmentRegistry,
-        );
-    }
-
-    /**
-     * Fallback method for finding union fields when UnionMockService is not available
-     */
-    private findUnionFieldsFallback(
-        parentType: GraphQLObjectType | GraphQLInterfaceType,
-        selectionSet: SelectionSetNode,
-    ): FieldNode[] {
-        const unionFields: FieldNode[] = [];
-
-        for (const selection of selectionSet.selections) {
-            if (selection.kind !== Kind.FIELD) continue;
-
-            const fieldDef = parentType.getFields()[selection.name.value];
-            if (!fieldDef) continue;
-
-            const namedType = getNamedType(fieldDef.type);
-            if (isUnionType(namedType) && selection.selectionSet) {
-                unionFields.push(selection);
-            }
-        }
-
-        return unionFields;
-    }
-
-    /**
-     * Fallback method for generating field values when FieldMockService is not available
-     */
-    private generateFieldValueFallback(
-        parentType: GraphQLObjectType | GraphQLInterfaceType,
-        fieldSelection: FieldNode,
-        operationName: string,
-        fragmentRegistry: Map<string, FragmentDefinitionNode>,
-    ): unknown {
-        const fieldName = fieldSelection.name.value;
-        const fieldDef = parentType.getFields()[fieldName];
-
-        if (!fieldDef) {
-            return undefined;
-        }
-
-        const fieldType = fieldDef.type;
-        const namedType = getNamedType(fieldType);
-        const isList = this.isListTypeRecursive(fieldType);
-
-        const getValue = (): unknown => {
-            if (isScalarType(namedType)) {
-                return this.scalarHandler.generateMockValue(namedType.name);
-            }
-
-            if (
-                (isObjectType(namedType) ||
-                    isInterfaceType(namedType) ||
-                    isUnionType(namedType)) &&
-                fieldSelection.selectionSet
-            ) {
-                const nestedMocks = this.buildForType(
-                    namedType,
-                    fieldSelection.selectionSet,
-                    operationName,
-                    fragmentRegistry,
-                );
-
-                // Return the first mock's value (for single objects)
-                return nestedMocks[0]?.mockValue || null;
-            }
-
-            return null;
-        };
-
-        const value = getValue();
-        return isList ? [value] : value;
     }
 }

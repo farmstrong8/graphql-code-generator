@@ -11,6 +11,11 @@ import { UnionMockService } from "../services/UnionMockService";
 import { FieldMockService } from "../services/FieldMockService";
 import { BoilerplateService } from "../services/BoilerplateService";
 import { NamingService } from "../services/NamingService";
+import type {
+    AtomicService,
+    ServiceValidationResult,
+} from "../services/AtomicService";
+import { combineValidationResults } from "../services/AtomicService";
 
 /**
  * Service Container for dependency injection and component wiring.
@@ -159,5 +164,98 @@ export class ServiceContainer {
      */
     getNamingService(): NamingService {
         return this.namingService;
+    }
+
+    /**
+     * Validates all atomic services to ensure they are properly configured.
+     *
+     * @returns Combined validation result from all services
+     */
+    validateServices(): ServiceValidationResult {
+        const validationResults: ServiceValidationResult[] = [];
+
+        // Validate all services that implement AtomicService interface
+        const atomicServices: AtomicService[] = [
+            this.boilerplateService,
+            this.namingService,
+        ];
+
+        for (const service of atomicServices) {
+            try {
+                const result = service.validate();
+                validationResults.push(result);
+            } catch (error) {
+                validationResults.push({
+                    isValid: false,
+                    errors: [
+                        `${service.serviceName} validation failed: ${error instanceof Error ? error.message : String(error)}`,
+                    ],
+                    warnings: [],
+                });
+            }
+        }
+
+        // Validate core dependencies
+        try {
+            // Validate that schema is available
+            if (!this.schema) {
+                validationResults.push({
+                    isValid: false,
+                    errors: ["GraphQL schema is required but not provided"],
+                    warnings: [],
+                });
+            }
+
+            // Validate that config is available
+            if (!this.config) {
+                validationResults.push({
+                    isValid: false,
+                    errors: [
+                        "Plugin configuration is required but not provided",
+                    ],
+                    warnings: [],
+                });
+            }
+
+            // Validate that all required services are instantiated
+            const requiredServices = [
+                { name: "scalarHandler", instance: this.scalarHandler },
+                {
+                    name: "selectionSetHandler",
+                    instance: this.selectionSetHandler,
+                },
+                {
+                    name: "typeInferenceService",
+                    instance: this.typeInferenceService,
+                },
+                { name: "nestedTypeService", instance: this.nestedTypeService },
+                { name: "unionMockService", instance: this.unionMockService },
+                { name: "fieldMockService", instance: this.fieldMockService },
+                { name: "mockObjectBuilder", instance: this.mockObjectBuilder },
+                { name: "codeBuilder", instance: this.codeBuilder },
+            ];
+
+            for (const service of requiredServices) {
+                if (!service.instance) {
+                    validationResults.push({
+                        isValid: false,
+                        errors: [
+                            `Required service ${service.name} is not instantiated`,
+                        ],
+                        warnings: [],
+                    });
+                }
+            }
+        } catch (error) {
+            validationResults.push({
+                isValid: false,
+                errors: [
+                    `Service container validation failed: ${error instanceof Error ? error.message : String(error)}`,
+                ],
+                warnings: [],
+            });
+        }
+
+        return combineValidationResults(validationResults);
     }
 }

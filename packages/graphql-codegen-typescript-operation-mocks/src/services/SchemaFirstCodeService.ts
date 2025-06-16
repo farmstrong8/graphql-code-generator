@@ -81,6 +81,7 @@ export class SchemaFirstCodeService {
         this.valueGenerationService = new ValueGenerationService(
             scalarHandler,
             this.schemaAnalysisService,
+            schema,
         );
         this.typeInferenceService = new TypeInferenceService(schema);
         this.selectionSetHandler = new SelectionSetHandler(schema);

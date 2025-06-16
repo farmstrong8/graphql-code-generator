@@ -86,15 +86,14 @@ describe("Nested Type Extraction", () => {
         const result = codeBuilder.buildCodeArtifact(
             "TodosPageQuery",
             "query",
-            mockDataObjects,
             schemaContext,
         );
 
         expect(result.generatedCode).toContain("type TodosPageQueryTodos = {");
         expect(result.generatedCode).toContain('"__typename": "Todo",');
-        expect(result.generatedCode).toContain("id: string,");
-        expect(result.generatedCode).toContain("title: string,");
-        expect(result.generatedCode).toContain("completed: boolean,");
+        expect(result.generatedCode).toContain("id: string");
+        expect(result.generatedCode).toContain("title: string");
+        expect(result.generatedCode).toContain("completed: boolean");
         expect(result.generatedCode).toContain("type TodosPageQueryQuery = {");
         expect(result.generatedCode).toContain('"__typename": "Query",');
         expect(result.generatedCode).toContain("todos: Array<{");
@@ -104,6 +103,11 @@ describe("Nested Type Extraction", () => {
         expect(result.generatedCode).toContain(
             "export const aTodosPageQueryQuery = createBuilder<TodosPageQueryQuery>(",
         );
+        // The author field should only contain __typename since that's all the query selects
+        expect(result.generatedCode).toContain(
+            "type TodosPageQueryTodosAuthor = {",
+        );
+        expect(result.generatedCode).toContain('"__typename": "Author"');
 
         // Should NOT have broken type definitions
         expect(result.generatedCode).not.toContain(
@@ -524,147 +528,6 @@ describe("NestedTypeService", () => {
                 );
                 expect(result).toBe(expected);
             });
-        });
-    });
-
-    describe("Mock value extraction", () => {
-        it("should extract nested values by path", () => {
-            const mockVariants = [
-                {
-                    mockName: "TestQuery",
-                    mockValue: {
-                        __typename: "Query",
-                        todo: {
-                            __typename: "Todo",
-                            id: "1",
-                            title: "Test Todo",
-                            author: {
-                                __typename: "Author",
-                                id: "author-1",
-                                name: "John Doe",
-                                address: {
-                                    __typename: "Address",
-                                    street: "123 Main St",
-                                    city: "Anytown",
-                                    zipcode: "12345",
-                                    country: "USA",
-                                },
-                            },
-                        },
-                    },
-                },
-            ];
-
-            const nestedTypeInfo = {
-                typeName: "Address",
-                builderName: "aTestQueryTodoAuthorAddress",
-                selectionSet: {} as any,
-                graphqlType: schema.getType("Address"),
-                path: "todo.author.address",
-                operationTypeName: "TestQueryTodoAuthorAddress",
-                depth: 3,
-            };
-
-            const result = nestedTypeService.extractMockValue(
-                mockVariants,
-                nestedTypeInfo,
-            );
-
-            expect(result).toEqual({
-                __typename: "Address",
-                street: "123 Main St",
-                city: "Anytown",
-                zipcode: "12345",
-                country: "USA",
-            });
-        });
-
-        it("should handle array values in path extraction", () => {
-            const mockVariants = [
-                {
-                    mockName: "TestQuery",
-                    mockValue: {
-                        __typename: "Query",
-                        todos: [
-                            {
-                                __typename: "Todo",
-                                id: "1",
-                                title: "First Todo",
-                                author: {
-                                    __typename: "Author",
-                                    id: "author-1",
-                                    name: "John Doe",
-                                },
-                            },
-                            {
-                                __typename: "Todo",
-                                id: "2",
-                                title: "Second Todo",
-                                author: {
-                                    __typename: "Author",
-                                    id: "author-2",
-                                    name: "Jane Smith",
-                                },
-                            },
-                        ],
-                    },
-                },
-            ];
-
-            const nestedTypeInfo = {
-                typeName: "Author",
-                builderName: "aTestQueryTodosAuthor",
-                selectionSet: {} as any,
-                graphqlType: schema.getType("Author"),
-                path: "todos.author",
-                operationTypeName: "TestQueryTodosAuthor",
-                depth: 2,
-            };
-
-            const result = nestedTypeService.extractMockValue(
-                mockVariants,
-                nestedTypeInfo,
-            );
-
-            // Should extract the first item's author
-            expect(result).toEqual({
-                __typename: "Author",
-                id: "author-1",
-                name: "John Doe",
-            });
-        });
-
-        it("should return null for non-existent paths", () => {
-            const mockVariants = [
-                {
-                    mockName: "TestQuery",
-                    mockValue: {
-                        __typename: "Query",
-                        todo: {
-                            __typename: "Todo",
-                            id: "1",
-                            title: "Test Todo",
-                        },
-                    },
-                },
-            ];
-
-            const nestedTypeInfo = {
-                typeName: "Author",
-                builderName: "aTestQueryTodoAuthor",
-                selectionSet: {} as any,
-                graphqlType: schema.getType("Author"),
-                path: "todo.author.nonexistent",
-                operationTypeName: "TestQueryTodoAuthor",
-                depth: 3,
-            };
-
-            const result = nestedTypeService.extractMockValue(
-                mockVariants,
-                nestedTypeInfo,
-            );
-
-            expect(result).toBeNull();
         });
     });
 

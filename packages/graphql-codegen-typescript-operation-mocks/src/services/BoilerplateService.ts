@@ -1,3 +1,6 @@
+import type { AtomicService, ServiceValidationResult } from "./AtomicService";
+import { createValidResult, createInvalidResult } from "./AtomicService";
+
 /**
  * Service responsible for generating TypeScript boilerplate code.
  *
@@ -7,7 +10,9 @@
  * - Type definitions that are used across all generated mocks
  * - Customizable boilerplate based on generation context
  */
-export class BoilerplateService {
+export class BoilerplateService implements AtomicService {
+    readonly serviceName = "BoilerplateService";
+
     /**
      * Generates the standard boilerplate code for mock files.
      *
@@ -153,6 +158,60 @@ function createBuilder<T extends object>(baseObject: T) {
             isValid: errors.length === 0,
             errors,
         };
+    }
+
+    /**
+     * Validates that the service is properly configured and ready to use.
+     * @returns Validation result with any errors found
+     */
+    validate(): ServiceValidationResult {
+        const errors: string[] = [];
+        const warnings: string[] = [];
+
+        try {
+            // Test standard boilerplate generation
+            const standardBoilerplate = this.generateStandardBoilerplate();
+            const standardValidation =
+                this.validateBoilerplate(standardBoilerplate);
+
+            if (!standardValidation.isValid) {
+                errors.push(
+                    ...standardValidation.errors.map(
+                        (err) => `Standard boilerplate: ${err}`,
+                    ),
+                );
+            }
+
+            // Test minimal boilerplate generation
+            const minimalBoilerplate =
+                this.generateContextualBoilerplate("minimal");
+            const minimalValidation =
+                this.validateBoilerplate(minimalBoilerplate);
+
+            if (!minimalValidation.isValid) {
+                errors.push(
+                    ...minimalValidation.errors.map(
+                        (err) => `Minimal boilerplate: ${err}`,
+                    ),
+                );
+            }
+
+            // Test that boilerplate is not empty
+            if (
+                !standardBoilerplate ||
+                standardBoilerplate.trim().length === 0
+            ) {
+                errors.push("Generated boilerplate is empty");
+            }
+        } catch (error) {
+            errors.push(
+                `Service validation failed with error: ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
+
+        return errors.length > 0
+            ? createInvalidResult(errors, warnings)
+            : createValidResult();
     }
 }
 

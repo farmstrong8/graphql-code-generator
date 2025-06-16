@@ -3,6 +3,8 @@ import { buildSchema, parse, Kind } from "graphql";
 import { MockObjectBuilder } from "../MockObjectBuilder";
 import { ScalarHandler } from "../../handlers/ScalarHandler";
 import { SelectionSetHandler } from "../../handlers/SelectionSetHandler";
+import { UnionMockService } from "../../services/UnionMockService";
+import { FieldMockService } from "../../services/FieldMockService";
 import { PluginConfig } from "../../config/PluginConfig";
 import { SelectionSetNode } from "graphql";
 
@@ -10,6 +12,8 @@ describe("MockObjectBuilder", () => {
     let schema: any;
     let scalarHandler: ScalarHandler;
     let selectionSetHandler: SelectionSetHandler;
+    let unionMockService: UnionMockService;
+    let fieldMockService: FieldMockService;
     let builder: MockObjectBuilder;
 
     beforeEach(() => {
@@ -78,10 +82,14 @@ describe("MockObjectBuilder", () => {
 
         scalarHandler = new ScalarHandler(config);
         selectionSetHandler = new SelectionSetHandler(schema);
+        unionMockService = new UnionMockService(schema);
+        fieldMockService = new FieldMockService(scalarHandler);
         builder = new MockObjectBuilder(
             schema,
             scalarHandler,
             selectionSetHandler,
+            unionMockService,
+            fieldMockService,
         );
     });
 

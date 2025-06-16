@@ -3,13 +3,20 @@ import type {
     GraphQLInterfaceType,
     SelectionSetNode,
     FragmentDefinitionNode,
+    GraphQLSchema,
 } from "graphql";
 import type { ScalarHandler } from "../handlers/ScalarHandler";
 import type {
     SchemaAnalysisService,
     FieldAnalysisInfo,
 } from "./SchemaAnalysisService";
-import { isScalarType, getNamedType, isUnionType, Kind } from "graphql";
+import {
+    isScalarType,
+    getNamedType,
+    isUnionType,
+    Kind,
+    isObjectType,
+} from "graphql";
 
 /**
  * Options for value generation
@@ -45,6 +52,7 @@ export class ValueGenerationService {
     constructor(
         private readonly scalarHandler: ScalarHandler,
         private readonly schemaAnalysisService: SchemaAnalysisService,
+        private readonly schema: GraphQLSchema,
     ) {}
 
     /**
@@ -147,6 +155,7 @@ export class ValueGenerationService {
     /**
      * Generates a value for a union type by using the first inline fragment.
      * This provides a default union variant for the main builder.
+     * Uses schema-driven field analysis instead of heuristics.
      */
     generateUnionValue(
         selectionSet: SelectionSetNode,
@@ -160,52 +169,25 @@ export class ValueGenerationService {
                 selection.typeCondition
             ) {
                 const targetTypeName = selection.typeCondition.name.value;
+                const targetType = this.schema.getType(targetTypeName);
 
-                // Get the target type from the schema (we need access to schema here)
-                // For now, create a simple mock object with the typename
-                const mockValue: Record<string, unknown> = {
-                    __typename: targetTypeName,
-                };
-
-                // Generate values for fields in this inline fragment
-                if (selection.selectionSet) {
-                    for (const fragmentSelection of selection.selectionSet
-                        .selections) {
-                        if (fragmentSelection.kind === Kind.FIELD) {
-                            const fieldName = fragmentSelection.name.value;
-                            // Generate a simple scalar value for now
-                            // This could be enhanced to use proper field analysis
-                            mockValue[fieldName] =
-                                this.generateDefaultValueForField(fieldName);
-                        }
-                    }
+                // Validate that the target type exists and is an object type
+                if (!targetType || !isObjectType(targetType)) {
+                    continue;
                 }
 
-                return mockValue;
+                // Use schema analysis to properly generate field values
+                return this.generateMockObject(
+                    targetType,
+                    selection.selectionSet,
+                    fragmentRegistry,
+                    options,
+                );
             }
         }
 
         // Fallback to null if no inline fragments found
         return null;
-    }
-
-    /**
-     * Generates a default value for a field based on its name.
-     * This is a simple heuristic-based approach.
-     */
-    private generateDefaultValueForField(fieldName: string): unknown {
-        switch (fieldName) {
-            case "id":
-                return this.scalarHandler.generateMockValue("ID");
-            case "title":
-            case "name":
-            case "message":
-                return this.scalarHandler.generateMockValue("String");
-            case "completed":
-                return this.scalarHandler.generateMockValue("Boolean");
-            default:
-                return this.scalarHandler.generateMockValue("String");
-        }
     }
 
     /**

@@ -255,8 +255,8 @@ describe("Plugin Integration", () => {
         expect(result).toContain("export const aGetUser");
         expect(result).toContain("profile: {");
         expect(result).toContain("settings: {");
-        expect(result).toContain("posts: [{"); // Correctly generated as array
-        expect(result).toContain("friends: [{"); // Correctly generated as array
+        expect(result).toContain("posts: Array<{"); // Updated to match new TypeScript array syntax
+        expect(result).toContain("friends: Array<{"); // Updated to match new TypeScript array syntax
         expect(result).toContain("author: {");
 
         // Should handle proper nesting and array structures
@@ -324,7 +324,7 @@ query TodosPageQuery {
             const authorTypeInTodo = todoTypeMatch[0];
 
             // The author field type should include id, name, and email from the fragment
-            expect(authorTypeInTodo).toContain('"__typename": "Author"');
+            expect(authorTypeInTodo).toContain('__typename: "Author"');
             expect(authorTypeInTodo).toContain("id: string");
             expect(authorTypeInTodo).toContain("name: string");
             expect(authorTypeInTodo).toContain("email: string");
@@ -387,7 +387,7 @@ query TodosPageWithInlineFragment {
             const authorTypeInTodo = todoTypeMatch[0];
 
             // The author field type should include id and name from the same-file fragment
-            expect(authorTypeInTodo).toContain('"__typename": "Author"');
+            expect(authorTypeInTodo).toContain('__typename: "Author"');
             expect(authorTypeInTodo).toContain("id: string");
             expect(authorTypeInTodo).toContain("name: string");
         }

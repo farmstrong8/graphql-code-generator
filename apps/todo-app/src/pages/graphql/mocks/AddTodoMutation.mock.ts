@@ -28,8 +28,8 @@ type AddTodoAddTodo = {
 
 export const aAddTodoAddTodo = createBuilder<AddTodoAddTodo>({
     __typename: "Todo",
-    id: "fa84edee-2052-4c66-8d6c-cc6bb096a571",
-    title: "Expedita rerum error dolore quam et eaque ipsam id tempora.",
+    id: "029d3d18-6398-4df5-9cfb-26580cdbc9ff",
+    title: "Molestiae doloribus possimus expedita illum autem sunt earum debitis.",
     completed: false,
 });
 

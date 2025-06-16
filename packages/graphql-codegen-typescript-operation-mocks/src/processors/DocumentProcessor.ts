@@ -122,7 +122,6 @@ export class DocumentProcessor {
         return this.codeBuilder.buildCodeArtifact(
             operationName,
             operationType,
-            mockDataObjects,
             {
                 parentType: rootType,
                 selectionSet: operation.selectionSet,
@@ -161,18 +160,11 @@ export class DocumentProcessor {
         );
 
         // Generate TypeScript code
-        return this.codeBuilder.buildCodeArtifact(
-            fragmentName,
-            "fragment",
-            mockDataObjects,
-            {
-                parentType: targetType as
-                    | GraphQLObjectType
-                    | GraphQLInterfaceType,
-                selectionSet: fragment.selectionSet,
-                fragmentRegistry,
-            },
-        );
+        return this.codeBuilder.buildCodeArtifact(fragmentName, "fragment", {
+            parentType: targetType as GraphQLObjectType | GraphQLInterfaceType,
+            selectionSet: fragment.selectionSet,
+            fragmentRegistry,
+        });
     }
 
     /**

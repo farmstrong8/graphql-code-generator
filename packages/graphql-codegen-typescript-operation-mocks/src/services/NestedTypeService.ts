@@ -7,7 +7,6 @@ import type {
     FragmentDefinitionNode,
 } from "graphql";
 import { isObjectType, isInterfaceType, getNamedType, Kind } from "graphql";
-import type { MockDataVariants, MockDataObject } from "../types";
 
 /**
  * Information about a nested type that needs its own builder.
@@ -79,23 +78,6 @@ export class NestedTypeService {
     }
 
     /**
-     * Analyzes mock data variants to identify nested types that need builders.
-     * This method is kept for backward compatibility but the selection set analysis is preferred.
-     *
-     * @param mockVariants - Mock data variants to analyze
-     * @returns Array of nested type information
-     */
-    analyzeNestedTypes(mockVariants: MockDataVariants): NestedTypeInfo[] {
-        this.resetAnalysisState();
-
-        for (const mockData of mockVariants) {
-            this.analyzeMockData(mockData);
-        }
-
-        return [...this.nestedTypes];
-    }
-
-    /**
      * Analyzes a selection set to identify all nested types that need builders.
      * This creates a builder for every nested object type in the hierarchy.
      *
@@ -148,202 +130,10 @@ export class NestedTypeService {
     }
 
     /**
-     * Extracts the mock value for a specific nested type from the generated mock data.
-     *
-     * @param mockDataObjects - Array of mock data variants
-     * @param nestedTypeInfo - Information about the nested type to extract
-     * @returns The mock value for this nested type, or null if not found
-     */
-    extractMockValue(
-        mockDataObjects: MockDataVariants,
-        nestedTypeInfo: NestedTypeInfo,
-    ): unknown {
-        for (const mockData of mockDataObjects) {
-            const found = this.findValueByPath(
-                mockData.mockValue,
-                nestedTypeInfo.path,
-            );
-            if (found) {
-                return found;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds a value at a specific path in the mock data.
-     *
-     * CRITICAL: For nested types that represent array elements, this method
-     * should return the individual object, not the array. The builder system
-     * expects object values, not arrays.
-     *
-     * @param value - Value to search in
-     * @param path - Dot-separated path (e.g., "todo.author.address")
-     * @returns Found object (individual element for array paths), if any
-     */
-    private findValueByPath(value: unknown, path: string): unknown {
-        if (!path || value === null || value === undefined) {
-            return value;
-        }
-
-        const pathParts = path.split(".");
-        let current: unknown = value;
-
-        for (const part of pathParts) {
-            if (current === null || current === undefined) {
-                return null;
-            }
-
-            if (Array.isArray(current)) {
-                // ✅ CRITICAL FIX: For arrays, take the first item
-                // This ensures that nested type builders get individual objects,
-                // not arrays. The array structure is handled at a higher level.
-                current = current[0];
-            }
-
-            if (typeof current === "object" && current !== null) {
-                current = (current as Record<string, unknown>)[part];
-            } else {
-                return null;
-            }
-        }
-
-        // ✅ FINAL CHECK: If the final result is an array and we're creating
-        // a builder for nested elements, return the first element
-        if (Array.isArray(current) && current.length > 0) {
-            return current[0];
-        }
-
-        return current;
-    }
-
-    /**
-     * Recursively searches for a value with a specific __typename.
-     * This method is kept for backward compatibility.
-     *
-     * @param value - Value to search in
-     * @param typeName - __typename to find
-     * @returns Found object, if any
-     */
-    findValueByTypeName(value: unknown, typeName: string): unknown {
-        if (value === null || value === undefined) {
-            return null;
-        }
-
-        if (Array.isArray(value)) {
-            for (const item of value) {
-                const found = this.findValueByTypeName(item, typeName);
-                if (found) return found;
-            }
-            return null;
-        }
-
-        if (typeof value === "object") {
-            const obj = value as Record<string, unknown>;
-            if (obj.__typename === typeName) {
-                return obj;
-            }
-
-            // Search in nested objects
-            for (const val of Object.values(obj)) {
-                const found = this.findValueByTypeName(val, typeName);
-                if (found) return found;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Gets the current recursion configuration.
      */
     getRecursionConfig(): RecursionConfig {
         return { ...this.recursionConfig };
-    }
-
-    /**
-     * Analyzes a single mock data object for nested types.
-     */
-    private analyzeMockData(mockData: MockDataObject): void {
-        this.traverseMockValue(mockData.mockValue, "", mockData.mockName, 0);
-    }
-
-    /**
-     * Recursively traverses mock values to identify object patterns.
-     */
-    private traverseMockValue(
-        value: unknown,
-        path: string,
-        operationName: string,
-        depth: number,
-    ): void {
-        if (value === null || value === undefined) {
-            return;
-        }
-
-        // Check recursion depth
-        if (depth >= this.recursionConfig.maxDepth) {
-            return;
-        }
-
-        if (Array.isArray(value)) {
-            value.forEach((item) => {
-                this.traverseMockValue(item, path, operationName, depth);
-            });
-            return;
-        }
-
-        if (typeof value === "object") {
-            const obj = value as Record<string, unknown>;
-            const typeName = obj.__typename as string;
-
-            if (typeName && path) {
-                // Skip root level
-                // Create a nested type for every object with __typename
-                const operationTypeName = this.generateTypeName(
-                    operationName,
-                    path,
-                    typeName,
-                );
-                const builderName = this.generateBuilderName(
-                    operationName,
-                    path,
-                    typeName,
-                );
-
-                const graphqlType = this.schema.getType(typeName);
-                if (
-                    graphqlType &&
-                    (isObjectType(graphqlType) || isInterfaceType(graphqlType))
-                ) {
-                    this.nestedTypes.push({
-                        typeName,
-                        builderName,
-                        selectionSet: {
-                            kind: Kind.SELECTION_SET,
-                            selections: [],
-                        }, // Placeholder
-                        graphqlType,
-                        path,
-                        operationTypeName,
-                        depth,
-                    });
-                }
-            }
-
-            // Recursively analyze nested objects
-            for (const [key, nestedValue] of Object.entries(obj)) {
-                if (key !== "__typename") {
-                    const newPath = path ? `${path}.${key}` : key;
-                    this.traverseMockValue(
-                        nestedValue,
-                        newPath,
-                        operationName,
-                        depth + 1,
-                    );
-                }
-            }
-        }
     }
 
     /**

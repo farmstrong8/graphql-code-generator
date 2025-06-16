@@ -271,43 +271,6 @@ describe("TypeScriptCodeBuilder (Services)", () => {
 
             expect(result).toBe("aGetUserUserProfile");
         });
-
-        it("should extract mock values correctly", () => {
-            const mockVariants = [
-                {
-                    mockName: "TestQuery",
-                    mockValue: {
-                        __typename: "Query",
-                        user: {
-                            __typename: "User",
-                            id: "1",
-                            name: "John",
-                        },
-                    },
-                },
-            ];
-
-            const nestedTypeInfo = {
-                typeName: "User",
-                builderName: "aTestQueryUser",
-                selectionSet: {} as any,
-                graphqlType: schema.getType("User"),
-                path: "user",
-                operationTypeName: "TestQueryUser",
-                depth: 1,
-            };
-
-            const result = nestedTypeService.extractMockValue(
-                mockVariants,
-                nestedTypeInfo,
-            );
-
-            expect(result).toEqual({
-                __typename: "User",
-                id: "1",
-                name: "John",
-            });
-        });
     });
 
     describe("integration tests", () => {

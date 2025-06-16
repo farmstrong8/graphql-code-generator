@@ -108,8 +108,7 @@ export class TypeScriptCodeBuilder {
      *
      * @param operationName - Name of the GraphQL operation (e.g., 'GetUser', 'UpdateTodo')
      * @param operationType - Type of GraphQL operation ('query', 'mutation', 'subscription', 'fragment')
-     * @param mockDataObjects - Array of mock data variants to generate code from
-     * @param schemaContext - Optional GraphQL schema context for semantic type generation
+     * @param schemaContext - GraphQL schema context for semantic type generation (REQUIRED)
      * @returns Complete code artifact containing all generated TypeScript code
      *
      * @example
@@ -117,10 +116,6 @@ export class TypeScriptCodeBuilder {
      * const artifact = builder.buildCodeArtifact(
      *   'GetUserProfile',
      *   'query',
-     *   [
-     *     { mockName: 'getUserProfile', mockValue: { user: { id: '1', profile: {...} } } },
-     *     { mockName: 'getUserProfileAsEmpty', mockValue: { user: null } }
-     *   ],
      *   {
      *     parentType: QueryType,
      *     selectionSet: userProfileSelectionSet,
@@ -132,28 +127,18 @@ export class TypeScriptCodeBuilder {
     buildCodeArtifact(
         operationName: string,
         operationType: "query" | "mutation" | "subscription" | "fragment",
-        mockDataObjects: MockDataVariants,
-        schemaContext?: SchemaGenerationContext,
+        schemaContext: SchemaGenerationContext, // Made required - no more optional
     ): GeneratedCodeArtifact {
-        // NEW CASCADING ARCHITECTURE: Use schema as single source of truth
-        if (schemaContext) {
-            return this.buildFromSchemaContext(
-                operationName,
-                operationType,
-                schemaContext,
-            );
-        }
-
-        // Fallback to mock-based generation for backward compatibility
-        return this.buildFromMockData(
+        // SCHEMA-FIRST ONLY: Use schema as single source of truth
+        return this.buildFromSchemaContext(
             operationName,
             operationType,
-            mockDataObjects,
+            schemaContext,
         );
     }
 
     /**
-     * NEW: Schema-first approach - everything cascades from schema analysis
+     * Schema-first approach - everything cascades from schema analysis
      */
     private buildFromSchemaContext(
         operationName: string,
@@ -178,31 +163,6 @@ export class TypeScriptCodeBuilder {
             operationName,
             operationType,
             generatedCode: allCode,
-        };
-    }
-
-    /**
-     * Legacy approach - kept for backward compatibility
-     */
-    private buildFromMockData(
-        operationName: string,
-        operationType: "query" | "mutation" | "subscription" | "fragment",
-        mockDataObjects: MockDataVariants,
-    ): GeneratedCodeArtifact {
-        const boilerplate =
-            this.boilerplateService.generateStandardBoilerplate();
-        const typesAndBuilders = this.generateTypesAndBuilders(
-            operationName,
-            operationType,
-            mockDataObjects,
-        );
-
-        const generatedCode = [boilerplate, typesAndBuilders].join("\n\n");
-
-        return {
-            operationName,
-            operationType,
-            generatedCode,
         };
     }
 
@@ -290,46 +250,5 @@ export class TypeScriptCodeBuilder {
             operationType,
             generatedCode,
         };
-    }
-
-    /**
-     * Legacy method - generates types and builders from mock data
-     */
-    private generateTypesAndBuilders(
-        operationName: string,
-        operationType: "query" | "mutation" | "subscription" | "fragment",
-        mockDataObjects: MockDataVariants,
-    ): string {
-        const codeBlocks: string[] = [];
-
-        // Add each mock data object using legacy approach
-        for (const mockData of mockDataObjects) {
-            const typeName = this.namingService.generateTypeName(
-                mockData.mockName,
-                operationType,
-            );
-
-            const typeDefinition =
-                this.typeDefinitionService.generateNamedTypeDefinition(
-                    typeName,
-                    mockData.mockValue,
-                );
-
-            const builderFunction =
-                this.builderCodeService.generateBuilderFunction(
-                    this.namingService.generateBuilderName(
-                        mockData.mockName,
-                        operationType,
-                    ),
-                    typeName,
-                    mockData.mockValue,
-                );
-
-            codeBlocks.push(typeDefinition);
-            codeBlocks.push("");
-            codeBlocks.push(builderFunction);
-        }
-
-        return codeBlocks.join("\n");
     }
 }
